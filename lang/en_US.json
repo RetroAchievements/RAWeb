@@ -1867,5 +1867,20 @@
     "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.": "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
     "Start a manual unlock request": "Start a manual unlock request",
     "You can request a manual unlock.": "You can request a manual unlock.",
-    "You'll need proof you should've been granted this unlock, such as a screenshot or a video.": "You'll need proof you should've been granted this unlock, such as a screenshot or a video."
+    "You'll need proof you should've been granted this unlock, such as a screenshot or a video.": "You'll need proof you should've been granted this unlock, such as a screenshot or a video.",
+    "Covered by another ticket": "Covered by another ticket",
+    "Closed this ticket because another ticket covers the same problem.": "Closed this ticket because another ticket covers the same problem.",
+    "This ticket was closed because another ticket covers the same problem.": "This ticket was closed because another ticket covers the same problem.",
+    "<1>{{user}}</1> closed this ticket because another ticket covers the same problem.": "<1>{{user}}</1> closed this ticket because another ticket covers the same problem.",
+    "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because another ticket covers the same problem.": "<1>{{user}}</1> closed this ticket <2>{{duration}}</2> after the report because another ticket covers the same problem.",
+    "Already covered by another ticket": "Already covered by another ticket",
+    "Which ticket?": "Which ticket?",
+    "On this achievement": "On this achievement",
+    "On this leaderboard": "On this leaderboard",
+    "From this reporter on this game": "From this reporter on this game",
+    "From other reporters on this game": "From other reporters on this game",
+    "Choose a ticket…": "Choose a ticket…",
+    "Search by title, number, or reporter": "Search by title, number, or reporter",
+    "Loading other reporters' tickets…": "Loading other reporters' tickets…",
+    "View this ticket": "View this ticket"
 }

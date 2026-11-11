@@ -14,6 +14,7 @@ import { getAllowedTicketCloseAnswerGroups } from '../../../utils/getAllowedTick
 import { TicketCloseNoteField } from './TicketCloseNoteField';
 import { TicketCloseQuestion } from './TicketCloseQuestion';
 import { TicketCloseReasonQuestion } from './TicketCloseReasonQuestion';
+import { TicketCoveringTicketPicker } from './TicketCoveringTicketPicker';
 import { useTicketCloseForm } from './useTicketCloseForm';
 
 interface TicketCloseFormProps {
@@ -35,10 +36,16 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
     ? !!achievement.isPromoted
     : leaderboard?.state !== 'unpromoted';
 
+  const actionsThatRequireComment: App.Community.Enums.TicketAction[] = [
+    'closed-other',
+    'covered-by-another-ticket',
+  ];
   const closeAnswerGroups = getAllowedTicketCloseAnswerGroups(
     canAttachComment
       ? allowedTicketActions
-      : allowedTicketActions.filter((closeAction) => closeAction !== 'closed-other'),
+      : allowedTicketActions.filter(
+          (closeAction) => !actionsThatRequireComment.includes(closeAction),
+        ),
   );
   const selectedAnswerGroup = closeAnswerGroups.find((group) => group.answer === answer);
 
@@ -46,13 +53,18 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
     yes: t('Yes'),
     no: t('No'),
     'cant-tell': t("Can't tell"),
+    covered: t('Already covered by another ticket'),
   };
 
   const handleAnswerSelect = (value: string) => {
     const pickedAnswerGroup = closeAnswerGroups.find((group) => group.answer === value);
 
+    const preselectedAction =
+      pickedAnswerGroup?.answer === 'covered' ? pickedAnswerGroup.actions[0] : null;
+
     form.setValue('answer', pickedAnswerGroup?.answer ?? null);
-    form.setValue('action', null, { shouldValidate: true });
+    form.setValue('coveringTicketId', null);
+    form.setValue('action', preselectedAction, { shouldValidate: true });
   };
 
   const handleReasonSelect = (value: string) => {
@@ -125,12 +137,16 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
                     inert={!isGroupVisible}
                     className={cn(!isGroupVisible && 'invisible')}
                   >
-                    <TicketCloseReasonQuestion
-                      actions={group.actions}
-                      isTicketablePromoted={isTicketablePromoted}
-                      value={isGroupVisible ? action : null}
-                      onValueChange={handleReasonSelect}
-                    />
+                    {group.answer === 'covered' ? (
+                      <TicketCoveringTicketPicker />
+                    ) : (
+                      <TicketCloseReasonQuestion
+                        actions={group.actions}
+                        isTicketablePromoted={isTicketablePromoted}
+                        value={isGroupVisible ? action : null}
+                        onValueChange={handleReasonSelect}
+                      />
+                    )}
                   </div>
                 );
               })}

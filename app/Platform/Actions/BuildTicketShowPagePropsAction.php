@@ -101,11 +101,19 @@ class BuildTicketShowPagePropsAction
                 fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
                     $relatedTicket,
                     $ticketable->getTicketableTitle(),
-                ),
+                )->include('reporter'),
                 $ticketViewService->relatedTickets,
             ),
 
             reporterGameTickets: $this->buildSameReporterTicketProps($ticketViewService, $ticket, $user),
+
+            otherReporterGameTickets: Lazy::inertia(fn (): array => array_map(
+                fn (Ticket $relatedGameTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                    $relatedGameTicket,
+                    $relatedGameTicket->getTicketableModel()->getTicketableTitle(),
+                )->include('reporter'),
+                $ticketViewService->collectOtherReporterGameTickets($ticket),
+            )),
 
             reporterUnlock: $this->buildReporterUnlock($ticketViewService, $canViewReporterHistory),
 

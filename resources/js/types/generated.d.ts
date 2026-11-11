@@ -215,8 +215,8 @@ export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopic
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
 export type RankType = 'hardcore' | 'casual' | 'retro_points';
 export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision' | 'AchievementSetRelease';
-export type TicketAction = 'closed-mistaken' | 'resolved' | 'demoted' | 'not-enough-info' | 'no-reply-from-reporter' | 'wrong-rom' | 'network' | 'unable-to-reproduce' | 'unable-to-debug' | 'already-fixed' | 'emulator-problem' | 'closed-other' | 'request' | 'reopen';
-export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'no_reply_from_reporter' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'already_fixed' | 'emulator_problem' | 'demoted' | 'other';
+export type TicketAction = 'closed-mistaken' | 'resolved' | 'demoted' | 'not-enough-info' | 'no-reply-from-reporter' | 'wrong-rom' | 'network' | 'unable-to-reproduce' | 'unable-to-debug' | 'already-fixed' | 'emulator-problem' | 'covered-by-another-ticket' | 'closed-other' | 'request' | 'reopen';
+export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'no_reply_from_reporter' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'already_fixed' | 'emulator_problem' | 'covered_by_another_ticket' | 'demoted' | 'other';
 export type TicketSignal = 'many-recent-unlocks' | 'earned-with-same-logic' | 'earned-after-report' | 'earned-after-logic-change' | 'no-recent-unlocks';
 export type TicketSignalVerdict = 'probably-not-defect' | 'probably-defect';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
@@ -1283,6 +1283,7 @@ state: App.Community.Enums.TicketState;
 resolution: App.Community.Enums.TicketResolution | null;
 createdAt: string;
 ticketableTitle: string;
+reporter?: App.Data.User | null;
 };
 export type TicketReporterUnlock = {
 unlockedAt: string;
@@ -1300,6 +1301,7 @@ shouldOfferManualUnlock: boolean;
 can: App.Data.UserPermissions;
 relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterGameTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+otherReporterGameTickets?: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
 logicChangedAfterReportAt: string | null;

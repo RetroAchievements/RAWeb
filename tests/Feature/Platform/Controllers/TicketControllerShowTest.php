@@ -484,6 +484,7 @@ describe('Same Reporter Ticket Props', function () {
             ->where('reporterGameTickets.2.id', $laterLeaderboardTicket->id)
             ->where('reporterGameTickets.2.ticketableTitle', 'Time Attack')
             ->where('relatedTickets.0.id', $sameAchievementTicket->id)
+            ->where('relatedTickets.0.reporter.displayName', $reporter->display_name)
         );
     });
 
@@ -1033,6 +1034,7 @@ describe('Ticket Action Props', function () {
                 'unable-to-debug',
                 'already-fixed',
                 'emulator-problem',
+                'covered-by-another-ticket',
                 'closed-other',
                 'request',
             ])
@@ -1069,6 +1071,7 @@ describe('Ticket Action Props', function () {
                 'unable-to-debug',
                 'already-fixed',
                 'emulator-problem',
+                'covered-by-another-ticket',
                 'closed-other',
                 'reopen',
             ])

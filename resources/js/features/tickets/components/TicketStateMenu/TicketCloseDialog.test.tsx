@@ -4,7 +4,12 @@ import axios from 'axios';
 import { route } from 'ziggy-js';
 
 import { render, screen, waitFor, within } from '@/test';
-import { createAchievement, createLeaderboard, createTicketListEntry } from '@/test/factories';
+import {
+  createAchievement,
+  createLeaderboard,
+  createTicketListEntry,
+  createUser,
+} from '@/test/factories';
 
 import { TicketCloseDialog } from './TicketCloseDialog';
 
@@ -616,5 +621,143 @@ describe('Component: TicketCloseDialog', () => {
         "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it('given "Already covered by another ticket" is chosen, the developer selects a covering ticket from the related lists and it is correctly sent', async () => {
+    // ARRANGE
+    const patchSpy = vi
+      .spyOn(axios, 'patch')
+      .mockResolvedValueOnce({ data: { message: 'Updated' } });
+
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['network', 'covered-by-another-ticket'],
+          can: { createTicketComments: true },
+          relatedTickets: [
+            {
+              id: 5120,
+              state: 'open',
+              resolution: null,
+              createdAt: '2024-05-01T12:00:00Z',
+              ticketableTitle: 'Hookshot',
+            },
+          ],
+          reporterGameTickets: [
+            {
+              id: 5133,
+              state: 'resolved',
+              resolution: 'fixed',
+              createdAt: '2024-05-02T12:00:00Z',
+              ticketableTitle: 'Zora Tunic',
+            },
+          ],
+          ticket: createTicketListEntry({ id: 7731, state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    const closeButton = screen.getByRole('button', { name: 'Close ticket' });
+    const isDisabledBeforePick = closeButton.hasAttribute('disabled');
+
+    await userEvent.click(screen.getByRole('button', { name: /which ticket\? choose a ticket/i }));
+    const sectionHeadings = [
+      screen.getByText('From this reporter on this game'),
+      screen.getByText('On this achievement'),
+    ];
+    await userEvent.click(screen.getByRole('option', { name: /zora tunic/i }));
+    await userEvent.click(closeButton);
+
+    // ASSERT
+    expect(isDisabledBeforePick).toEqual(true);
+    expect(sectionHeadings[0].compareDocumentPosition(sectionHeadings[1])).toEqual(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(screen.getByRole('button', { name: /which ticket\? #5133 zora tunic/i })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'View this ticket' })).toBeVisible();
+    expect(patchSpy).toHaveBeenCalledWith(route('api.ticket.state.update', { ticket: 7731 }), {
+      action: 'covered-by-another-ticket',
+      note: null,
+      coveringTicketId: 5133,
+    });
+  });
+
+  it('given the other reporters are not loaded yet, opening the list requests only those tickets from the server', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['covered-by-another-ticket'],
+          can: { createTicketComments: true },
+          relatedTickets: [],
+          reporterGameTickets: [],
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('button', { name: /which ticket\?/i }));
+
+    // ASSERT
+    expect(router.reload).toHaveBeenCalledWith(
+      expect.objectContaining({ only: ['otherReporterGameTickets'] }),
+    );
+  });
+
+  it('given the other reporters are already loaded, the list is searchable by reporter name without another server request', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['covered-by-another-ticket'],
+          can: { createTicketComments: true },
+          relatedTickets: [],
+          reporterGameTickets: [],
+          otherReporterGameTickets: [
+            {
+              id: 6011,
+              state: 'closed',
+              resolution: 'emulator_problem',
+              createdAt: '2024-04-01T12:00:00Z',
+              ticketableTitle: 'Time Attack',
+              reporter: createUser({ displayName: 'Kiterra' }),
+            },
+            {
+              id: 6017,
+              state: 'open',
+              resolution: null,
+              createdAt: '2024-04-03T12:00:00Z',
+              ticketableTitle: 'Boss Rush',
+              reporter: createUser({ displayName: 'Scott' }),
+            },
+          ],
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('button', { name: /which ticket\?/i }));
+    await userEvent.type(
+      screen.getByPlaceholderText('Search by title, number, or reporter'),
+      'kiterra',
+    );
+
+    // ASSERT
+    expect(screen.getByText('From other reporters on this game')).toBeVisible();
+    expect(screen.getByRole('option', { name: /time attack.*kiterra/i })).toBeVisible();
+    expect(screen.queryByRole('option', { name: /boss rush/i })).not.toBeInTheDocument();
+    expect(router.reload).not.toHaveBeenCalled();
   });
 });
