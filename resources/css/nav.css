@@ -69,11 +69,11 @@ nav.has-banner:not(.scrolled-past-banner) #global-search {
 }
 /* In light mode, keep the search button light over the banner too. */
 [data-scheme='light'] nav.has-banner:not(.scrolled-past-banner) #global-search {
-  @apply !bg-white border-neutral-300;
+  @apply !bg-white !border-neutral-300;
 }
 @media (prefers-color-scheme: light) {
   [data-scheme='system'] nav.has-banner:not(.scrolled-past-banner) #global-search {
-    @apply !bg-white border-neutral-300;
+    @apply !bg-white !border-neutral-300;
   }
 }
 [data-scheme='light'] nav.has-banner,
