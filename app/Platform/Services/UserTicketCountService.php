@@ -7,7 +7,6 @@ namespace App\Platform\Services;
 use App\Community\Enums\TicketState;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Platform\Enums\TicketableType;
 use App\Support\Cache\CacheKey;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +33,6 @@ class UserTicketCountService
 
                 $counts = Ticket::query()
                     ->forAssignee($ticketAssignee)
-                    ->whereHas('achievement')
                     ->whereIn('state', [TicketState::Open, TicketState::Request])
                     ->select('state', DB::raw('count(*) as Count'))
                     ->groupBy('state')
@@ -47,15 +45,6 @@ class UserTicketCountService
                 return $retVal;
             },
         );
-    }
-
-    public function countOpenForMaintainer(User $maintainerUser): int
-    {
-        return Ticket::query()
-            ->forMaintainer($maintainerUser)
-            ->forTicketableType(TicketableType::Achievement)
-            ->whereIn('state', [TicketState::Open, TicketState::Request])
-            ->count();
     }
 
     /**
