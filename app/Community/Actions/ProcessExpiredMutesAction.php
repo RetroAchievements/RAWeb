@@ -11,7 +11,7 @@ class ProcessExpiredMutesAction
 {
     public function execute(): void
     {
-        $mutedRoleId = config('services.discord.muted');
+        $mutedRoleId = config('services.discord.muted_role');
 
         // Find users whose muted_until date has passed.
         $expiredMutedUsers = User::whereNotNull('muted_until')
