@@ -5,6 +5,7 @@ import { ImTrophy } from 'react-icons/im';
 import { LuCalendar, LuMessageSquare, LuNetwork, LuUsers } from 'react-icons/lu';
 import { route } from 'ziggy-js';
 
+import { SearchSection, sortSections } from '@/common/components/GlobalSearch/components/SearchResults';
 import { AchievementResultDisplay } from '@/common/components/GlobalSearch/components/SearchResults/AchievementResultDisplay';
 import { EventResultDisplay } from '@/common/components/GlobalSearch/components/SearchResults/EventResultDisplay';
 import { GameResultDisplay } from '@/common/components/GlobalSearch/components/SearchResults/GameResultDisplay';
@@ -91,6 +92,179 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
     return null;
   }
 
+  const sections: SearchSection[] = [
+    {
+      key: 'users',
+      heading: t('Users'),
+      results: searchResults.results.users || [],
+      relevance: searchResults.scopeRelevance.users || 0,
+      limit: 3,
+      icon: LuUsers,
+
+      render: (user) => {
+        const safeUser = user as App.Data.User;
+
+        return (
+          <ResultItem
+            key={`user-${safeUser.displayName}`}
+            href={route('user.show', { user: safeUser.displayName })}
+            isInertiaLink={false}
+          >
+            <UserResultDisplay user={safeUser} />
+          </ResultItem>
+        );
+      },
+    },
+
+    {
+      key: 'games',
+      heading: t('Games'),
+      results: searchResults.results.games || [],
+      relevance: searchResults.scopeRelevance.games || 0,
+      limit: 6,
+      icon: FaGamepad,
+
+      render: (game) => {
+        const safeGame = game as App.Platform.Data.Game;
+
+        return (
+          <ResultItem
+            key={`game-${game.id}`}
+            href={route('game.show', { game: safeGame.id })}
+            isInertiaLink={true}
+          >
+            <GameResultDisplay game={safeGame} />
+          </ResultItem>
+        );
+      },
+    },
+
+    {
+      key: 'hubs',
+      heading: t('Hubs'),
+      results: searchResults.results.hubs || [],
+      relevance: searchResults.scopeRelevance.hubs || 0,
+      limit: 4,
+      icon: LuNetwork,
+
+      render: (hub) => {
+        const safeHub = hub as App.Platform.Data.GameSet
+
+        return (
+          <ResultItem
+            key={`hub-${safeHub.id}`}
+            href={route('hub.show', { gameSet: safeHub.id })}
+            isInertiaLink={true}
+          >
+            <HubResultDisplay hub={safeHub} />
+          </ResultItem>
+        );
+      },
+    },
+
+    {
+      key: 'achievements',
+      heading: t('Achievements'),
+      results: searchResults.results.achievements || [],
+      relevance: searchResults.scopeRelevance.achievements || 0,
+      limit: 3,
+      icon: ImTrophy,
+
+      render: (achievement) => {
+        const safeAchievement = achievement as App.Platform.Data.Achievement
+
+        return (
+          <ResultItem
+            key={`achievement-${achievement.id}`}
+            href={route('achievement.show', { achievement: safeAchievement.id })}
+            isInertiaLink={false}
+          >
+            <AchievementResultDisplay achievement={safeAchievement} />
+          </ResultItem>
+        );
+      },
+    },
+
+    {
+      key: 'events',
+      heading: t('Events'),
+      results: searchResults.results.events || [],
+      relevance: searchResults.scopeRelevance.events || 0,
+      limit: 4,
+      icon: LuCalendar,
+
+      render: (event) => {
+        const safeEvent = event as App.Platform.Data.Event
+
+        return (
+          <ResultItem
+            key={`event-${event.id}`}
+            href={route('event.show', { event: safeEvent.id })}
+            isInertiaLink={true}
+          >
+            <EventResultDisplay event={safeEvent} />
+          </ResultItem>
+        );
+      },
+    },
+
+    {
+      key: 'forum-comments',
+      heading: t('Forum Posts'),
+      results: searchResults.results.forum_comments || [],
+      relevance: searchResults.scopeRelevance.forum_comments || 0,
+      limit: 4,
+      icon: LuMessageSquare,
+
+      render: (forumComment) => {
+        const safeComment = forumComment as App.Data.ForumTopicComment
+
+        return (
+          <ResultItem
+            key={`forum-comment-${safeComment.id}`}
+            href={
+              route('forum-topic.show', {
+                topic: safeComment.forumTopicId!,
+                _query: { comment: safeComment.id },
+              }) + `#${safeComment.id}`
+            }
+            isInertiaLink={true}
+          >
+            <ForumCommentResultDisplay forumComment={safeComment} />
+          </ResultItem>
+        )
+      }
+    },
+
+    {
+      key: 'comments',
+      heading: t('Comments'),
+      results: searchResults.results.comments || [],
+      relevance: searchResults.scopeRelevance.comments || 0,
+      limit: 4,
+      icon: LuMessageSquare,
+
+      render: (comment) => {
+        const safeComment = comment as App.Community.Data.Comment
+
+        return (
+          <ResultItem
+            key={`comment-${safeComment.id}`}
+            href={safeComment.url ?? '#'}
+            isInertiaLink={false}
+          >
+            <CommentResultDisplay comment={safeComment} />
+          </ResultItem>
+        )
+      }
+    }
+  ];
+
+  const sectionsWithResults = sections.filter((section) => section.results.length > 0);
+
+  // Use smart section ordering with fallback to logical defaults.
+  sectionsWithResults.sort(sortSections);
+
   return (
     <div
       className={cn(
@@ -99,115 +273,15 @@ export const SearchResultsContainer: FC<SearchResultsContainerProps> = ({
         'light:border-neutral-200 light:bg-white',
       )}
     >
-      {/* Users */}
-      {searchResults.results.users?.length ? (
-        <ResultSection title={t('Users')} icon={<LuUsers className="size-4" />}>
-          {searchResults.results.users.map((user) => (
-            <ResultItem
-              key={`user-${user.displayName}`}
-              href={route('user.show', { user: user.displayName })}
-              isInertiaLink={false}
-            >
-              <UserResultDisplay user={user} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
-
-      {/* Games */}
-      {searchResults.results.games?.length ? (
-        <ResultSection title={t('Games')} icon={<FaGamepad className="size-4" />}>
-          {searchResults.results.games.map((game) => (
-            <ResultItem
-              key={`game-${game.id}`}
-              href={route('game.show', { game: game.id })}
-              isInertiaLink={true}
-            >
-              <GameResultDisplay game={game} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
-
-      {/* Hubs */}
-      {searchResults.results.hubs?.length ? (
-        <ResultSection title={t('Hubs')} icon={<LuNetwork className="size-4" />}>
-          {searchResults.results.hubs.map((hub) => (
-            <ResultItem
-              key={`hub-${hub.id}`}
-              href={route('hub.show', { gameSet: hub.id })}
-              isInertiaLink={true}
-            >
-              <HubResultDisplay hub={hub} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
-
-      {/* Achievements */}
-      {searchResults.results.achievements?.length ? (
-        <ResultSection title={t('Achievements')} icon={<ImTrophy className="size-4" />}>
-          {searchResults.results.achievements.map((achievement) => (
-            <ResultItem
-              key={`achievement-${achievement.id}`}
-              href={route('achievement.show', { achievement: achievement.id })}
-              isInertiaLink={false}
-            >
-              <AchievementResultDisplay achievement={achievement} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
-
-      {/* Events */}
-      {searchResults.results.events?.length ? (
-        <ResultSection title={t('Events')} icon={<LuCalendar className="size-4" />}>
-          {searchResults.results.events.map((event) => (
-            <ResultItem
-              key={`event-${event.id}`}
-              href={route('event.show', { event: event.id })}
-              isInertiaLink={true}
-            >
-              <EventResultDisplay event={event} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
-
-      {/* Forum Comments */}
-      {searchResults.results.forum_comments?.length ? (
-        <ResultSection title={t('Forum Posts')} icon={<LuMessageSquare className="size-4" />}>
-          {searchResults.results.forum_comments.map((comment) => (
-            <ResultItem
-              key={`forum-comment-${comment.id}`}
-              href={
-                route('forum-topic.show', {
-                  topic: comment.forumTopicId!,
-                  _query: { comment: comment.id },
-                }) + `#${comment.id}`
-              }
-              isInertiaLink={true}
-            >
-              <ForumCommentResultDisplay forumComment={comment} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
-
-      {/* Comments */}
-      {searchResults.results.comments?.length ? (
-        <ResultSection title={t('Comments')} icon={<LuMessageSquare className="size-4" />}>
-          {searchResults.results.comments.map((comment) => (
-            <ResultItem
-              key={`comment-${comment.id}`}
-              href={comment.url ?? '#'}
-              isInertiaLink={false}
-            >
-              <CommentResultDisplay comment={comment} />
-            </ResultItem>
-          ))}
-        </ResultSection>
-      ) : null}
+      {sectionsWithResults.map((section) => {
+        return (
+          <ResultSection key={section.key} title={section.heading} icon={<section.icon className="size-4" />}>
+            {section.results.map((item) =>
+              section.render(item)
+            )}
+          </ResultSection>
+        )
+      })}
     </div>
   );
 };
