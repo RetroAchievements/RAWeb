@@ -13,7 +13,7 @@ function getUserAchievementsPerConsole(User $user): array
     $userAuthoredAchievements = $user->authoredAchievements()
         ->promoted()
         ->whereHas('game.system', function ($query) {
-            $query->whereNotIn('id', [System::Hubs, System::Events]);
+            $query->whereNotIn('id', System::getNonGameSystems());
         })
         ->with('game.system')
         ->get();
@@ -44,7 +44,7 @@ function getUserSetsPerConsole(User $user): array
         ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
         ->where('a.user_id', $user->id)
         ->where('a.is_promoted', true)
-        ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
+        ->whereNotIn('gd.system_id', System::getNonGameSystems())
         ->groupBy('s.name')
         ->orderByDesc('SetCount')
         ->orderBy('s.name')
@@ -62,7 +62,7 @@ function getUserAchievementInformation(User $user): array
     $userAuthoredAchievements = $user->authoredAchievements()
         ->promoted()
         ->whereHas('game.system', function ($query) {
-            $query->whereNotIn('id', [System::Hubs, System::Events]);
+            $query->whereNotIn('id', System::getNonGameSystems());
         })
         ->with('game.system')
         ->get();
@@ -97,7 +97,7 @@ function getOwnAchievementsObtained(User $user): array
         ->where('ach.user_id', $user->id)
         ->where('pa.user_id', $user->id)
         ->where('ach.is_promoted', true)
-        ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
+        ->whereNotIn('gd.system_id', System::getNonGameSystems())
         ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NULL THEN 1 ELSE 0 END) AS CasualCount')
         ->selectRaw('SUM(CASE WHEN pa.unlocked_hardcore_at IS NOT NULL THEN 1 ELSE 0 END) AS HardcoreCount')
         ->first();
@@ -117,7 +117,7 @@ function getObtainersOfSpecificUser(User $user): array
         ->where('ach.user_id', $user->id)
         ->where('pa.user_id', '!=', $user->id)
         ->where('ach.is_promoted', true)
-        ->whereNotIn('gd.system_id', [System::Hubs, System::Events])
+        ->whereNotIn('gd.system_id', System::getNonGameSystems())
         ->whereNull('ua.unranked_at')
         ->groupBy('ua.username')
         ->orderByDesc('ObtainCount')

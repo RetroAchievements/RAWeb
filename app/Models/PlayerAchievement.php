@@ -179,4 +179,23 @@ class PlayerAchievement extends BasePivot
             ->leftJoin('unranked_users', 'player_achievements.user_id', '=', 'unranked_users.user_id')
             ->whereNull('unranked_users.id');
     }
+
+    /**
+     * Unlocks that happened before a demotion that let players retain their points.
+     *
+     * @see Achievement::MIN_PUBLISHED_DAYS_TO_KEEP_POINTS
+     *
+     * @param Builder<PlayerAchievement> $query
+     * @return Builder<PlayerAchievement>
+     */
+    public function scopeRetainedFromDemotion(Builder $query): Builder
+    {
+        return $query
+            ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
+            ->join('games', 'games.id', '=', 'achievements.game_id')
+            ->whereNotIn('games.system_id', System::getNonGameSystems())
+            ->where('achievements.should_keep_demoted_points', true)
+            ->whereNull('achievements.deleted_at')
+            ->whereColumn('player_achievements.unlocked_at', '<', 'achievements.demoted_at');
+    }
 }
