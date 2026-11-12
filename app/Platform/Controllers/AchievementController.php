@@ -92,6 +92,14 @@ class AchievementController extends Controller
                 ->first()
             : null;
 
+        // Resetting a promoted unlock deletes the matching mastery or completion
+        // badge. The reset dialog needs to warn about this so the user isn't surprised.
+        $isMasteryBadgeLostOnReset =
+            $user
+            && $playerAchievement
+            && $achievement->is_promoted
+            && $user->playerBadges()->revokedByUnlockReset($playerAchievement, $achievement)->exists();
+
         ['achievements' => $proximityAchievements, 'totalCount' => $promotedAchievementCount, 'areAllOnePoint' => $areAllOnePoint]
             = $this->buildProximityAchievements($achievement, $user, $isEventGame);
 
@@ -186,6 +194,7 @@ class AchievementController extends Controller
             initialTab: $initialTab,
             eventAchievement: $eventAchievementData,
             isEventGame: $isEventGame,
+            isMasteryBadgeLostOnReset: $isMasteryBadgeLostOnReset,
             areAllAchievementsOnePoint: $areAllOnePoint,
         );
 

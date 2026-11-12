@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\AwardType;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\SubscriptionSubjectType;
 use App\Models\Achievement;
@@ -9,6 +10,7 @@ use App\Models\Comment;
 use App\Models\EventAchievement;
 use App\Models\Game;
 use App\Models\PlayerAchievement;
+use App\Models\PlayerBadge;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\System;
@@ -16,6 +18,7 @@ use App\Models\User;
 use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\UnlockMode;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -697,6 +700,58 @@ describe('Recent Unlocks Props', function () {
         // ... for event achievements, recentUnlocks should be eagerly included ...
         $response->assertInertia(fn (Assert $page) => $page
             ->has('recentUnlocks', 1)
+        );
+    });
+});
+
+describe('Reset Progress Props', function () {
+    it('given the user has a hardcore unlock and a mastery badge, flags that a reset removes the badge', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        [$game, $achievement] = createGameWithAchievementAndSet($system);
+        $user = User::factory()->create();
+        PlayerAchievement::factory()->hardcore()->create([
+            'user_id' => $user->id,
+            'achievement_id' => $achievement->id,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $user->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Hardcore,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('achievement.show', ['achievement' => $achievement]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isMasteryBadgeLostOnReset', true)
+        );
+    });
+
+    it('given the user has a softcore unlock and a completion badge, flags that a reset removes the badge', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        [$game, $achievement] = createGameWithAchievementAndSet($system);
+        $user = User::factory()->create();
+        PlayerAchievement::factory()->create([
+            'user_id' => $user->id,
+            'achievement_id' => $achievement->id,
+        ]);
+        PlayerBadge::factory()->create([
+            'user_id' => $user->id,
+            'award_type' => AwardType::Mastery,
+            'award_key' => $game->id,
+            'award_tier' => UnlockMode::Casual,
+        ]);
+
+        // ACT
+        $response = actingAs($user)->get(route('achievement.show', ['achievement' => $achievement]));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('isMasteryBadgeLostOnReset', true)
         );
     });
 });

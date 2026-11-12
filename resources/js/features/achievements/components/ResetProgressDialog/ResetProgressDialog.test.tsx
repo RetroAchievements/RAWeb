@@ -57,6 +57,57 @@ describe('Component: ResetProgressDialog', () => {
     expect(screen.getByRole('button', { name: /reset progress/i })).toBeDisabled();
   });
 
+  it('given the reset does not remove a badge, does not show a warning about it', () => {
+    // ARRANGE
+    render(<ResetProgressDialog />, {
+      pageProps: { achievement: createAchievement(), isMasteryBadgeLostOnReset: false },
+      jotaiAtoms: [
+        [isResetProgressDialogOpenAtom, true],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/you will also lose your/i)).not.toBeInTheDocument();
+  });
+
+  it('given the reset removes a mastery badge, warns about it', () => {
+    // ARRANGE
+    render(<ResetProgressDialog />, {
+      pageProps: {
+        achievement: createAchievement({ unlockedHardcoreAt: new Date().toISOString() }),
+        isMasteryBadgeLostOnReset: true,
+      },
+      jotaiAtoms: [
+        [isResetProgressDialogOpenAtom, true],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.getByText(/you will also lose your mastery badge/i)).toBeVisible();
+  });
+
+  it('given the reset removes a completion badge, warns about it', () => {
+    // ARRANGE
+    render(<ResetProgressDialog />, {
+      pageProps: {
+        achievement: createAchievement({
+          unlockedAt: new Date().toISOString(),
+          unlockedHardcoreAt: undefined,
+        }),
+        isMasteryBadgeLostOnReset: true,
+      },
+      jotaiAtoms: [
+        [isResetProgressDialogOpenAtom, true],
+        //
+      ],
+    });
+
+    // ASSERT
+    expect(screen.getByText(/you will also lose your completion badge/i)).toBeVisible();
+  });
+
   it('given the user clicks the cancel button, closes the dialog', async () => {
     // ARRANGE
     render(<ResetProgressDialog />, {

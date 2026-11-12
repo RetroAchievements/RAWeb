@@ -12,7 +12,6 @@ use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\PlayerProgressResetType;
-use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateAchievementMetricsJob;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
@@ -122,9 +121,7 @@ class ResetPlayerProgressAction
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless
                 // all achievements for a game are reset.
                 $playerBadge = $user->playerBadges()
-                    ->where('award_type', AwardType::Mastery)
-                    ->where('award_key', $achievement->game_id)
-                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Casual)
+                    ->revokedByUnlockReset($playerAchievement, $achievement)
                     ->first();
                 if ($playerBadge) {
                     PlayerBadgeLost::dispatch($user, $playerBadge->award_type, $playerBadge->award_key, $playerBadge->award_tier);
