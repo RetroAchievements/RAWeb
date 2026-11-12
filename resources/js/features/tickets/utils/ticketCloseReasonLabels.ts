@@ -10,12 +10,12 @@ export const TICKET_CLOSE_REASON_LABELS = {
   'closed-mistaken': 'Player error or works as designed',
   'emulator-problem': 'Emulator or core problem',
   'wrong-rom': 'Wrong ROM',
-  'manual-unlock-request': 'Manual unlock request',
   'closed-other': 'Something else',
   'unable-to-reproduce': 'Unable to reproduce',
   network: 'Network problems',
   'not-enough-info': 'Not enough information',
   'unable-to-debug': 'Unable to debug (no toolkit support)',
+  'covered-by-another-ticket': 'Covered by another ticket',
 } as const satisfies Partial<Record<App.Community.Enums.TicketAction, TranslationKey>>;
 
 export type TicketCloseAction = keyof typeof TICKET_CLOSE_REASON_LABELS;

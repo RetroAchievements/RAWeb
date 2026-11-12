@@ -7,6 +7,7 @@ interface Variables {
   payload: {
     action: App.Community.Enums.TicketAction;
 
+    coveringTicketId?: number | null;
     note?: string | null;
   };
 }

@@ -85,14 +85,42 @@ class TicketApiController extends Controller
         /** @var string|null $note */
         $note = $request->validated('note');
 
-        if ($note !== null) {
+        $pickedCoveringTicketId = $ticketAction === TicketAction::CoveredByAnotherTicket
+            ? $request->integer('coveringTicketId')
+            : null;
+        $closingComment = $this->composeClosingComment($note, $pickedCoveringTicketId);
+
+        if ($closingComment !== null) {
             $this->authorize('create', [TicketComment::class, $ticket]);
-            addArticleComment($actingUser->username, CommentableType::Ticket, $ticket->id, $note);
+            addArticleComment($actingUser->username, CommentableType::Ticket, $ticket->id, $closingComment);
         }
 
         $changeState->execute($ticket, $ticketAction, $actingUser);
 
         return response()->json(['message' => __('legacy.success.update')]);
+    }
+
+    private function composeClosingComment(?string $note, ?int $pickedCoveringTicketId): ?string
+    {
+        if (!$pickedCoveringTicketId) {
+            return $note;
+        }
+
+        $coveringTicketUrl = route('ticket.show', ['ticket' => $pickedCoveringTicketId]);
+
+        if ($note === null) {
+            return $coveringTicketUrl;
+        }
+
+        // Skip appending the link when the note already points at the covering ticket.
+        preg_match_all('~/ticket/(\d+)~', $note, $urlMatches);
+        $mentionedTicketIds = array_map('intval', $urlMatches[1]);
+
+        if (in_array($pickedCoveringTicketId, $mentionedTicketIds, true)) {
+            return $note;
+        }
+
+        return "{$note}\n{$coveringTicketUrl}";
     }
 
     public function claim(Request $request, Ticket $ticket, ClaimTicketAction $claimTicketAction): Response

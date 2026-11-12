@@ -127,7 +127,7 @@ class ChangeTicketStateAction
             TicketAction::UnableToDebug,
             TicketAction::AlreadyFixed,
             TicketAction::EmulatorProblem,
-            TicketAction::ManualUnlockRequest,
+            TicketAction::CoveredByAnotherTicket,
             TicketAction::ClosedOther => $action->resolution()->closeCommentBody($actorName),
         };
     }

@@ -27,7 +27,6 @@ describe('Component: TicketStateMenu', () => {
           'wrong-rom',
           'emulator-problem',
           'already-fixed',
-          'manual-unlock-request',
           'closed-mistaken',
           'closed-other',
         ],

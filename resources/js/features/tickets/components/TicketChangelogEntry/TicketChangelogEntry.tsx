@@ -119,10 +119,10 @@ const resolutionSentences = {
     withoutUser: 'This ticket was closed because of an emulator or core problem.',
     withUser: '<1>{{user}}</1> closed this ticket because of an emulator or core problem.',
   },
-  manual_unlock_request: {
-    asCommentFooter: 'Closed this ticket because it was a manual unlock request.',
-    withoutUser: 'This ticket was closed because it was a manual unlock request.',
-    withUser: '<1>{{user}}</1> closed this ticket because it was a manual unlock request.',
+  covered_by_another_ticket: {
+    asCommentFooter: 'Closed this ticket because another ticket covers the same problem.',
+    withoutUser: 'This ticket was closed because another ticket covers the same problem.',
+    withUser: '<1>{{user}}</1> closed this ticket because another ticket covers the same problem.',
   },
   demoted: {
     asCommentFooter: 'Closed this ticket and demoted the achievement.',

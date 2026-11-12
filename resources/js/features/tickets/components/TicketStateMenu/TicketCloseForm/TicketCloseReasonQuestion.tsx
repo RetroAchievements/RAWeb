@@ -80,6 +80,15 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
             ),
           )
         : null}
+
+      {isAchievementTicket && actions.includes('network')
+        ? renderInlineHint(
+            'network',
+            t(
+              "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+            ),
+          )
+        : null}
     </TicketCloseQuestion>
   );
 };

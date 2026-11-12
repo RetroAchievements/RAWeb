@@ -24,11 +24,14 @@ class TicketShowPagePropsData extends Data
         public string $ticketableDescription,
         public ?UserData $maintainer,
         public bool $isViewerReporter,
+        public bool $shouldOfferManualUnlock,
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,
         /** @var TicketRelatedEntryData[] $reporterGameTickets */
         public array $reporterGameTickets,
+        /** @var TicketRelatedEntryData[] $otherReporterGameTickets */
+        public Lazy|array $otherReporterGameTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
         public ?Carbon $logicChangedAfterReportAt,
