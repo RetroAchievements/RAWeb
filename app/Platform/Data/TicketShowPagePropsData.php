@@ -31,6 +31,7 @@ class TicketShowPagePropsData extends Data
         public array $reporterGameTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
+        public ?int $recentOtherHashUnlockCount,
         public ?Carbon $logicChangedAfterReportAt,
         public ?int $reportedTriggerVersion,
         public ?int $currentTriggerVersion,
