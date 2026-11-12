@@ -373,6 +373,18 @@ class PlayerBadge extends BaseModel
     }
 
     /**
+     * @param Builder<PlayerBadge> $query
+     * @return Builder<PlayerBadge>
+     */
+    public function scopeRevokedByUnlockReset(Builder $query, PlayerAchievement $playerAchievement, Achievement $achievement): Builder
+    {
+        return $query
+            ->where('award_type', AwardType::Mastery)
+            ->where('award_key', $achievement->game_id)
+            ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Casual);
+    }
+
+    /**
      * Keep only the highest progression award per user/game while leaving non-game awards untouched.
      *
      * @param Builder<PlayerBadge> $query

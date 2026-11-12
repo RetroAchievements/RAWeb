@@ -39,6 +39,7 @@ class AchievementShowPagePropsData extends Data
         public AchievementPageTab $initialTab = AchievementPageTab::Comments,
         public ?EventAchievementData $eventAchievement = null,
         public bool $isEventGame = false,
+        public bool $isMasteryBadgeLostOnReset = false,
         public bool $areAllAchievementsOnePoint = false,
     ) {
     }
