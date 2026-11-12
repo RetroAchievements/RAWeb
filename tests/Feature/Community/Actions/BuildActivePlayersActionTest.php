@@ -161,7 +161,7 @@ class BuildActivePlayersActionTest extends TestCase
         // Assert
         $this->assertEquals(1, $result->total);
         $this->assertEquals('testuser123', $result->items[0]->user->displayName);
-        $this->assertEquals('Developing achievements', $result->items[0]->user->richPresence->resolve());
+        $this->assertEquals('Developing achievements', $result->items[0]->user->richPresence);
     }
 
     public function testItSupportsSearchesByGameTitle(): void
@@ -309,5 +309,33 @@ class BuildActivePlayersActionTest extends TestCase
         $this->assertEquals('tracked_high_points', $result->items[0]->user->displayName);
         $this->assertEquals('tracked_low_points', $result->items[1]->user->displayName);
         $this->assertEquals('untracked_high_points', $result->items[2]->user->displayName);
+    }
+
+    public function testItShowsTheRichPresenceOfTheListedGameWhenThePlayerHasTwoGamesOpen(): void
+    {
+        // Arrange
+        $system = System::factory()->create();
+        $listedGame = Game::factory()->create(['system_id' => $system->id]);
+        $otherGame = Game::factory()->create(['system_id' => $system->id]);
+
+        $user = User::factory()->create([
+            'rich_presence' => 'Exploring Chapter 7', // !! text from the other game
+            'rich_presence_game_id' => $listedGame->id,
+            'rich_presence_updated_at' => now(),
+            'Permissions' => Permissions::Registered,
+        ]);
+
+        $this->createActivePlayer($user, $listedGame, 'Clicking 1,337 times');
+        $this->createActivePlayer($user, $otherGame, 'Exploring Chapter 7');
+
+        // Act
+        $result = (new BuildActivePlayersAction())->execute();
+
+        // Assert
+        $this->assertEquals(1, $result->total);
+
+        $item = $result->items[0]->toArray();
+        $this->assertEquals($listedGame->id, $item['game']['id']);
+        $this->assertEquals('Clicking 1,337 times', $item['user']['richPresence']);
     }
 }
