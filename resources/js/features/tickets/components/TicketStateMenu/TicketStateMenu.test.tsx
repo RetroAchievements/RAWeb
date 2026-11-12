@@ -223,6 +223,49 @@ describe('Component: TicketStateMenu', () => {
     },
   );
 
+  it('given the current user can claim the ticket, the request option informs that it will also reassign the ticket to them', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['request'],
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createTicketComments: true, claimTicket: true },
+        comments: [createComment({ user: createUser({ displayName: 'Scott' }) })],
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+
+    // ASSERT
+    expect(
+      screen.getByRole('menuitem', {
+        name: /request information.*reassigns this ticket to you/i,
+      }),
+    ).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('given the current user can claim the ticket but did not write the latest comment, the request option says to add a comment', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {
+      pageProps: {
+        allowedTicketActions: ['request'],
+        auth: { user: createAuthenticatedUser({ displayName: 'Scott' }) },
+        can: { createTicketComments: true, claimTicket: true },
+        comments: [createComment({ user: createUser({ displayName: 'Reporter' }) })],
+        ticket: createTicketListEntry({ state: 'open', resolution: null }),
+      },
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: /change status/i }));
+
+    // ASSERT
+    expect(screen.getByText('Add a comment first')).toBeVisible();
+    expect(screen.queryByText('Reassigns this ticket to you')).not.toBeInTheDocument();
+  });
+
   it('given the user cannot comment, excludes Request information from the menu', async () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketStateMenu />, {

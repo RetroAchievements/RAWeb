@@ -1868,5 +1868,6 @@
     "Pick this": "Pick this",
     "Subscribed to by you": "Subscribed to by you",
     "Subscribed Tickets": "Subscribed Tickets",
-    "Subscribed Tickets - {{title}}": "Subscribed Tickets - {{title}}"
+    "Subscribed Tickets - {{title}}": "Subscribed Tickets - {{title}}",
+    "Reassigns this ticket to you": "Reassigns this ticket to you"
 }
