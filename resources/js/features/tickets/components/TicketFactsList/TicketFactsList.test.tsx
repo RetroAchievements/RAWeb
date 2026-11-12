@@ -327,7 +327,9 @@ describe('Component: TicketFactsList', () => {
     });
 
     // ASSERT
-    expect(container).toHaveTextContent("None of the last 51 unlocks were on the reporter's hash.");
+    expect(container).toHaveTextContent(
+      "None of the last 51 unlocks before the report were on the reporter's hash.",
+    );
   });
 
   it('given an open ticket whose logic changed, shows the logic changed row', () => {

@@ -120,9 +120,10 @@ export const TicketFactsList: FC = () => {
 
       {typeof recentOtherHashUnlockCount === 'number' ? (
         <TicketFactRow Icon={LuHash}>
-          {t("None of the last {{count, number}} unlocks were on the reporter's hash.", {
-            count: recentOtherHashUnlockCount,
-          })}
+          {t(
+            "None of the last {{count, number}} unlocks before the report were on the reporter's hash.",
+            { count: recentOtherHashUnlockCount },
+          )}
         </TicketFactRow>
       ) : null}
 
