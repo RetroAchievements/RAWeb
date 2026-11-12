@@ -11,9 +11,12 @@ use App\Models\LeaderboardEntry;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\Trigger;
+use App\Platform\Actions\FindUnlocksOnlyOnOtherHashesAction;
+use App\Platform\Actions\ResolveTicketUnlockWindowsAction;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class TicketViewService
 {
@@ -27,6 +30,7 @@ class TicketViewService
     public ?LeaderboardEntry $reporterLeaderboardEntry = null;
     public ?int $reportedTriggerVersion = null;
     public ?int $currentTriggerVersion = null;
+    public ?int $recentOtherHashUnlockCount = null;
 
     public function load(Ticket $ticket): void
     {
@@ -80,6 +84,10 @@ class TicketViewService
                 ->count();
         }
 
+        $this->recentOtherHashUnlockCount = $isAchievement && $ticket->game_hash_id
+            ? $this->countRecentOtherHashUnlocks($ticket)
+            : null;
+
         $this->loadReportedTrigger($ticket, $isAchievement ? $ticketable : null);
     }
 
@@ -119,6 +127,17 @@ class TicketViewService
             ->sortBy(fn (Ticket $comparisonTicket) => abs($comparisonTicket->created_at->diffInSeconds($ticket->created_at)))
             ->values()
             ->all();
+    }
+
+    private function countRecentOtherHashUnlocks(Ticket $ticket): ?int
+    {
+        $tickets = new Collection([$ticket]);
+        $unlockWindow = (new ResolveTicketUnlockWindowsAction())->execute($tickets)[$ticket->id];
+
+        return (new FindUnlocksOnlyOnOtherHashesAction())->execute(
+            $tickets,
+            [$ticket->id => $unlockWindow['startedAt']],
+        )[$ticket->id] ?? null;
     }
 
     /**

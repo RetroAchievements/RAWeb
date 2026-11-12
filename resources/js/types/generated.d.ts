@@ -1301,6 +1301,7 @@ relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterGameTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
+recentOtherHashUnlockCount: number | null;
 logicChangedAfterReportAt: string | null;
 reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;

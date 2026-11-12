@@ -111,6 +111,7 @@ class BuildTicketShowPagePropsAction
                 ? $ticketViewService->unlocksSinceReported
                 : null,
             logicChangedAfterReportAt: $ticketViewService->logicChangedAfterReportAt,
+            recentOtherHashUnlockCount: $ticketViewService->recentOtherHashUnlockCount,
 
             reportedTriggerVersion: $ticketViewService->reportedTriggerVersion,
             currentTriggerVersion: $ticketViewService->currentTriggerVersion,

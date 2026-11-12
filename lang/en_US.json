@@ -1800,6 +1800,7 @@
     "playersUnlockedBeforeReport_other": "{{count, number}} players unlocked this achievement in the {{duration}} before the report.",
     "playersUnlockedSinceLogicChange_zero": "No players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
     "playersUnlockedSinceLogicChange_other": "{{count, number}} players unlocked this achievement since its logic was last updated, {{duration}} before the report.",
+    "None of the last {{count, number}} unlocks before the report were on the reporter's hash.": "None of the last {{count, number}} unlocks before the report were on the reporter's hash.",
     "The reporter unlocked this achievement {{duration}} after the report.": "The reporter unlocked this achievement {{duration}} after the report.",
     "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.": "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.",
     "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.",

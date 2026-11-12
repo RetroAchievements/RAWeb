@@ -315,6 +315,23 @@ describe('Component: TicketFactsList', () => {
     expect(container).toHaveTextContent('No one has unlocked this achievement in the');
   });
 
+  it('given a recent other hash unlock count, says how many recent unlocks there were and that none were on the reporter hash', () => {
+    // ARRANGE
+    const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        relatedTickets: [],
+        recentOtherHashUnlockCount: 51,
+        ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+      },
+    });
+
+    // ASSERT
+    expect(container).toHaveTextContent(
+      "None of the last 51 unlocks before the report were on the reporter's hash.",
+    );
+  });
+
   it('given an open ticket whose logic changed, shows the logic changed row', () => {
     // ARRANGE
     const { container } = render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
