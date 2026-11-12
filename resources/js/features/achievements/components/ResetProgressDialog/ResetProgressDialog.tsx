@@ -26,8 +26,8 @@ export const ResetProgressDialog: FC = () => {
   const { t } = useTranslation();
 
   const badgeLossWarningKey: TranslationKey = achievement.unlockedHardcoreAt
-    ? '<1>You will also lose your mastery badge for this game.</1> To earn it again, you will need to unlock every achievement in the set in hardcore mode.'
-    : '<1>You will also lose your completion badge for this game.</1> To earn it again, you will need to unlock every achievement in the set.';
+    ? '<1>You will also lose your mastery badge for this set.</1> To earn it again, you will need to unlock every achievement in the set in hardcore mode.'
+    : '<1>You will also lose your completion badge for this set.</1> To earn it again, you will need to unlock every achievement in the set.';
 
   const [isChecked, setIsChecked] = useState(false);
 
