@@ -94,7 +94,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestHardcoreAchievement']) }}">{{ $recapData['rarestHardcoreAchievement']->title }}</a> from {{ $recapData['rarestHardcoreAchievement']->game->title }}, which has only been earned in hardcore by {{ $recapData['rarestHardcoreAchievementEarnRate'] }}% of players.
+    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestHardcoreAchievement']) }}">{{ $recapData['rarestHardcoreAchievement']->title }}</a> from {{ $recapData['rarestHardcoreAchievement']->game->title }}, which has {{ $recapData['rarestHardcoreAchievementEarnRate'] < 10 ? 'only' : '' }} been earned in hardcore by {{ $recapData['rarestHardcoreAchievementEarnRate'] }}% of players of the game.
 </x-mail::image-panel>
 @elseif ($recapData['rarestCasualAchievement'])
 <x-mail::image-panel
@@ -104,7 +104,7 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestCasualAchievement']) }}">{{ $recapData['rarestCasualAchievement']->title }}</a> from {{ $recapData['rarestCasualAchievement']->game->title }}, which has only been earned by {{ $recapData['rarestCasualAchievementEarnRate'] }}% of players.
+    Your rarest achievement earned was <a href="{{ route('achievement.show', $recapData['rarestCasualAchievement']) }}">{{ $recapData['rarestCasualAchievement']->title }}</a> from {{ $recapData['rarestCasualAchievement']->game->title }}, which has {{ $recapData['rarestCasualAchievementEarnRate'] < 10 ? 'only' : '' }} been earned by {{ $recapData['rarestCasualAchievementEarnRate'] }}% of players of the game.
 </x-mail::image-panel>
 @endif
 
@@ -116,7 +116,12 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your most unique achievement earned was <a href="{{ route('achievement.show', $recapData['mostUniqueHardcoreAchievement']) }}">{{ $recapData['mostUniqueHardcoreAchievement']->title }}</a> from {{ $recapData['mostUniqueHardcoreAchievement']->game->title }}, which was only earned in hardcore by {{ $recapData['mostUniqueHardcoreAchievementUnlockCount'] }} {{ Str::plural('player', $recapData['mostUniqueHardcoreAchievementUnlockCount']) }} this year.
+@if ($recapData['mostUniqueHardcoreAchievementUnlockCount'] === 1)
+    You were the only player to earn
+@else
+    You were one of only {{ $recapData['mostUniqueHardcoreAchievementUnlockCount'] }} players to earn
+@endif
+    <a href="{{ route('achievement.show', $recapData['mostUniqueHardcoreAchievement']) }}">{{ $recapData['mostUniqueHardcoreAchievement']->title }}</a> from {{ $recapData['mostUniqueHardcoreAchievement']->game->title }} in hardcore this year.
 </x-mail::image-panel>
 @elseif ($recapData['mostUniqueCasualAchievement'])
 <x-mail::image-panel
@@ -126,7 +131,12 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
     width="64"
     height="64"
 >
-    Your most unique achievement earned was <a href="{{ route('achievement.show', $recapData['mostUniqueCasualAchievement']) }}">{{ $recapData['mostUniqueCasualAchievement']->title }}</a> from {{ $recapData['mostUniqueCasualAchievement']->game->title }}, which was only earned by {{ $recapData['mostUniqueCasualAchievementUnlockCount'] }} {{ Str::plural('player', $recapData['mostUniqueCasualAchievementUnlockCount']) }} this year.
+@if ($recapData['mostUniqueCasualAchievementUnlockCount'] === 1)
+    You were the only player to earn
+@else
+    You were one of only {{ $recapData['mostUniqueCasualAchievementUnlockCount'] }} players to earn
+@endif
+    <a href="{{ route('achievement.show', $recapData['mostUniqueCasualAchievement']) }}">{{ $recapData['mostUniqueCasualAchievement']->title }}</a> from {{ $recapData['mostUniqueCasualAchievement']->game->title }} this year.
 </x-mail::image-panel>
 @endif
 
@@ -140,7 +150,7 @@ You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subs
     width="64"
     height="64"
 >
-    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetHardcoreAchievement']) }}">{{ $recapData['rarestSubsetHardcoreAchievement']->title }}</a> from {{ $recapData['rarestSubsetHardcoreAchievement']->game->title }}, which has only been earned in hardcore by {{ $recapData['rarestSubsetHardcoreAchievementEarnRate'] }}% of players.
+    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetHardcoreAchievement']) }}">{{ $recapData['rarestSubsetHardcoreAchievement']->title }}</a> from {{ $recapData['rarestSubsetHardcoreAchievement']->game->title }}, which has {{ $recapData['rarestSubsetHardcoreAchievementEarnRate'] < 10 ? 'only' : '' }} been earned in hardcore by {{ $recapData['rarestSubsetHardcoreAchievementEarnRate'] }}% of players of the subset.
 </x-mail::image-panel>
 @elseif ($recapData['rarestSubsetCasualAchievement'])
 <x-mail::image-panel
@@ -150,7 +160,39 @@ You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subs
     width="64"
     height="64"
 >
-    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetCasualAchievement']) }}">{{ $recapData['rarestSubsetCasualAchievement']->title }}</a> from {{ $recapData['rarestSubsetCasualAchievement']->game->title }}, which has only been earned by {{ $recapData['rarestSubsetCasualAchievementEarnRate'] }}% of players.
+    Your rarest subset achievement earned was <a href="{{ route('achievement.show', $recapData['rarestSubsetCasualAchievement']) }}">{{ $recapData['rarestSubsetCasualAchievement']->title }}</a> from {{ $recapData['rarestSubsetCasualAchievement']->game->title }}, which has {{ $recapData['rarestSubsetCasualAchievementEarnRate'] < 10 ? 'only' : '' }} been earned by {{ $recapData['rarestSubsetCasualAchievementEarnRate'] }}% of players of the subset.
+</x-mail::image-panel>
+@endif
+
+@if ($recapData['mostUniqueSubsetHardcoreAchievement'])
+<x-mail::image-panel
+    src="{{ $recapData['mostUniqueSubsetHardcoreAchievement']->badge_unlocked_url }}"
+    alt="{{ $recapData['mostUniqueSubsetHardcoreAchievement']->title }} achievement badge"
+    url="{{ route('achievement.show', $recapData['mostUniqueSubsetHardcoreAchievement']) }}"
+    width="64"
+    height="64"
+>
+@if ($recapData['mostUniqueSubsetHardcoreAchievementUnlockCount'] === 1)
+    You were the only player to earn
+@else
+    You were one of only {{ $recapData['mostUniqueSubsetHardcoreAchievementUnlockCount'] }} players to earn
+@endif
+    <a href="{{ route('achievement.show', $recapData['mostUniqueSubsetHardcoreAchievement']) }}">{{ $recapData['mostUniqueSubsetHardcoreAchievement']->title }}</a> from {{ $recapData['mostUniqueSubsetHardcoreAchievement']->game->title }} in hardcore this year.
+</x-mail::image-panel>
+@elseif ($recapData['mostUniqueSubsetCasualAchievement'])
+<x-mail::image-panel
+    src="{{ $recapData['mostUniqueSubsetCasualAchievement']->badge_unlocked_url }}"
+    alt="{{ $recapData['mostUniqueSubsetCasualAchievement']->title }} achievement badge"
+    url="{{ route('achievement.show', $recapData['mostUniqueSubsetCasualAchievement']) }}"
+    width="64"
+    height="64"
+>
+@if ($recapData['mostUniqueSubsetCasualAchievementUnlockCount'] === 1)
+    You were the only player to earn
+@else
+    You were one of only {{ $recapData['mostUniqueSubsetCasualAchievementUnlockCount'] }} players to earn
+@endif
+    <a href="{{ route('achievement.show', $recapData['mostUniqueSubsetCasualAchievement']) }}">{{ $recapData['mostUniqueSubsetCasualAchievement']->title }}</a> from {{ $recapData['mostUniqueSubsetCasualAchievement']->game->title }} this year.
 </x-mail::image-panel>
 @endif
 @endif

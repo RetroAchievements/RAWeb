@@ -72,6 +72,7 @@ class GenerateAnnualRecapAction
         $this->determineRarestAchievement($recapData, $user, $gameData, $startDate, $endDate);
         $this->determineRarestSubsetAchievement($recapData, $user, $subsetGameIds, $startDate, $endDate);
         $this->determineMostUniqueAchievement($recapData, $user, $gameData, $startDate, $endDate);
+        $this->determineMostUniqueSubsetAchievement($recapData, $user, $subsetGameIds, $startDate, $endDate);
         $this->summarizePosts($recapData, $user, $startDate, $endDate);
         $this->summarizeDevelopment($recapData, $user, $startDate, $endDate);
 
@@ -511,11 +512,18 @@ class GenerateAnnualRecapAction
         $recapData['rarestSubsetCasualAchievementEarnRate'] = $rarestAchievement['rarestCasualAchievementEarnRate'];
     }
 
-
     private function determineMostUniqueAchievement(array &$recapData, User $user, array $gameData, Carbon $startDate, Carbon $endDate): void
     {
         $gameIds = array_keys($gameData);
+        $mostUniqueAchievement = $this->getMostUniqueAchievement($gameIds, $user, $startDate, $endDate);
+        $recapData['mostUniqueHardcoreAchievement'] = $mostUniqueAchievement['mostUniqueHardcoreAchievement'];
+        $recapData['mostUniqueHardcoreAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueHardcoreAchievementUnlockCount'];
+        $recapData['mostUniqueCasualAchievement'] = $mostUniqueAchievement['mostUniqueCasualAchievement'];
+        $recapData['mostUniqueCasualAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueCasualAchievementUnlockCount'];
+    }
 
+    private function getMostUniqueAchievement(array $gameIds, User $user, Carbon $startDate, Carbon $endDate): array
+    {
         $mostUniqueHardcoreAchievement = null;
         if ($user->points_hardcore > 0) {
             $mostUniqueHardcoreAchievement = PlayerAchievement::where(DB::raw('player_achievements.user_id'), $user->id)
@@ -525,6 +533,7 @@ class GenerateAnnualRecapAction
                 ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
                 ->whereIn('achievements.game_id', $gameIds)
                 ->where(DB::raw('achievements.is_promoted'), true)
+                ->where('temp_achievement_rarity.unlocks_hardcore', '<=', 20)
                 ->select('achievements.id',
                          DB::raw('temp_achievement_rarity.unlocks_hardcore as unlocks'),
                          DB::raw('temp_achievement_rarity.unlocks_total as unlocks_total'))
@@ -543,6 +552,7 @@ class GenerateAnnualRecapAction
                 ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
                 ->whereIn('achievements.game_id', $gameIds)
                 ->where(DB::raw('achievements.is_promoted'), true)
+                ->where('temp_achievement_rarity.unlocks_total', '<=', 20)
                 ->select('achievements.id',
                          DB::raw('temp_achievement_rarity.unlocks_total as unlocks'),
                          DB::raw('temp_achievement_rarity.unlocks_total as unlocks_total'))
@@ -550,7 +560,6 @@ class GenerateAnnualRecapAction
                 ->orderByDesc('temp_achievement_rarity.points_weighted')
                 ->first();
         }
-
 
         // only keep the most unique achievement (regardless of casual vs hardcore).
         if ($mostUniqueHardcoreAchievement && $mostUniqueCasualAchievement) {
@@ -561,10 +570,30 @@ class GenerateAnnualRecapAction
             }
         }
 
-        $recapData['mostUniqueHardcoreAchievement'] = $mostUniqueHardcoreAchievement ? Achievement::find($mostUniqueHardcoreAchievement->id) : null;
-        $recapData['mostUniqueHardcoreAchievementUnlockCount'] = $mostUniqueHardcoreAchievement ? $mostUniqueHardcoreAchievement->unlocks : 0;
-        $recapData['mostUniqueCasualAchievement'] = $mostUniqueCasualAchievement ? Achievement::find($mostUniqueCasualAchievement->id) : null;
-        $recapData['mostUniqueCasualAchievementUnlockCount'] = $mostUniqueCasualAchievement ? $mostUniqueCasualAchievement->unlocks : 0;
+        return [
+            'mostUniqueHardcoreAchievement' => $mostUniqueHardcoreAchievement ? Achievement::find($mostUniqueHardcoreAchievement->id) : null,
+            'mostUniqueHardcoreAchievementUnlockCount' => $mostUniqueHardcoreAchievement ? $mostUniqueHardcoreAchievement->unlocks : 0,
+            'mostUniqueCasualAchievement' => $mostUniqueCasualAchievement ? Achievement::find($mostUniqueCasualAchievement->id) : null,
+            'mostUniqueCasualAchievementUnlockCount' => $mostUniqueCasualAchievement ? $mostUniqueCasualAchievement->unlocks : 0,
+        ];
+    }
+
+    private function determineMostUniqueSubsetAchievement(array &$recapData, User $user, array $subsetGameIds, Carbon $startDate, Carbon $endDate): void
+    {
+        if (empty($subsetGameIds)) {
+            $recapData['mostUniqueSubsetHardcoreAchievement'] = null;
+            $recapData['mostUniqueSubsetHardcoreAchievementUnlockCount'] = 0.0;
+            $recapData['mostUniqueSubsetCasualAchievement'] = null;
+            $recapData['mostUniqueCSubsetasualAchievementUnlockCount'] = 0.0;
+
+            return;
+        }
+
+        $mostUniqueAchievement = $this->getMostUniqueAchievement($subsetGameIds, $user, $startDate, $endDate);
+        $recapData['mostUniqueSubsetHardcoreAchievement'] = $mostUniqueAchievement['mostUniqueHardcoreAchievement'];
+        $recapData['mostUniqueSubsetHardcoreAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueHardcoreAchievementUnlockCount'];
+        $recapData['mostUniqueSubsetCasualAchievement'] = $mostUniqueAchievement['mostUniqueCasualAchievement'];
+        $recapData['mostUniqueCSubsetasualAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueCasualAchievementUnlockCount'];
     }
 
     private function summarizePosts(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
