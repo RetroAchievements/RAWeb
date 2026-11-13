@@ -40,7 +40,7 @@ class GenerateAnnualRecap extends Command
             $this->generateAnnualRecapAction->execute($user);
         } else {
             $year = Carbon::now()->subMonths(6)->year;
-            $december = Carbon::create($year, 1, 1, 0, 0, 0);
+            $december = Carbon::create($year, 12, 1, 0, 0, 0);
             $september = Carbon::create($year, 9, 1, 0, 0, 0);
 
             $users = User::where('last_activity_at', '>=', $december)
@@ -48,7 +48,6 @@ class GenerateAnnualRecap extends Command
                 ->whereNotNull('email_verified_at')
                 ->whereNull('banned_at')
                 ->orderByDesc('last_activity_at')
-                ->limit(200)
                 ->pluck('id');
 
             $userCount = $users->count();

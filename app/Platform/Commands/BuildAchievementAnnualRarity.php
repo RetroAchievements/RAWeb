@@ -50,11 +50,12 @@ class BuildAchievementAnnualRarity extends Command
         $progressBar = $this->output->createProgressBar($count);
         $progressBar->start();
 
-        $query->chunk(20, function ($achievements) use (&$processed, $progressBar) {
+        $query->chunk(20, function ($achievements) use ($progressBar) {
             $eligibleAchievementIds = [];
             foreach ($achievements as $achievement) {
-                if ($this->isGameEligible($achievement->game_id) && $this->newSetThreshold->gt($achievement->created_at))
+                if ($this->isGameEligible($achievement->game_id) && $this->newSetThreshold->gt($achievement->created_at)) {
                     $eligibleAchievementIds[] = $achievement->id;
+                }
             }
 
             if (!empty($eligibleAchievementIds)) {
@@ -62,14 +63,13 @@ class BuildAchievementAnnualRarity extends Command
             }
 
             $progressBar->advance(20);
-            exit;
         });
 
         $progressBar->finish();
         $this->newLine();
     }
 
-    function isGameEligible(int $gameId): bool
+    public function isGameEligible(int $gameId): bool
     {
         if (!array_key_exists($gameId, $this->eligibleGames)) {
             $achievementSet = GameAchievementSet::where('game_id', $gameId)->core()->first()->achievementSet;
@@ -81,7 +81,7 @@ class BuildAchievementAnnualRarity extends Command
         return $this->eligibleGames[$gameId];
     }
 
-    function process(array $achievementIds): void
+    public function process(array $achievementIds): void
     {
         // intentionally not filtering out untracked users as they still receive annual recap
         // emails and excluding them might generate a "you earned an achievement earned by 0 people".

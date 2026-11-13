@@ -533,7 +533,7 @@ class GenerateAnnualRecapAction
                 ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
                 ->whereIn('achievements.game_id', $gameIds)
                 ->where(DB::raw('achievements.is_promoted'), true)
-                ->where('temp_achievement_rarity.unlocks_hardcore', '<=', 20)
+                ->where(DB::raw('temp_achievement_rarity.unlocks_hardcore'), '<=', 20)
                 ->select('achievements.id',
                          DB::raw('temp_achievement_rarity.unlocks_hardcore as unlocks'),
                          DB::raw('temp_achievement_rarity.unlocks_total as unlocks_total'))
@@ -552,7 +552,7 @@ class GenerateAnnualRecapAction
                 ->join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
                 ->whereIn('achievements.game_id', $gameIds)
                 ->where(DB::raw('achievements.is_promoted'), true)
-                ->where('temp_achievement_rarity.unlocks_total', '<=', 20)
+                ->where(DB::raw('temp_achievement_rarity.unlocks_total'), '<=', 20)
                 ->select('achievements.id',
                          DB::raw('temp_achievement_rarity.unlocks_total as unlocks'),
                          DB::raw('temp_achievement_rarity.unlocks_total as unlocks_total'))
