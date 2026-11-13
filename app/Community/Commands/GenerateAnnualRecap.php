@@ -9,6 +9,7 @@ use App\Community\Jobs\GenerateAnnualRecapJob;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 
 class GenerateAnnualRecap extends Command
 {
@@ -25,6 +26,12 @@ class GenerateAnnualRecap extends Command
 
     public function handle(): void
     {
+        if (!Schema::hasTable('temp_achievement_rarity')) {
+            $this->error("temp_achievement_rarity table not found. Please run the ra:platform:achievement:build-annual-rarity artisan command.");
+
+            return;
+        }
+
         $userId = $this->argument('userId');
         if ($userId) {
             $user = is_numeric($userId)
