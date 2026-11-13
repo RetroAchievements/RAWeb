@@ -108,6 +108,28 @@ You spent {{ $recapData['totalPlaytime'] }} playing games {{ $playedSystemsClaus
 </x-mail::image-panel>
 @endif
 
+@if ($recapData['mostUniqueHardcoreAchievement'])
+<x-mail::image-panel
+    src="{{ $recapData['mostUniqueHardcoreAchievement']->badge_unlocked_url }}"
+    alt="{{ $recapData['mostUniqueHardcoreAchievement']->title }} achievement badge"
+    url="{{ route('achievement.show', $recapData['mostUniqueHardcoreAchievement']) }}"
+    width="64"
+    height="64"
+>
+    Your most unique achievement earned was <a href="{{ route('achievement.show', $recapData['mostUniqueHardcoreAchievement']) }}">{{ $recapData['mostUniqueHardcoreAchievement']->title }}</a> from {{ $recapData['mostUniqueHardcoreAchievement']->game->title }}, which was only earned in hardcore by {{ $recapData['mostUniqueHardcoreAchievementUnlockCount'] }} {{ Str::plural('player', $recapData['mostUniqueHardcoreAchievementUnlockCount']) }} this year.
+</x-mail::image-panel>
+@elseif ($recapData['mostUniqueCasualAchievement'])
+<x-mail::image-panel
+    src="{{ $recapData['mostUniqueCasualAchievement']->badge_unlocked_url }}"
+    alt="{{ $recapData['mostUniqueCasualAchievement']->title }} achievement badge"
+    url="{{ route('achievement.show', $recapData['mostUniqueCasualAchievement']) }}"
+    width="64"
+    height="64"
+>
+    Your most unique achievement earned was <a href="{{ route('achievement.show', $recapData['mostUniqueCasualAchievement']) }}">{{ $recapData['mostUniqueCasualAchievement']->title }}</a> from {{ $recapData['mostUniqueCasualAchievement']->game->title }}, which was only earned by {{ $recapData['mostUniqueCasualAchievementUnlockCount'] }} {{ Str::plural('player', $recapData['mostUniqueCasualAchievementUnlockCount']) }} this year.
+</x-mail::image-panel>
+@endif
+
 @if ($recapData['subsetAchievementsUnlocked'])
 You also unlocked {{ $countThing($recapData['subsetAchievementsUnlocked'], 'subset achievement') }}, earning you an additional {{ $subsetHardcorePointsClause }}{{ $subsetCasualPointsClause }}.
 @if ($recapData['rarestSubsetHardcoreAchievement'])
