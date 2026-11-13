@@ -39,7 +39,7 @@ class BuildAchievementAnnualRarity extends Command
         if (!Schema::hasTable('temp_achievement_rarity')) {
             Schema::create('temp_achievement_rarity', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('achievement_id');
+                $table->foreignId('achievement_id')->index();
                 $table->integer('points_weighted')->default(0);
                 $table->unsignedInteger('unlocks_total')->default(0);
                 $table->unsignedInteger('unlocks_hardcore')->default(0);
@@ -90,6 +90,7 @@ class BuildAchievementAnnualRarity extends Command
             PlayerAchievement::join('achievements', 'achievements.id', '=', 'player_achievements.achievement_id')
                 ->whereIn('player_achievements.achievement_id', $achievementIds)
                 ->where('unlocked_effective_at', '>=', "{$this->newSetThreshold->year}-01-01")
+                ->where('unlocked_effective_at', '<', $this->newSetThreshold->year + 1)
                 ->select(
                     'achievements.id as achievement_id',
                     'achievements.points_weighted as points_weighted',

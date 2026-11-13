@@ -563,7 +563,7 @@ class GenerateAnnualRecapAction
 
         // only keep the most unique achievement (regardless of casual vs hardcore).
         if ($mostUniqueHardcoreAchievement && $mostUniqueCasualAchievement) {
-            if ($mostUniqueHardcoreAchievement->unlocks_total < $mostUniqueCasualAchievement->unlocks_total) {
+            if ($mostUniqueHardcoreAchievement->unlocks < $mostUniqueCasualAchievement->unlocks) {
                 $mostUniqueCasualAchievement = null;
             } else {
                 $mostUniqueHardcoreAchievement = null;
@@ -593,7 +593,7 @@ class GenerateAnnualRecapAction
         $recapData['mostUniqueSubsetHardcoreAchievement'] = $mostUniqueAchievement['mostUniqueHardcoreAchievement'];
         $recapData['mostUniqueSubsetHardcoreAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueHardcoreAchievementUnlockCount'];
         $recapData['mostUniqueSubsetCasualAchievement'] = $mostUniqueAchievement['mostUniqueCasualAchievement'];
-        $recapData['mostUniqueCSubsetasualAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueCasualAchievementUnlockCount'];
+        $recapData['mostUniqueSubsetCasualAchievementUnlockCount'] = $mostUniqueAchievement['mostUniqueCasualAchievementUnlockCount'];
     }
 
     private function summarizePosts(array &$recapData, User $user, Carbon $startDate, Carbon $endDate): void
