@@ -25,7 +25,6 @@ class BuildAchievementAnnualRarity extends Command
     public function handle(): void
     {
         $year = Carbon::now()->subMonths(6)->year;
-        $januaryFirst = Carbon::create($year, 1, 1, 0, 0, 0);
         $this->newSetThreshold = Carbon::create($year, 12, 15, 0, 0, 0);
 
         $query = Achievement::promoted()
