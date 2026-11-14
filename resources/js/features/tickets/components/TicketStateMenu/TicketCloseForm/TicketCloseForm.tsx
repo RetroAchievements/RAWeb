@@ -78,7 +78,16 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
 
   return (
     <BaseForm {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} name="close-ticket">
+      <form
+        name="close-ticket"
+        onSubmit={(event) => {
+          // React bubbles the submit up to the comment form, which then would otherwise
+          // throw a validation error. Stop propagation to prevent that from happening.
+          event.stopPropagation();
+
+          return form.handleSubmit(onSubmit)(event);
+        }}
+      >
         <div className="flex flex-col gap-5">
           <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
             <TicketCloseQuestion

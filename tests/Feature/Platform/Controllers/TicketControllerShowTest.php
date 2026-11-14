@@ -10,6 +10,7 @@ use App\Models\Achievement;
 use App\Models\AchievementMaintainer;
 use App\Models\Comment;
 use App\Models\Emulator;
+use App\Models\EmulatorUserAgent;
 use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\Leaderboard;
@@ -594,6 +595,94 @@ describe('Reporter Unlock Props', function () {
     });
 });
 
+describe('Reporter Manual Unlock Request Prop', function () {
+    it('given a closed achievement ticket, offers its reporter a manual unlock request only when both the close reason and their unlock allow it', function (
+        TicketResolution $resolution,
+        bool $isHardcoreReport,
+        ?string $reporterUnlockMode,
+        bool $isViewerReporter,
+        bool $expected,
+    ) {
+        // ARRANGE
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->closed()->create([
+            'assignee_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'resolution' => $resolution,
+            'hardcore' => $isHardcoreReport,
+        ]);
+
+        if ($reporterUnlockMode) {
+            PlayerAchievement::factory()->create([
+                'user_id' => $reporter->id,
+                'achievement_id' => $achievement->id,
+                'unlocked_at' => now()->subHour(),
+                'unlocked_hardcore_at' => $reporterUnlockMode === 'hardcore-recorded' ? now()->subHour() : null,
+            ]);
+        }
+
+        actingAs($isViewerReporter ? $reporter : User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('shouldOfferManualUnlock', $expected));
+    })->with([
+        'network problems with no unlock recorded' => [TicketResolution::NetworkProblems, false, null, true, true],
+        'hardcore ticket with only a casual unlock recorded' => [TicketResolution::NetworkProblems, true, 'casual-recorded', true, true],
+        'hardcore ticket with a hardcore unlock recorded' => [TicketResolution::NetworkProblems, true, 'hardcore-recorded', true, false],
+        'casual ticket with a casual unlock recorded' => [TicketResolution::NetworkProblems, false, 'casual-recorded', true, false],
+        'a close reason that offers no request' => [TicketResolution::WrongRom, false, null, true, false],
+        'viewer is somebody other than the reporter' => [TicketResolution::NetworkProblems, false, null, false, false],
+    ]);
+
+    it('given a hardcore ticket and a casual unlock from a client that cannot award hardcore unlocks, does not show the manual unlock CTA', function () {
+        // ARRANGE
+        EmulatorUserAgent::create([
+            'emulator_id' => Emulator::create(['name' => 'Test Client'])->id,
+            'client' => 'MyClient',
+            'minimum_allowed_version' => '1.2',
+            'minimum_hardcore_version' => '1.5',
+        ]);
+
+        $reporter = User::factory()->create();
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->closed()->create([
+            'assignee_id' => User::factory()->create()->id,
+            'reporter_id' => $reporter->id,
+            'resolution' => TicketResolution::NetworkProblems,
+            'hardcore' => true,
+        ]);
+
+        $restrictedSession = PlayerSession::factory()->create([
+            'user_id' => $reporter->id,
+            'game_id' => $game->id,
+            'user_agent' => 'MyClient/1.2',
+        ]);
+        PlayerAchievement::factory()->create([
+            'user_id' => $reporter->id,
+            'achievement_id' => $achievement->id,
+            'unlocked_at' => now()->subHour(),
+            'unlocked_hardcore_at' => null,
+            'player_session_id' => $restrictedSession->id,
+        ]);
+
+        actingAs($reporter);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page->where('shouldOfferManualUnlock', false));
+    });
+});
+
 describe('Reporter Activity Props', function () {
     it('given a viewer who may see player history and a reporter with no recorded activity, defers the activity with the ticket creation event', function () {
         // ARRANGE
@@ -944,44 +1033,6 @@ describe('Ticket Action Props', function () {
                 'unable-to-debug',
                 'already-fixed',
                 'emulator-problem',
-                'manual-unlock-request',
-                'closed-other',
-                'request',
-            ])
-        );
-    });
-
-    it('given an open leaderboard ticket, manual unlock request is not an allowed close reason', function () {
-        // ARRANGE
-        seed(RolesTableSeeder::class);
-
-        $game = createTicketShowPageGame();
-        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
-        $ticket = Ticket::factory()->forLeaderboard($leaderboard)->open()->create([
-            'reporter_id' => User::factory()->create()->id,
-        ]);
-
-        $developer = User::factory()->create();
-        $developer->assignRole(Role::DEVELOPER);
-        actingAs($developer);
-
-        // ACT
-        $response = get(route('ticket.show', ['ticket' => $ticket]));
-
-        // ASSERT
-        $response->assertOk();
-        $response->assertInertia(fn (Assert $page) => $page
-            ->where('allowedTicketActions', [
-                'closed-mistaken',
-                'resolved',
-                'demoted',
-                'not-enough-info',
-                'wrong-rom',
-                'network',
-                'unable-to-reproduce',
-                'unable-to-debug',
-                'already-fixed',
-                'emulator-problem',
                 'closed-other',
                 'request',
             ])
@@ -1018,7 +1069,6 @@ describe('Ticket Action Props', function () {
                 'unable-to-debug',
                 'already-fixed',
                 'emulator-problem',
-                'manual-unlock-request',
                 'closed-other',
                 'reopen',
             ])
