@@ -20,6 +20,7 @@ enum TicketAction: string
     case UnableToDebug = 'unable-to-debug';
     case AlreadyFixed = 'already-fixed';
     case EmulatorProblem = 'emulator-problem';
+    case CoveredByAnotherTicket = 'covered-by-another-ticket';
     case ClosedOther = 'closed-other';
     case Request = 'request';
     case Reopen = 'reopen';
@@ -42,6 +43,7 @@ enum TicketAction: string
             self::UnableToDebug => TicketResolution::UnableToDebug,
             self::AlreadyFixed => TicketResolution::AlreadyFixed,
             self::EmulatorProblem => TicketResolution::EmulatorProblem,
+            self::CoveredByAnotherTicket => TicketResolution::CoveredByAnotherTicket,
             self::ClosedOther => TicketResolution::Other,
             self::Request, self::Reopen => null,
         };

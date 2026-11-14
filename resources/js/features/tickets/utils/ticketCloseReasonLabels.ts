@@ -15,6 +15,7 @@ export const TICKET_CLOSE_REASON_LABELS = {
   network: 'Network problems',
   'not-enough-info': 'Not enough information',
   'unable-to-debug': 'Unable to debug (no toolkit support)',
+  'covered-by-another-ticket': 'Covered by another ticket',
 } as const satisfies Partial<Record<App.Community.Enums.TicketAction, TranslationKey>>;
 
 export type TicketCloseAction = keyof typeof TICKET_CLOSE_REASON_LABELS;

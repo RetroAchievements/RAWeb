@@ -119,6 +119,11 @@ const resolutionSentences = {
     withoutUser: 'This ticket was closed because of an emulator or core problem.',
     withUser: '<1>{{user}}</1> closed this ticket because of an emulator or core problem.',
   },
+  covered_by_another_ticket: {
+    asCommentFooter: 'Closed this ticket because another ticket covers the same problem.',
+    withoutUser: 'This ticket was closed because another ticket covers the same problem.',
+    withUser: '<1>{{user}}</1> closed this ticket because another ticket covers the same problem.',
+  },
   demoted: {
     asCommentFooter: 'Closed this ticket and demoted the achievement.',
     withoutUser: 'This ticket was closed and the achievement was demoted.',

@@ -30,6 +30,8 @@ class TicketShowPagePropsData extends Data
         public array $relatedTickets,
         /** @var TicketRelatedEntryData[] $reporterGameTickets */
         public array $reporterGameTickets,
+        /** @var TicketRelatedEntryData[] $otherReporterGameTickets */
+        public Lazy|array $otherReporterGameTickets,
         public ?TicketReporterUnlockData $reporterUnlock,
         public ?int $unlocksSinceReported,
         public ?Carbon $logicChangedAfterReportAt,

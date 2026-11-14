@@ -10,4 +10,5 @@ export const TICKET_CLOSE_ANSWER_GROUPS: TicketCloseAnswerGroup[] = [
     answer: 'cant-tell',
     actions: ['unable-to-reproduce', 'not-enough-info', 'unable-to-debug', 'closed-other'],
   },
+  { answer: 'covered', actions: ['covered-by-another-ticket'] },
 ];
