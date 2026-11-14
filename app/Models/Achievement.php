@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
@@ -102,6 +103,8 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
     protected $casts = [
         'modified_at' => 'datetime',
         'game_id' => 'integer',
+        'demoted_at' => 'datetime',
+        'should_keep_demoted_points' => 'boolean',
         'is_promoted' => 'boolean',
         'points' => 'integer',
         'points_weighted' => 'integer',
@@ -137,12 +140,34 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
      */
     public const FLAG_UNPROMOTED = 5;
 
+    /**
+     * Demoted achievements retain points for earlier unlocks only when they
+     * were published for at least this many days.
+     */
+    public const MIN_PUBLISHED_DAYS_TO_KEEP_POINTS = 7;
+
     public static function boot()
     {
         parent::boot();
 
         static::created(function (Achievement $achievement) {
             AchievementCreated::dispatch($achievement);
+        });
+
+        static::updating(function (Achievement $achievement) {
+            if (!$achievement->isDirty('is_promoted')) {
+                return;
+            }
+
+            if ($achievement->is_promoted) {
+                $achievement->demoted_at = null;
+                $achievement->should_keep_demoted_points = false;
+
+                return;
+            }
+
+            $achievement->demoted_at = now();
+            $achievement->should_keep_demoted_points = !$achievement->wasPromotedWithinRetentionWindow();
         });
 
         static::updated(function (Achievement $achievement) {
@@ -345,6 +370,15 @@ class Achievement extends BaseModel implements HasPermalink, HasVersionedTrigger
             "{$byUser->display_name} demoted this achievement to Unofficial.",
             $byUser->display_name,
         );
+    }
+
+    private function wasPromotedWithinRetentionWindow(): bool
+    {
+        return Activity::query()
+            ->forSubject($this)
+            ->where('created_at', '>', now()->subDays(self::MIN_PUBLISHED_DAYS_TO_KEEP_POINTS))
+            ->get()
+            ->contains(fn (Activity $activity) => $activity->getExtraProperty('attributes.is_promoted') === true);
     }
 
     // == helpers
