@@ -24,10 +24,15 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
   onValueChange,
   value,
 }) => {
-  const { ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { reporterUnlock, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
   const isAchievementTicket = ticket.ticketableType === 'achievement';
+
+  const shouldShowManualUnlockHint =
+    isAchievementTicket &&
+    actions.includes('network') &&
+    (!reporterUnlock || (!!ticket.hardcore && !reporterUnlock.isHardcore));
 
   const getReasonLabel = (closeAction: TicketCloseAction): TranslatedString => {
     if (closeAction !== 'demoted') {
@@ -81,7 +86,7 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
           )
         : null}
 
-      {isAchievementTicket && actions.includes('network')
+      {shouldShowManualUnlockHint
         ? renderInlineHint(
             'network',
             t(

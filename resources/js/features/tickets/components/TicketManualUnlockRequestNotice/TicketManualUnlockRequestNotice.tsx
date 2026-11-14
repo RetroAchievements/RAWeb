@@ -33,7 +33,7 @@ export const TicketManualUnlockRequestNotice: FC = () => {
       <BaseAlertDescription className="flex flex-col items-start gap-3">
         <p>
           {t(
-            "You'll need proof you should've been granted this unlock, such as a screenshot or a video.",
+            "You'll need proof that you should have been granted this unlock, such as a screenshot or a video.",
           )}
         </p>
 
