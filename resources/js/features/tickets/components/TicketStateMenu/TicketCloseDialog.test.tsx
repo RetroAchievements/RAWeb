@@ -799,4 +799,97 @@ describe('Component: TicketCloseDialog', () => {
     expect(screen.queryByRole('option', { name: /boss rush/i })).not.toBeInTheDocument();
     expect(router.reload).not.toHaveBeenCalled();
   });
+
+  it('given the reporter already has a hardcore unlock, no manual unlock hint is shown', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['network'],
+          can: { createTicketComments: true },
+          reporterUnlock: { unlockedAt: '2026-10-19T08:15:00Z', isHardcore: true, unlocker: null },
+          ticket: createTicketListEntry({
+            hardcore: true,
+            state: 'open',
+            ticketableType: 'achievement',
+          }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
+
+    // ASSERT
+    expect(
+      screen.queryByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given a casual report and the reporter already has a casual unlock, no manual unlock hint is shown', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['network'],
+          can: { createTicketComments: true },
+          reporterUnlock: { unlockedAt: '2026-10-19T08:15:00Z', isHardcore: false, unlocker: null },
+          ticket: createTicketListEntry({
+            hardcore: false,
+            state: 'open',
+            ticketableType: 'achievement',
+          }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
+
+    // ASSERT
+    expect(
+      screen.queryByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it('given a hardcore report and the reporter only has a casual unlock, shows the manual unlock hint', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['network'],
+          can: { createTicketComments: true },
+          reporterUnlock: { unlockedAt: '2026-10-19T08:15:00Z', isHardcore: false, unlocker: null },
+          ticket: createTicketListEntry({
+            hardcore: true,
+            state: 'open',
+            ticketableType: 'achievement',
+          }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: 'No' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Network problems' }));
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
+      ),
+    ).not.toHaveAttribute('aria-hidden', 'true');
+  });
 });
