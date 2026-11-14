@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Achievements;
 
-use App\Api\V2\Tickets\TicketStateFilter;
-use App\Api\V2\Tickets\TicketTypeFilter;
-use App\Api\V2\Tickets\UserUlidFilter;
 use App\Models\Achievement;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
@@ -95,12 +92,6 @@ class AchievementSchema extends Schema
             HasMany::make('tickets')
                 ->type('tickets')
                 ->cannotEagerLoad()
-                ->withFilters(
-                    new TicketStateFilter(),
-                    new TicketTypeFilter(),
-                    new UserUlidFilter('reporterUserId', 'reporter_id'),
-                    new UserUlidFilter('resolverUserId', 'resolver_id'),
-                )
                 ->readOnly(),
 
             // TODO add relationships
