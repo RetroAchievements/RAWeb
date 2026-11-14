@@ -1709,7 +1709,7 @@
     "I'm demoting it": "Je le rétrograde",
     "Player error or works as designed": "Erreur du joueur ou fonctionne comme conçu",
     "Submitting will demote this achievement.": "Soumettre rétrogradera ce succès.",
-    "Submitting will unpromote this leaderboard.": "Soumettre ne promouvra pas ce classement.",
+    "Submitting will unpromote this leaderboard.": "Soumettre retirera la promotion de ce classement.",
     "Note for the reporter (optional)": "Note pour le rapporteur (optionnel)",
     "This ticket changed since you opened it. Reload the page and try again.": "Ce ticket a changé depuis que vous l'avez ouvert. Rechargez la page et réessayez.",
     "Close…": "Fermer…",
