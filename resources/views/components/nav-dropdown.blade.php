@@ -6,6 +6,7 @@
     'title' => '',
     'trigger' => '',
     'triggerClass' => '',
+    'forceHref' => false,
 ])
 
 <x-dropdown
@@ -15,6 +16,7 @@
     :active="$active ?? false"
     :title="$title ?? ''"
     :desktopHref="$desktopHref"
+    :force-href="$forceHref"
 >
     <x-slot name="trigger">{{ $trigger }}</x-slot>
     {{ $slot }}
