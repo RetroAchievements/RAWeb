@@ -183,6 +183,25 @@ foreach ($clients as $client) {
                     background: green;
                     color: white;
                 }
+
+                .sniff-tag {
+                    padding: 1px 5px;
+                    border: 1px solid gray;
+                    background: gray;
+                    color: white;
+                }
+
+                .sniff-method {
+                    border-color: steelblue;
+                    background: royalblue;
+                }
+
+                <?php foreach ($colors as $smell => $color): ?>
+                .tag-<?= key_to_class($smell) ?> {
+                    border-color: <?= $color['border'] ?>;
+                    background: <?= $color['background'] ?>;
+                }
+                <?php endforeach ?>
             </style>
             <script>
                 let filterFlags = {};
@@ -225,61 +244,71 @@ foreach ($clients as $client) {
                     document.querySelectorAll('.smell').forEach(el => el.classList.add('hide'));
                     document.querySelectorAll(activeFilters.join('')).forEach(el => el.classList.remove('hide'));
                 }
+
+                // rows ship compact JSON to keep the page small. pretty-print it when a row is first opened.
+                document.addEventListener('toggle', function (event) {
+                    const details = event.target;
+                    if (!(details instanceof HTMLDetailsElement) || !details.open) {
+                        return;
+                    }
+                    const pre = details.querySelector('pre');
+                    if (!pre || pre.dataset.pretty) {
+                        return;
+                    }
+                    pre.dataset.pretty = '1';
+                    pre.textContent = JSON.stringify(JSON.parse(pre.textContent), null, 4);
+                }, true);
             </script>
-            <?php foreach ($sniffs as &$sniff): ?>
-                <?php
+            <?php
+            // echoing shaves potentially dozens of MB off the page document size
+            foreach ($sniffs as $sniff) {
                 $classes = [
                     'smell',
                     'user-' . key_to_class($sniff['user']),
                     'method-' . key_to_class($sniff['method']),
-                    ...array_map(fn ($class) => 'smell-' . key_to_class($class), $sniff['smells'] ?? []),
+                    ...array_map(fn ($class) => 'smell-' . key_to_class($class), $sniff['smells']),
                 ];
                 if (empty($sniff['userAgent'])) {
                     $classes[] = 'smell-no-user-agent';
                 }
-                ?>
-                <details class="<?= implode(' ', $classes) ?>">
-                    <summary class="cursor-pointer mb-2">
-                        <code><?= $sniff['date'] ?></code>
-                        <code style="padding:1px 5px;border:1px solid steelblue;background:royalblue;color:white"><?= $sniff['method'] ?></code>
-                        <?php foreach ($sniff['smells'] ?? [] as $smell): ?>
-                            <code style="padding:1px 5px;border:1px solid <?= $colors[$smell]['border'] ?? 'gray' ?>;background:<?= $colors[$smell]['background'] ?? 'gray' ?>;color:white"><?= e($smell) ?></code>
-                        <?php endforeach ?>
-                        <?php
-                            if ($sniff['user']) {
-                                echo "&middot; <a href='" . e($sniff['link']) . "'>" . e($sniff['user']) . '</a>';
-                                if (!array_key_exists('userinfo', $sniff)) {
-                                    echo ' (non-existant)';
-                                } elseif ($sniff['userinfo']->deleted_at ?? false) {
-                                    echo ' (deleted)';
-                                } elseif ($sniff['userinfo']->Permissions == Permissions::Banned) {
-                                    echo ' (banned)';
-                                } elseif ($sniff['userinfo']->unranked_at ?? false) {
-                                    echo ' (untracked)';
-                                }
-                            }
-                        ?>
-                        <?php if ($sniff['achievement'] ?? null): ?>
-                            &middot; <a href="/achievement/<?= $sniff['achievement']->id ?>"><?= $sniff['achievement']->title ?></a>
-                            <?php if ($sniff['hardcore']): ?>
-                                (hardcore)
-                            <?php endif ?>
-                        <?php endif ?>
-                        <?php // remove the additional data we added for the UI before dumping the record
-                        unset($sniff['achievement']);
-                        unset($sniff['game']);
-                        unset($sniff['leaderboard']);
-                        unset($sniff['link']);
-                        unset($sniff['userinfo']);
-                        ?>
-                        <?php if ($sniff['leaderboard'] ?? null): ?>
-                            &middot; <a href="/leaderboardinfo.php?i=<?= $sniff['leaderboard']->id ?>"><?= $sniff['leaderboard']->title ?></a>
-                            &middot; <code><?= $sniff['score'] ?></code>
-                        <?php endif ?>
-                    </summary>
-                    <pre><?= e(json_encode($sniff, JSON_PRETTY_PRINT)) ?></pre>
-                </details>
-            <?php endforeach ?>
+
+                echo '<details class="', implode(' ', $classes), '"><summary class="cursor-pointer mb-2">';
+                echo '<code>', $sniff['date'], '</code> <code class="sniff-tag sniff-method">', e($sniff['method']), '</code>';
+                foreach ($sniff['smells'] as $smell) {
+                    echo ' <code class="sniff-tag tag-', key_to_class($smell), '">', e($smell), '</code>';
+                }
+
+                if ($sniff['user']) {
+                    echo ' &middot; <a href="', e($sniff['link']), '">', e($sniff['user']), '</a>';
+                    if (!array_key_exists('userinfo', $sniff)) {
+                        echo ' (non-existant)';
+                    } elseif ($sniff['userinfo']->deleted_at ?? false) {
+                        echo ' (deleted)';
+                    } elseif ($sniff['userinfo']->Permissions == Permissions::Banned) {
+                        echo ' (banned)';
+                    } elseif ($sniff['userinfo']->unranked_at ?? false) {
+                        echo ' (untracked)';
+                    }
+                }
+
+                if ($sniff['achievement'] ?? null) {
+                    echo ' &middot; <a href="/achievement/', $sniff['achievement']->id, '">', e($sniff['achievement']->title), '</a>';
+                    if ($sniff['hardcore']) {
+                        echo ' (hardcore)';
+                    }
+                }
+
+                if ($sniff['leaderboard'] ?? null) {
+                    echo ' &middot; <a href="/leaderboardinfo.php?i=', $sniff['leaderboard']->id, '">', e($sniff['leaderboard']->title), '</a>';
+                    echo ' &middot; <code>', e($sniff['score']), '</code>';
+                }
+
+                // remove the additional data we added for the UI before dumping the record
+                unset($sniff['achievement'], $sniff['leaderboard'], $sniff['link'], $sniff['userinfo']);
+
+                echo '</summary><pre>', htmlspecialchars(json_encode($sniff, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), ENT_NOQUOTES), "</pre></details>\n";
+            }
+            ?>
         </div>
     <?php endif ?>
 </x-app-layout>
