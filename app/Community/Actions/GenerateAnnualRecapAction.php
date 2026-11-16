@@ -471,7 +471,7 @@ class GenerateAnnualRecapAction
 
         // only keep the most rare achievement (regardless of casual vs hardcore).
         if ($rarestHardcoreAchievement && $rarestCasualAchievement) {
-            if ($rarestHardcoreAchievement->EarnRate < $rarestCasualAchievement->EarnRate) {
+            if ($rarestHardcoreAchievement->EarnRate <= $rarestCasualAchievement->EarnRate) {
                 $rarestCasualAchievement = null;
             } else {
                 $rarestHardcoreAchievement = null;
@@ -563,7 +563,7 @@ class GenerateAnnualRecapAction
 
         // only keep the most unique achievement (regardless of casual vs hardcore).
         if ($mostUniqueHardcoreAchievement && $mostUniqueCasualAchievement) {
-            if ($mostUniqueHardcoreAchievement->unlocks < $mostUniqueCasualAchievement->unlocks) {
+            if ($mostUniqueHardcoreAchievement->unlocks <= $mostUniqueCasualAchievement->unlocks) {
                 $mostUniqueCasualAchievement = null;
             } else {
                 $mostUniqueHardcoreAchievement = null;
@@ -584,7 +584,7 @@ class GenerateAnnualRecapAction
             $recapData['mostUniqueSubsetHardcoreAchievement'] = null;
             $recapData['mostUniqueSubsetHardcoreAchievementUnlockCount'] = 0.0;
             $recapData['mostUniqueSubsetCasualAchievement'] = null;
-            $recapData['mostUniqueCSubsetasualAchievementUnlockCount'] = 0.0;
+            $recapData['mostUniqueSubsetCasualAchievementUnlockCount'] = 0.0;
 
             return;
         }
