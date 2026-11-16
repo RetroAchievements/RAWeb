@@ -27,7 +27,7 @@ describe('Component: RelatedTicketsPanel', () => {
     expect(container).toBeTruthy();
   });
 
-  it('given related tickets, shows the related tickets heading', () => {
+  it('given an achievement ticket, shows the correct heading', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<RelatedTicketsPanel />, {
       pageProps: {
@@ -45,7 +45,28 @@ describe('Component: RelatedTicketsPanel', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { level: 2, name: 'Related Tickets' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: 'Same Achievement' })).toBeVisible();
+  });
+
+  it('given a leaderboard ticket, shows the correct heading', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<RelatedTicketsPanel />, {
+      pageProps: {
+        ticket: createTicketListEntry({ ticketableType: 'leaderboard' }),
+        relatedTickets: [
+          {
+            id: 1,
+            state: 'open',
+            resolution: null,
+            createdAt: '2024-05-01T12:00:00Z',
+            ticketableTitle: 'Fastest Lap',
+          },
+        ],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('heading', { level: 2, name: 'Same Leaderboard' })).toBeVisible();
   });
 
   it('given related tickets, links each one to its corresponding page', () => {
