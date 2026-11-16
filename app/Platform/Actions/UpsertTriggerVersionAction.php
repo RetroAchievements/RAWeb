@@ -72,6 +72,15 @@ class UpsertTriggerVersionAction
         $currentTrigger = $triggerable->trigger;
 
         if ($currentTrigger) {
+            if (
+                $currentTrigger->version === null
+                && $triggerable instanceof Achievement
+                && $triggerable->demoted_at !== null
+                && $currentTrigger->conditions !== $conditions
+            ) {
+                $currentTrigger->update(['version' => 1]);
+            }
+
             // If we're converting unversioned -> versioned, just update the trigger in-place.
             if ($currentTrigger->version === null) {
                 // Keep the newest conditions and mark them as version 1.

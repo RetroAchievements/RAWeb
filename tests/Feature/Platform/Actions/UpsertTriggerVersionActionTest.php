@@ -176,6 +176,40 @@ class UpsertTriggerVersionActionTest extends TestCase
         $this->assertEquals($author->id, $trigger->user_id); // !! the author keeps the credit
     }
 
+    public function testItKeepsTheOldLogicAsVersionOneWhenADemotedAchievementIsEdited(): void
+    {
+        // Arrange
+        $achievement = Achievement::factory()->create(['is_promoted' => false]);
+        $achievement->demoted_at = now()->subYear();
+        $achievement->saveQuietly();
+        $user = User::factory()->create();
+
+        $existingTrigger = Trigger::factory()->create([
+            'triggerable_id' => $achievement->id,
+            'triggerable_type' => TriggerableType::Achievement,
+            'conditions' => '0xHaaaa=0',
+            'version' => null, // !!
+        ]);
+
+        // Act
+        $trigger = $this->action->execute(
+            $achievement,
+            '0xHaaaa=1',
+            versioned: true,
+            user: $user
+        );
+
+        // Assert
+        $existingTrigger->refresh();
+        $this->assertEquals('0xHaaaa=0', $existingTrigger->conditions);
+        $this->assertEquals(1, $existingTrigger->version);
+
+        $this->assertNotNull($trigger);
+        $this->assertEquals('0xHaaaa=1', $trigger->conditions);
+        $this->assertEquals(2, $trigger->version);
+        $this->assertEquals($existingTrigger->id, $trigger->parent_id);
+    }
+
     public function testItUpdatesTheDenormalizedTriggerIdOnModels(): void
     {
         // Arrange
