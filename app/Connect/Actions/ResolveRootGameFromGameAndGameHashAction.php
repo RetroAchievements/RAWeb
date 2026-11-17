@@ -40,8 +40,7 @@ class ResolveRootGameFromGameAndGameHashAction
 
         $hashGame = $gameHash->game;
 
-        // If there's no user or the current user has multiset globally disabled, use the hash game.
-        if (!$user || $user->is_globally_opted_out_of_subsets) {
+        if (!$user) {
             return $hashGame;
         }
 
@@ -60,7 +59,7 @@ class ResolveRootGameFromGameAndGameHashAction
             ->whereAchievementSetId($hashGame->gameAchievementSets()->core()->first()?->achievement_set_id)
             ->first();
 
-        $isSpecialtyOrExclusive = in_array($hashGameSubsetAttachment->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive]);
+        $isSpecialtyOrExclusive = in_array($hashGameSubsetAttachment?->type, [AchievementSetType::Specialty, AchievementSetType::Exclusive]);
         if ($hashGameSubsetAttachment && $isSpecialtyOrExclusive) {
             // For specialty/exclusive sets, use the subset game ID.
             return $hashGame;
