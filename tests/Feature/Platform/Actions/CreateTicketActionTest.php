@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Enums\ClientSupportLevel;
@@ -16,10 +17,15 @@ use App\Models\Leaderboard;
 use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Notifications\Ticket\TicketCreatedNotification;
+use App\Platform\Actions\AssociateAchievementSetToGameAction;
 use App\Platform\Actions\CreateTicketAction;
+use App\Platform\Actions\UpsertGameCoreAchievementSetFromLegacyFlagsAction;
 use App\Platform\Data\StoreTicketData;
+use App\Platform\Enums\AchievementSetType;
+use App\Platform\Enums\TriggerableType;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -58,38 +64,6 @@ function ticketData(array $overrides = []): StoreTicketData
     );
 }
 
-it('given the reporter only has a session on the parent game and provides an emulator that cannot debug triggers, it quarantines the subset ticket', function () {
-    // Arrange
-    $subset = Game::factory()->create([
-        'title' => 'Resident Evil 4 [Subset - Bonus]',
-        'system_id' => $this->system->id,
-    ]);
-    $subsetAchievement = Achievement::factory()->promoted()->create([
-        'game_id' => $subset->id,
-        'user_id' => $this->developer->id,
-    ]);
-
-    $emulator = Emulator::factory()->create(['name' => 'AetherSX2', 'can_debug_triggers' => false]);
-    EmulatorUserAgent::create(['emulator_id' => $emulator->id, 'client' => 'AetherSX2']);
-
-    PlayerSession::factory()->create([
-        'user_id' => $this->reporter->id,
-        'game_id' => $this->game->id, // the base game, not the subset
-        'game_hash_id' => $this->gameHash->id,
-        'user_agent' => 'AetherSX2/1.5-4248 (Android)',
-    ]);
-
-    // Act
-    $ticket = (new CreateTicketAction())->execute(
-        ticketData(['ticketable' => $subsetAchievement, 'emulator' => 'AetherSX2']),
-        $this->reporter,
-    );
-
-    // Assert
-    expect($ticket->state)->toEqual(TicketState::Quarantined);
-    expect(PlayerSession::where('game_id', $subset->id)->exists())->toEqual(false);
-});
-
 it('given the reporter provides an emulator developers cannot work with and has no session at all, it quarantines the ticket', function (bool $canDebugTriggers, bool $softcoreOnly) {
     // Arrange
     Emulator::factory()->create([
@@ -111,27 +85,37 @@ it('given the reporter provides an emulator developers cannot work with and has 
     'casual only' => [true, true],
 ]);
 
-it('given the reporter provides a restricted core on a fully supported emulator, it quarantines the ticket', function (?string $minimumVersion) {
+it('given a subset ticket from a reporter whose base game session came from a client that cannot debug triggers, sets the ticket state value correctly', function (AchievementSetType $setType, TicketState $expectedState) {
     // Arrange
-    Emulator::factory()->create(['name' => 'RetroArch', 'can_debug_triggers' => true]);
-    EmulatorCoreRestriction::create([
-        'core_name' => 'doublecherrygb_libretro',
-        'support_level' => ClientSupportLevel::Warned,
-        'minimum_version' => $minimumVersion,
-        'notes' => 'known issues',
+    (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($this->game);
+
+    $subset = Game::factory()->create(['title' => 'Resident Evil 4 [Subset - Bonus]', 'system_id' => $this->system->id]);
+    $subsetAchievement = Achievement::factory()->promoted()->create(['game_id' => $subset->id, 'user_id' => $this->developer->id]);
+    (new UpsertGameCoreAchievementSetFromLegacyFlagsAction())->execute($subset);
+    (new AssociateAchievementSetToGameAction())->execute($this->game, $subset, $setType, 'Subset');
+
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true]);
+    $sessionEmulator = Emulator::factory()->create(['name' => 'AetherSX2', 'can_debug_triggers' => false]);
+    EmulatorUserAgent::create(['emulator_id' => $sessionEmulator->id, 'client' => 'AetherSX2']);
+
+    PlayerSession::factory()->create([
+        'user_id' => $this->reporter->id,
+        'game_id' => $this->game->id, // !!
+        'game_hash_id' => $this->gameHash->id,
+        'user_agent' => 'AetherSX2/1.5-4248 (Android)',
     ]);
 
     // Act
     $ticket = (new CreateTicketAction())->execute(
-        ticketData(['emulator' => 'RetroArch', 'core' => 'doublecherrygb_libretro']),
+        ticketData(['ticketable' => $subsetAchievement, 'emulator' => 'PCSX2']),
         $this->reporter,
     );
 
     // Assert
-    expect($ticket->state)->toEqual(TicketState::Quarantined);
+    expect($ticket->state)->toEqual($expectedState);
 })->with([
-    'no minimum version' => [null],
-    'a minimum version the form cannot satisfy' => ['9.9.9'],
+    'bonus sets borrow the base game sessions' => [AchievementSetType::Bonus, TicketState::Quarantined],
+    'specialty sets stay separate from the base game' => [AchievementSetType::Specialty, TicketState::Open],
 ]);
 
 it('given a fully supported emulator and no session, it leaves the ticket open', function (?string $core) {
@@ -147,6 +131,73 @@ it('given a fully supported emulator and no session, it leaves the ticket open',
     'an unrestricted core' => ['some_unregistered_libretro'],
     'no core' => [null],
 ]);
+
+it('given a standalone game, the ticket state is set to open even though the client fails our emulator checks', function (string $emulatorName) {
+    // Arrange
+    $standalonesSystem = System::factory()->create(['id' => System::Standalones]);
+    $standaloneGame = Game::factory()->create(['title' => 'Undertale', 'system_id' => $standalonesSystem->id]);
+    $standaloneAchievement = Achievement::factory()->promoted()->create([
+        'game_id' => $standaloneGame->id,
+        'user_id' => $this->developer->id,
+    ]);
+
+    Emulator::factory()->create(['name' => 'Undertale', 'can_debug_triggers' => false]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(
+        ticketData(['ticketable' => $standaloneAchievement, 'emulator' => $emulatorName]),
+        $this->reporter,
+    );
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Open);
+})->with([
+    'a client that cannot debug triggers' => ['Undertale'],
+    'an emulator name that matches no record' => ['Other'],
+]);
+
+it('given a game set to quarantine new tickets, it quarantines the ticket even from a fully supported emulator', function () {
+    // Arrange
+    $this->game->update(['is_ticket_quarantine_enabled' => true]);
+
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true, 'softcore_only' => false]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter);
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Quarantined);
+});
+
+it('given a standalone subset whose base game is set to quarantine new tickets, it quarantines subset tickets too', function () {
+    // Arrange
+    $standalonesSystem = System::factory()->create(['id' => System::Standalones]);
+    $baseGame = Game::factory()->create([
+        'title' => 'Final Fantasy XI',
+        'system_id' => $standalonesSystem->id,
+        'is_ticket_quarantine_enabled' => true,
+    ]);
+    $subset = Game::factory()->create([
+        'title' => 'Final Fantasy XI [Subset - Hero of Nations]',
+        'system_id' => $standalonesSystem->id,
+        'parent_game_id' => $baseGame->id,
+    ]);
+    $subsetAchievement = Achievement::factory()->promoted()->create([
+        'game_id' => $subset->id,
+        'user_id' => $this->developer->id,
+    ]);
+
+    Emulator::factory()->create(['name' => 'HorizonXI', 'can_debug_triggers' => false]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(
+        ticketData(['ticketable' => $subsetAchievement, 'emulator' => 'HorizonXI']),
+        $this->reporter,
+    );
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Quarantined);
+});
 
 it('given an emulator name that matches no record, it quarantines the ticket and keeps the name in the body', function () {
     // Act
@@ -319,4 +370,58 @@ it('given an open ticket is created, the achievement maintainer is notified', fu
 
     // Assert
     Notification::assertSentTo($this->developer, TicketCreatedNotification::class);
+});
+
+it('given the achievement has a current trigger, the ticket records that trigger id', function () {
+    // Arrange
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true]);
+    $trigger = Trigger::factory()->create([
+        'triggerable_type' => TriggerableType::Achievement,
+        'triggerable_id' => $this->achievement->id,
+        'version' => 2,
+    ]);
+    $this->achievement->update(['trigger_id' => $trigger->id]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter->refresh());
+
+    // Assert
+    expect($ticket->trigger_id)->toEqual($trigger->id);
+    expect($ticket->state)->toEqual(TicketState::Open);
+});
+
+it('given a quarantined ticket, still records the trigger id', function () {
+    // Arrange
+    Emulator::factory()->create(['name' => 'AetherSX2', 'can_debug_triggers' => false]);
+    $trigger = Trigger::factory()->create([
+        'triggerable_type' => TriggerableType::Achievement,
+        'triggerable_id' => $this->achievement->id,
+        'version' => 1,
+    ]);
+    $this->achievement->update(['trigger_id' => $trigger->id]);
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(['emulator' => 'AetherSX2']), $this->reporter);
+
+    // Assert
+    expect($ticket->state)->toEqual(TicketState::Quarantined);
+    expect($ticket->trigger_id)->toEqual($trigger->id);
+});
+
+it('given no recent unlocks while other players played the game, writes the correct signal verdict on the new ticket', function () {
+    // Arrange
+    Emulator::factory()->create(['name' => 'PCSX2', 'can_debug_triggers' => true]);
+    foreach (User::factory()->count(5)->create() as $player) {
+        PlayerSession::factory()->create([
+            'user_id' => $player->id,
+            'game_id' => $this->game->id,
+            'rich_presence_updated_at' => now()->subDays(3),
+        ]);
+    }
+
+    // Act
+    $ticket = (new CreateTicketAction())->execute(ticketData(), $this->reporter);
+
+    // Assert
+    expect($ticket->fresh()->current_signal_verdict)->toEqual(TicketSignalVerdict::ProbablyDefect);
 });

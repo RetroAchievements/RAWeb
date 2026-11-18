@@ -52,7 +52,7 @@ class GamesTableSeeder extends Seeder
          * add achievements to games
          */
         $developers = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR, Role::DEVELOPER_RETIRED]);
+            $q->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
         })->pluck('id')->toArray();
 
         Game::all()->each(function (Game $game) use ($developers, $faker) {

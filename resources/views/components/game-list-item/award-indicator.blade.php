@@ -9,7 +9,7 @@ $awardTitles = [
     'completed' => 'Completed',
     'mastered' => 'Mastered',
 ];
-$titleLabel = $awardTitles[$highestAwardKind] ?? 'Unfinished';
+$titleLabel = $awardTitles[$highestAwardKind ?? ''] ?? 'Unfinished';
 ?>
 
 <div class="cprogress-ind__root" data-award="{{ $highestAwardKind }}" title="{{ $titleLabel }}">

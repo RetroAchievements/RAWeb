@@ -472,6 +472,111 @@ class UserSummaryTest extends TestCase
                     ],
                 ],
             ]);
+
+        // media restricted titles should not return image paths
+        $this->assertNotEquals($game->image_title_asset_path, Game::PLACEHOLDER_IMAGE_PATH);
+        $this->assertNotEquals($game->image_ingame_asset_path, Game::PLACEHOLDER_IMAGE_PATH);
+        $this->assertNotEquals($game->image_box_art_asset_path, Game::PLACEHOLDER_IMAGE_PATH);
+        $game->is_media_restricted = true; // last game
+        $game->save();
+
+        $this->assertNotEquals($game2->image_title_asset_path, Game::PLACEHOLDER_IMAGE_PATH);
+        $this->assertNotEquals($game2->image_ingame_asset_path, Game::PLACEHOLDER_IMAGE_PATH);
+        $this->assertNotEquals($game2->image_box_art_asset_path, Game::PLACEHOLDER_IMAGE_PATH);
+        $game2->is_media_restricted = true; // most recent game
+        $game2->save();
+
+        $this->get($this->apiUrl('GetUserSummary', ['u' => $user->username, 'g' => 1]))
+            ->assertSuccessful()
+            ->assertJson([
+                'ID' => $user->id,
+                'TotalPoints' => $user->points_hardcore,
+                'TotalSoftcorePoints' => $user->points,
+                'TotalTruePoints' => $user->points_weighted,
+                'Permissions' => $user->Permissions,
+                'MemberSince' => $user->created_at->__toString(),
+                'Untracked' => $user->unranked_at !== null,
+                'ULID' => $user->ulid,
+                'UserPic' => '/UserPic/' . $user->username . '.png',
+                'Motto' => $user->motto,
+                'UserWallActive' => $user->is_user_wall_active,
+                'ContribCount' => $user->yield_unlocks,
+                'ContribYield' => $user->yield_points,
+                'Rank' => 2,
+                'TotalRanked' => 2, // $this->user and $user
+                'LastGameID' => $game->id,
+                'LastGame' => [
+                    'ID' => $game->id,
+                    'Title' => $game->title,
+                    'ConsoleID' => $game->system->id,
+                    'ConsoleName' => $game->system->name,
+                    'ForumTopicID' => $game->forum_topic_id,
+                    'Flags' => 0,
+                    'ImageIcon' => $game->image_icon_asset_path,
+                    'ImageTitle' => Game::PLACEHOLDER_IMAGE_PATH,
+                    'ImageIngame' => Game::PLACEHOLDER_IMAGE_PATH,
+                    'ImageBoxArt' => Game::PLACEHOLDER_IMAGE_PATH,
+                    'Publisher' => $game->publisher,
+                    'Developer' => $game->developer,
+                    'Genre' => $game->genre,
+                    'Released' => $game->released_at->format('Y-m-d'),
+                    'ReleasedAtGranularity' => $game->released_at_granularity->value,
+                ],
+                'RichPresenceMsg' => 'Playing ' . $game->title,
+                'RichPresenceMsgDate' => $unlockTime->__toString(),
+                'RecentlyPlayedCount' => 1,
+                'RecentlyPlayed' => [
+                    [
+                        'GameID' => $game2->id,
+                        'Title' => $game2->title,
+                        'ConsoleID' => $game2->system->id,
+                        'ConsoleName' => $game2->system->name,
+                        'ImageIcon' => $game2->image_icon_asset_path,
+                        'ImageTitle' => Game::PLACEHOLDER_IMAGE_PATH,
+                        'ImageIngame' => Game::PLACEHOLDER_IMAGE_PATH,
+                        'ImageBoxArt' => Game::PLACEHOLDER_IMAGE_PATH,
+                        'LastPlayed' => $playerGame2->last_played_at->__toString(),
+                    ],
+                ],
+                'LastActivity' => [
+                    'ID' => 0,
+                    'timestamp' => null,
+                    'lastupdate' => null,
+                    'activitytype' => null,
+                    'User' => $user->username,
+                    'data' => null,
+                    'data2' => null,
+                ],
+                'Status' => 'Offline',
+                'Awarded' => [
+                    $game->id => [
+                        'NumPossibleAchievements' => 3,
+                        'PossibleScore' => $publishedAchievements->get(0)->points +
+                                           $publishedAchievements->get(1)->points +
+                                           $publishedAchievements->get(2)->points,
+                        'NumAchievedHardcore' => 1,
+                        'ScoreAchievedHardcore' => $earnedAchievement->points,
+                        'NumAchieved' => 1,
+                        'ScoreAchieved' => $earnedAchievement->points,
+                    ],
+                ],
+                'RecentAchievements' => [
+                    $game->id => [
+                        $earnedAchievement->id => [
+                            'ID' => $earnedAchievement->id,
+                            'Title' => $earnedAchievement->title,
+                            'Description' => $earnedAchievement->description,
+                            'Points' => $earnedAchievement->points,
+                            'BadgeName' => $earnedAchievement->image_name,
+                            'GameID' => $game->id,
+                            'GameTitle' => $game->title,
+                            'IsAwarded' => '1',
+                            'DateAwarded' => $unlockTime->__toString(),
+                            'HardcoreAchieved' => 1,
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     public function testGetUserSummaryLimitRecentAchievements(): void

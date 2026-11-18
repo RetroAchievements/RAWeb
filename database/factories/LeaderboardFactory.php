@@ -28,6 +28,7 @@ class LeaderboardFactory extends Factory
             'format' => 'VALUE',
             'rank_asc' => false,
             'order_column' => rand(0, 500),
+            'state' => 'active',
         ];
     }
 }

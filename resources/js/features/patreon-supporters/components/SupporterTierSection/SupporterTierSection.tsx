@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { UserGridLinkItem } from '@/common/components/UserGridLinkItem';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
 
 interface SupporterTierSectionProps {
   heading: string;
@@ -18,6 +19,7 @@ export const SupporterTierSection: FC<SupporterTierSectionProps> = ({
   totalCount,
 }) => {
   const { t } = useTranslation();
+  const { formatNumber } = useFormatNumber();
 
   // Combine initial and deferred supporters once deferred props finish loading.
   const supporters = deferredSupporters
@@ -28,6 +30,10 @@ export const SupporterTierSection: FC<SupporterTierSectionProps> = ({
     <div>
       <h2 className="border-b-0 text-center text-sm font-semibold sm:text-left sm:text-xl">
         {heading}
+
+        <span className="ml-2 text-neutral-400 light:text-neutral-600">
+          {formatNumber(totalCount)}
+        </span>
       </h2>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">

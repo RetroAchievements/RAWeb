@@ -80,6 +80,14 @@ class AchievementSetsTestHelpers
         ];
     }
 
+    public static function getLeaderboardPatchDataWithState(Leaderboard $leaderboard): array
+    {
+        $data = AchievementSetsTestHelpers::getLeaderboardPatchData($leaderboard);
+        $data['State'] = $leaderboard->state;
+
+        return $data;
+    }
+
     public static function getWarningAchievementPatchData(string $title, string $description): array
     {
         return [
@@ -226,6 +234,8 @@ class AchievementSetsTestHelpers
                 $leaderboard1,
                 $leaderboard2,
                 $leaderboard3,
+                $leaderboard4,
+                $leaderboard5,
             ],
         ];
     }
@@ -567,6 +577,53 @@ describe('Non multi-set', function () {
                             AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
                             AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
                             // leaderboards[3] is unpromoted - have to specifically ask for those as older clients don't check state
+                            // leaderboards[4] is disabled - it should never be returned to any client
+                        ],
+                    ],
+                ],
+            ]);
+    });
+
+    test('returns unpublished leaderboards when requested', function () {
+        $data = AchievementSetsTestHelpers::createGameWithUnpromotedAchievements();
+        $game = $data['game'];
+        $achievementSet = $game->achievementSets()->first();
+        $gameHash = AchievementSetsTestHelpers::createGameHash($game);
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $gameHash->md5, 'v' => 2]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null, // request by hash engages multiset code, which returns null for the core set title
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][6]), // DisplayOrder: 4
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][5]), // DisplayOrder: 7
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][7]), // DisplayOrder: 8 (unpromoted)
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][8]), // DisplayOrder: 9
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchDataWithState($data['leaderboards'][2]), // DisplayOrder: -1
+                            AchievementSetsTestHelpers::getLeaderboardPatchDataWithState($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchDataWithState($data['leaderboards'][0]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getLeaderboardPatchDataWithState($data['leaderboards'][3]), // DisplayOrder: 3
                             // leaderboards[4] is disabled - it should never be returned to any client
                         ],
                     ],
@@ -1756,6 +1813,108 @@ describe('Rarity', function () {
                             AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1], 27.27, 9.09),   //  3/11= 27.27,  1/11= 9.09
                         ],
                         'Leaderboards' => [],
+                    ],
+                ],
+            ]);
+    });
+
+    test('returns subset rarity based on subset player count', function () {
+        $data = AchievementSetsTestHelpers::createMultiSetGame();
+
+        $game = $data['game'];
+        $game->players_total = 11;
+        $game->players_hardcore = 9; // both rarity calculations should use the non-hardcore player count
+        $game->save();
+        $achievementSet = $game->achievementSets()->first();
+
+        // rarity calculation = (unlocks + 1) / (num_players) [max:100.0]
+        $data['achievements'][0]->unlocks_total = 10;
+        $data['achievements'][0]->unlocks_hardcore = 9;
+        $data['achievements'][0]->save();
+
+        $data['achievements'][2]->unlocks_total = 7;
+        $data['achievements'][2]->unlocks_hardcore = 5;
+        $data['achievements'][2]->save();
+
+        $data['achievements'][1]->unlocks_total = 2;
+        $data['achievements'][1]->unlocks_hardcore = 0;
+        $data['achievements'][1]->save();
+
+        $data['achievements'][3]->unlocks_total = 0;
+        $data['achievements'][3]->unlocks_hardcore = 0;
+        $data['achievements'][3]->save();
+
+        $data['achievements'][4]->unlocks_total = 4;
+        $data['achievements'][4]->unlocks_hardcore = 5;
+        $data['achievements'][4]->save();
+
+        $bonusGame = $data['bonusGame'];
+        $bonusGame->players_total = 4;
+        $bonusGame->players_hardcore = 3; // both rarity calculations should use the non-hardcore player count
+        $bonusGame->save();
+        $bonusAchievementSet = $bonusGame->achievementSets()->first();
+
+        $data['bonusAchievements'][1]->unlocks_total = 2;
+        $data['bonusAchievements'][1]->unlocks_hardcore = 0;
+        $data['bonusAchievements'][1]->save();
+
+        $data['bonusAchievements'][0]->unlocks_total = 1;
+        $data['bonusAchievements'][0]->unlocks_hardcore = 1;
+        $data['bonusAchievements'][0]->save();
+
+        $data['bonusAchievements'][2]->unlocks_total = 4;
+        $data['bonusAchievements'][2]->unlocks_hardcore = 3;
+        $data['bonusAchievements'][2]->save();
+
+        $data['bonusAchievements'][3]->unlocks_total = 0;
+        $data['bonusAchievements'][3]->unlocks_hardcore = 0;
+        $data['bonusAchievements'][3]->save();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('achievementsets', ['m' => $data['bonusHash']->md5]))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
+                'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0], 91.67, 83.33), // 11/12=91.67, 10/12=83.33
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2], 66.67, 50.00), //  8/12=66.67,  6/12=50.00
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1], 25.00, 8.33), //   3/12=25.00,  1/12= 8.33
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3], 8.33, 8.33), //    1/12= 8.33,  1/12= 8.33
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4], 0.00, 0.00), //   unpromoted - rarity is not returned
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
+                    [
+                        'AchievementSetId' => $bonusAchievementSet->id,
+                        'Title' => 'Bonus Title',
+                        'Type' => 'bonus',
+                        'GameId' => $bonusGame->id,
+                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][1], 60.00, 20.00), // 3/5=60.00, 1/5=20.00
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][0], 40.00, 40.00), // 2/5=40.00, 2/5=40.00
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][2], 0.00, 0.00), //   unpromoted - rarity is not returned
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][3], 20.00, 20.00), // 1/5=20.00, 1/5=20.00
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['bonusLeaderboards'][0]), // DisplayOrder: -1
+                        ],
                     ],
                 ],
             ]);

@@ -52,12 +52,14 @@ use App\Platform\Commands\RecalculateAchievementWeightedPoints;
 use App\Platform\Commands\RecalculateAffectedPlayerAchievementSetMetrics;
 use App\Platform\Commands\RecalculateMultisetGameMetricsForResets;
 use App\Platform\Commands\RegenerateGameScreenshotConversions;
+use App\Platform\Commands\RenumberOutOfRangeAchievementBadges;
 use App\Platform\Commands\ResetPlayerAchievement;
 use App\Platform\Commands\RevertManualUnlocks;
 use App\Platform\Commands\SyncUnrankedUsersTable;
 use App\Platform\Commands\UnlockPlayerAchievement;
 use App\Platform\Commands\UpdateAwardsStaticData;
 use App\Platform\Commands\UpdateBeatenGamesLeaderboard;
+use App\Platform\Commands\UpdateDemotedAchievementPlayerMetrics;
 use App\Platform\Commands\UpdateDeveloperContributionYield;
 use App\Platform\Commands\UpdateGameAchievementsMetrics;
 use App\Platform\Commands\UpdateGameAchievementUnlockMedians;
@@ -95,6 +97,8 @@ class AppServiceProvider extends ServiceProvider
                 BackfillAchievementSetVersionDefinitions::class,
                 FixUnversionedPromotedTriggers::class,
                 RecalculateAchievementWeightedPoints::class,
+                RenumberOutOfRangeAchievementBadges::class,
+                UpdateDemotedAchievementPlayerMetrics::class,
 
                 // Games
                 BackfillMissingPlayerGames::class,

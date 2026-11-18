@@ -1,9 +1,9 @@
 <?php
 
+use App\Community\Actions\ProcessDeveloperRoleChangeAction;
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\UserAction;
 use App\Enums\Permissions;
-use App\Models\AchievementMaintainer;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Arr;
@@ -33,6 +33,12 @@ if (!$foundSourceUser || !$foundTargetUser) {
 }
 
 if ($propertyType === UserAction::UpdatePermissions) {
+    $priorDeveloperRole = match (true) {
+        $foundTargetUser->hasRole(Role::DEVELOPER) => Role::DEVELOPER,
+        $foundTargetUser->hasRole(Role::DEVELOPER_JUNIOR) => Role::DEVELOPER_JUNIOR,
+        default => null,
+    };
+
     $response = SetAccountPermissionsJSON($foundSourceUser->display_name, $permissions, $targetUsername, $value);
 
     if ($response['Success']) {
@@ -66,17 +72,20 @@ if ($propertyType === UserAction::UpdatePermissions) {
             $foundTargetUser->assignRole(Role::DEVELOPER);
         }
 
-        // If the developer is demoted, maintainership goes back to the original author(s).
-        if ($value <= Permissions::Developer) {
-            AchievementMaintainer::query()
-                ->where('user_id', $foundTargetUser->id)
-                ->where('is_active', true)
-                ->whereNull('effective_until')
-                ->update([
-                    'is_active' => false,
-                    'effective_until' => now(),
-                ]);
-        }
+        $resultingDeveloperRole = match (true) {
+            $value === Permissions::Developer => Role::DEVELOPER,
+            $value === Permissions::JuniorDeveloper => Role::DEVELOPER_JUNIOR,
+            $value <= Permissions::Registered => null,
+            default => $priorDeveloperRole,
+        };
+
+        $foundTargetUser->refresh();
+        (new ProcessDeveloperRoleChangeAction())->execute(
+            $foundTargetUser,
+            $priorDeveloperRole,
+            $resultingDeveloperRole,
+            $foundSourceUser,
+        );
     }
 
     return back()->with('success', __('legacy.success.ok'));

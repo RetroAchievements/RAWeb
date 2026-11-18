@@ -147,7 +147,7 @@ class DetectInactiveDevelopersAction
         // commenting on a ticket
         if (Comment::query()
             ->where('user_id', $developer->id)
-            ->where('commentable_type', CommentableType::AchievementTicket)
+            ->where('commentable_type', CommentableType::Ticket)
             ->where('created_at', '>=', $since)
             ->exists()
         ) {
@@ -188,7 +188,7 @@ class DetectInactiveDevelopersAction
             $this->maxTimestamp(
                 Comment::query()
                     ->where('user_id', $developer->id)
-                    ->where('commentable_type', CommentableType::AchievementTicket),
+                    ->where('commentable_type', CommentableType::Ticket),
                 'created_at',
             ),
 

@@ -7,30 +7,7 @@ $numAwarded = $completionProgressEntity['NumAwarded'] ?? 0;
 $numAwardedHardcore = $completionProgressEntity['NumAwardedHC'] ?? 0;
 $maxPossible = $completionProgressEntity['MaxPossible'];
 
-$isBeatenHardcore = in_array('beaten-hardcore', $completionProgressEntity['AllAwardKinds'] ?? []);
-$isBeatenCasual = in_array('beaten-softcore', $completionProgressEntity['AllAwardKinds'] ?? []);
-
 $highestAwardKind = $completionProgressEntity['HighestAwardKind'] ?? 'unfinished';
-if ($highestAwardKind === 'mastered' && $numAwardedHardcore !== $maxPossible) {
-    if ($numAwarded === $maxPossible) {
-        $highestAwardKind = 'completed';
-    } else if ($isBeatenHardcore) {
-        $highestAwardKind = 'beaten-hardcore';
-    } else if ($isBeatenCasual) {
-        $highestAwardKind = 'beaten-softcore';
-    } else {
-        $highestAwardKind = 'unfinished';
-    }
-}
-if ($highestAwardKind === 'completed' && $numAwarded !== $maxPossible) {
-    if ($isBeatenHardcore) {
-        $highestAwardKind = 'beaten-hardcore';
-    } else if ($isBeatenCasual) {
-        $highestAwardKind = 'beaten-softcore';
-    } else {
-        $highestAwardKind = 'unfinished';
-    }
-}
 ?>
 
 <tr class="w-full">

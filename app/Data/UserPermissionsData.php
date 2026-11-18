@@ -11,6 +11,9 @@ use App\Models\Game;
 use App\Models\GameSet;
 use App\Models\Leaderboard;
 use App\Models\OAuthClient;
+use App\Models\PlayerAchievement;
+use App\Models\Ticket;
+use App\Models\TicketComment;
 use App\Models\User;
 use App\Policies\AchievementCommentPolicy;
 use App\Policies\GameCommentPolicy;
@@ -23,6 +26,7 @@ class UserPermissionsData extends Data
 {
     public function __construct(
         public Lazy|bool $authorizeForumTopicComments,
+        public Lazy|bool $claimTicket,
         public Lazy|bool $createAchievementComments,
         public Lazy|bool $createAchievementSetClaims,
         public Lazy|bool $createForumTopicComments,
@@ -33,6 +37,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $createModerationReports,
         public Lazy|bool $createOAuthClients,
         public Lazy|bool $createTicket,
+        public Lazy|bool $createTicketComments,
         public Lazy|bool $createUserBetaFeedbackSubmission,
         public Lazy|bool $createUsernameChangeRequest,
         public Lazy|bool $deleteForumTopic,
@@ -48,7 +53,9 @@ class UserPermissionsData extends Data
         public Lazy|bool $manageGames,
         public Lazy|bool $manageGameSets,
         public Lazy|bool $manipulateApiKeys,
+        public Lazy|bool $manuallyAwardAchievements,
         public Lazy|bool $quickEditAchievement,
+        public Lazy|bool $releaseTicketClaim,
         public Lazy|bool $resetEntireAccount,
         public Lazy|bool $reviewAchievementSetClaims,
         public Lazy|bool $updateAchievementDescription,
@@ -66,6 +73,7 @@ class UserPermissionsData extends Data
         public Lazy|bool $viewAnyAchievementSetClaim,
         public Lazy|bool $viewAnyOAuthClients,
         public Lazy|bool $viewDeveloperInterest,
+        public Lazy|bool $viewTriageSignals,
     ) {
     }
 
@@ -77,12 +85,14 @@ class UserPermissionsData extends Data
         ?ForumTopic $forumTopic = null,
         ?AchievementSetClaim $claim = null,
         ?GameSet $gameSet = null,
+        ?Ticket $ticket = null,
     ): self {
         return new self(
             authorizeForumTopicComments: Lazy::create(fn () => $user
                 ? $user->can('authorize', \App\Models\ForumTopicComment::class)
                 : false
             ),
+            claimTicket: Lazy::create(fn () => $user && $ticket ? $user->can('claim', $ticket) : false),
             createAchievementComments: Lazy::create(fn () => $user && $triggerable instanceof Achievement
                 ? (new AchievementCommentPolicy())->create($user, $triggerable)
                 : false
@@ -108,8 +118,12 @@ class UserPermissionsData extends Data
             createModerationReports: Lazy::create(fn () => $user ? $user->can('createModerationReports', User::class) : false),
             createOAuthClients: Lazy::create(fn () => $user ? $user->can('create', OAuthClient::class) : false),
             createTicket: Lazy::create(fn () => $user && $triggerable
-                ? $user->can('createFor', [\App\Models\Ticket::class, $triggerable])
-                : $user?->can('create', \App\Models\Ticket::class) ?? false
+                ? $user->can('createFor', [Ticket::class, $triggerable])
+                : $user?->can('create', Ticket::class) ?? false
+            ),
+            createTicketComments: Lazy::create(fn () => $user && $ticket
+                ? $user->can('create', [TicketComment::class, $ticket])
+                : false
             ),
             createUserBetaFeedbackSubmission: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserBetaFeedbackSubmission::class) : false),
             createUsernameChangeRequest: Lazy::create(fn () => $user ? $user->can('create', \App\Models\UserUsername::class) : false),
@@ -126,6 +140,8 @@ class UserPermissionsData extends Data
             manageGames: Lazy::create(fn () => $user ? $user->can('manage', Game::class) : false),
             manageGameSets: Lazy::create(fn () => $user ? $user->can('manage', GameSet::class) : false),
             manipulateApiKeys: Lazy::create(fn () => $user ? $user->can('manipulateApiKeys', $user) : false),
+            manuallyAwardAchievements: Lazy::create(fn () => $user ? $user->can('manuallyAward', PlayerAchievement::class) : false),
+            releaseTicketClaim: Lazy::create(fn () => $user && $ticket ? $user->can('releaseClaim', $ticket) : false),
             resetEntireAccount: Lazy::create(fn () => $user ? $user->can('resetEntireAccount', $user) : false),
             reviewAchievementSetClaims: Lazy::create(fn () => $user && $claim
                 ? $user->can('review', $claim)
@@ -171,6 +187,7 @@ class UserPermissionsData extends Data
                 ? $user->can('viewDeveloperInterest', $game)
                 : false
             ),
+            viewTriageSignals: Lazy::create(fn () => $user ? $user->can('viewTriageSignals', Ticket::class) : false),
         );
     }
 }

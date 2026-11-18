@@ -12,6 +12,8 @@ use App\Platform\Contracts\Ticketable;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\ValueFormat;
+use App\Platform\Events\LeaderboardPromoted;
+use App\Platform\Events\LeaderboardUnpromoted;
 use App\Platform\Services\GameOpenTicketCountService;
 use App\Support\Casts\NormalizedText;
 use App\Support\Database\Eloquent\BaseModel;
@@ -103,6 +105,14 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
                     $service->clearForGameId((int) $originalGameId);
                 }
             }
+
+            if ($leaderboard->wasChanged('state')) {
+                if ($leaderboard->state === LeaderboardState::Unpromoted) {
+                    LeaderboardUnpromoted::dispatch($leaderboard);
+                } elseif ($leaderboard->getOriginal('state') === LeaderboardState::Unpromoted) {
+                    LeaderboardPromoted::dispatch($leaderboard);
+                }
+            }
         });
     }
 
@@ -150,11 +160,6 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
         return $this->title;
     }
 
-    public function getTicketableUrl(): string
-    {
-        return $this->getCanonicalUrlAttribute();
-    }
-
     public function getTicketableIconUrl(): string
     {
         // Leaderboards don't have a dedicated badge, so display the game's icon.
@@ -189,29 +194,6 @@ class Leaderboard extends BaseModel implements HasPermalink, HasVersionedTrigger
     public function getCanonicalUrlAttribute(): string
     {
         return route('leaderboard.show', [$this, $this->getSlugAttribute()]);
-    }
-
-    /**
-     * Decompose `trigger_definition` into its four sections.
-     * A leaderboard trigger string looks like:
-     *  `STA:<start>::CAN:<cancel>::SUB:<submit>::VAL:<value>`.
-     * This returns those sections keyed by lowercase name.
-     *
-     * @return array{start: string, cancel: string, submit: string, value: string}
-     */
-    public function getTriggerPartsAttribute(): array
-    {
-        $parts = ['start' => '', 'cancel' => '', 'submit' => '', 'value' => ''];
-        $map = ['STA:' => 'start', 'CAN:' => 'cancel', 'SUB:' => 'submit', 'VAL:' => 'value'];
-
-        foreach (explode('::', $this->trigger_definition) as $chunk) {
-            $prefix = substr($chunk, 0, 4);
-            if (isset($map[$prefix])) {
-                $parts[$map[$prefix]] = substr($chunk, 4);
-            }
-        }
-
-        return $parts;
     }
 
     /**

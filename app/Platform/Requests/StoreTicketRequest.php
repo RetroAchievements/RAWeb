@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Platform\Requests;
 
 use App\Community\Enums\TicketType;
+use App\Models\Achievement;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -12,6 +13,9 @@ class StoreTicketRequest extends FormRequest
 {
     public function rules(): array
     {
+        $isStandalone = Achievement::with('game')->find($this->input('ticketableId'))?->game->getIsStandalone() ?? false;
+        $formOptionRule = $isStandalone ? 'nullable' : 'required';
+
         return [
             'ticketableModel' => 'required|string|in:achievement', // TODO or in:leaderboard
             'ticketableId' => 'required|integer|exists:achievements,id', // TODO could also be a leaderboard id
@@ -22,10 +26,10 @@ class StoreTicketRequest extends FormRequest
                 TicketType::DidNotTrigger,
             ])],
             'description' => 'required|string|max:2000',
-            'emulator' => 'required|string',
+            'emulator' => [$formOptionRule, 'string'],
             'emulatorVersion' => 'nullable|string',
             'core' => 'nullable|string',
-            'gameHashId' => 'required|integer',
+            'gameHashId' => [$formOptionRule, 'integer'],
             'extra' => 'nullable|string',
         ];
     }

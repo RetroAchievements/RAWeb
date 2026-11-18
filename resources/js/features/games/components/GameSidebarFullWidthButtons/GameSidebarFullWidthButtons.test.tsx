@@ -1,6 +1,6 @@
 import { createAuthenticatedUser } from '@/common/models';
 import { render, screen } from '@/test';
-import { createGame, createZiggyProps } from '@/test/factories';
+import { createAchievementSetClaim, createGame, createZiggyProps } from '@/test/factories';
 
 import { GameSidebarFullWidthButtons } from './GameSidebarFullWidthButtons';
 
@@ -148,5 +148,20 @@ describe('Component: GameSidebarFullWidthButtons', () => {
 
     // ASSERT
     expect(screen.queryByText(/subscribe/i)).not.toBeInTheDocument();
+  });
+
+  it('given only the claim approval permission is truthy, shows the Contribute button', () => {
+    // ARRANGE
+    render(<GameSidebarFullWidthButtons game={createGame()} />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser({ roles: ['dev-compliance'] }) },
+        backingGame: createGame(),
+        can: {},
+        achievementSetClaims: [createAchievementSetClaim({ canMarkReleaseScheduled: true })],
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByRole('button', { name: 'Contribute' })).toBeVisible();
   });
 });

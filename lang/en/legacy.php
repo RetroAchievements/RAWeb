@@ -35,7 +35,6 @@ return [
         'submit' => __("Submitted."),
         'update' => __("Updated."),
 
-        'achievement_unlocked' => __("Achievement unlocked."),
         'achievement_update' => __("Achievement updated."),
         'email_change' => __('Email address changed.'),
         'email_verify' => __("Email verified."),

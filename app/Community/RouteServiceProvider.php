@@ -23,6 +23,7 @@ use App\Community\Controllers\Api\MessageThreadApiController;
 use App\Community\Controllers\Api\OAuthApplicationApiController;
 use App\Community\Controllers\Api\ShortcodeApiController;
 use App\Community\Controllers\Api\SubscriptionApiController;
+use App\Community\Controllers\Api\TicketCommentApiController;
 use App\Community\Controllers\Api\UnsubscribeApiController;
 use App\Community\Controllers\Api\UserCommentApiController;
 use App\Community\Controllers\Api\UserGameListApiController;
@@ -108,6 +109,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::post('game/{game}/modification-comment', [GameModificationsCommentApiController::class, 'store'])->name('api.game.modification-comment.store');
 
                         Route::post('leaderboard/{leaderboard}/comment', [LeaderboardCommentApiController::class, 'store'])->name('api.leaderboard.comment.store');
+                        Route::post('ticket/{ticket}/comment', [TicketCommentApiController::class, 'store'])->name('api.ticket.comment.store');
                         Route::post('user/{user}/comment', [UserCommentApiController::class, 'store'])->name('api.user.comment.store');
                         Route::post('user/{user}/moderation-comment', [UserModerationCommentApiController::class, 'store'])->name('api.user.moderation-comment.store');
 
@@ -118,6 +120,7 @@ class RouteServiceProvider extends ServiceProvider
                         Route::delete('game/{game}/hashes/comment/{comment}', [GameHashesCommentApiController::class, 'destroy'])->name('api.game.hashes.comment.destroy');
                         Route::delete('game/{game}/modification-comment/{comment}', [GameModificationsCommentApiController::class, 'destroy'])->name('api.game.modification-comment.destroy');
                         Route::delete('leaderboard/{leaderboard}/comment/{comment}', [LeaderboardCommentApiController::class, 'destroy'])->name('api.leaderboard.comment.destroy');
+                        Route::delete('ticket/{ticket}/comment/{comment}', [TicketCommentApiController::class, 'destroy'])->scopeBindings()->name('api.ticket.comment.destroy');
                         Route::delete('user/{user}/comment/{comment}', [UserCommentApiController::class, 'destroy'])->name('api.user.comment.destroy');
                         Route::delete('user/{user}/moderation-comment/{comment}', [UserModerationCommentApiController::class, 'destroy'])->name('api.user.moderation-comment.destroy');
 
@@ -385,6 +388,7 @@ class RouteServiceProvider extends ServiceProvider
                 ], function () {
                     Route::post('game/{game}/claim/create', [AchievementSetClaimController::class, 'store'])->name('achievement-set-claim.create');
                     Route::post('game/{game}/claim/drop', [AchievementSetClaimController::class, 'delete'])->name('achievement-set-claim.delete');
+                    Route::post('claim/{claim}/release-scheduled', [AchievementSetClaimController::class, 'markReleaseScheduled'])->name('achievement-set-claim.release-scheduled');
                     Route::post('claim/{claim}/update', [AchievementSetClaimController::class, 'update'])->name('achievement-set-claim.update');
                 });
 

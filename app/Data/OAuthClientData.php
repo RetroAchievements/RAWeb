@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Laravel\Passport\Client;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript('OAuthClient')]
@@ -23,6 +25,8 @@ class OAuthClientData extends Data
         public Carbon $createdAt,
         public Carbon $updatedAt,
         public bool $confidential,
+
+        public Lazy|UserData|null $owner = null,
     ) {
     }
 
@@ -37,6 +41,11 @@ class OAuthClientData extends Data
             createdAt: Carbon::parse($client->created_at),
             updatedAt: Carbon::parse($client->updated_at),
             confidential: $client->confidential(),
+
+            owner: Lazy::create(fn (): ?UserData => $client->owner instanceof User
+                ? UserData::fromUser($client->owner)
+                : null
+            ),
         );
     }
 }

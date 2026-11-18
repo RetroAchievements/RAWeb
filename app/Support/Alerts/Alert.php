@@ -53,6 +53,23 @@ abstract class Alert
      */
     abstract public function toDiscordMessage(): string;
 
+    /**
+     * A single emoji identifying this alert kind, so a busy feed can be
+     * scanned by kind at a glance. Return null to send no prefix.
+     */
+    public function emoji(): ?string
+    {
+        return null;
+    }
+
+    public function toWebhookContent(): string
+    {
+        $emoji = $this->emoji();
+        $message = $this->toDiscordMessage();
+
+        return $emoji ? sprintf('%s · %s', $emoji, $message) : $message;
+    }
+
     public function send(): bool
     {
         $webhookUrl = static::webhookUrl();

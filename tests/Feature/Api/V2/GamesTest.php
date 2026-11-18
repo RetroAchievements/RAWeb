@@ -6,6 +6,7 @@ namespace Tests\Feature\Api\V2;
 
 use App\Models\ForumTopic;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\System;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -239,6 +240,34 @@ class GamesTest extends JsonApiResourceTestCase
         $this->assertEquals('systems', $included[0]['type']);
         $this->assertEquals((string) $system->id, $included[0]['id']);
         $this->assertEquals('Nintendo 64', $included[0]['attributes']['name']);
+    }
+
+    public function testItCanIncludeHashesRelationship(): void
+    {
+        // Arrange
+        $user = User::factory()->create(['web_api_key' => 'test-key']);
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $hash = GameHash::factory()->create([
+            'game_id' => $game->id,
+            'system_id' => $system->id,
+            'md5' => 'c0ffee1234567890c0ffee1234567890',
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('games')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/games?include=hashes&filter[id][]={$game->id}");
+
+        // Assert
+        $response->assertSuccessful();
+
+        $included = $response->json('included');
+        $this->assertNotEmpty($included);
+        $this->assertEquals('game-hashes', $included[0]['type']);
+        $this->assertEquals((string) $hash->id, $included[0]['id']);
+        $this->assertEquals('c0ffee1234567890c0ffee1234567890', $included[0]['attributes']['raMd5']);
     }
 
     public function testItReturnsCorrectAttributes(): void

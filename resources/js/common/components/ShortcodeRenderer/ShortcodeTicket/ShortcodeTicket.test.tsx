@@ -197,26 +197,4 @@ describe('Component: ShortcodeTicket', () => {
     // ASSERT
     expect(screen.getByRole('link')).toHaveClass('border-red-600');
   });
-
-  it('given an undefined ticket state, applies no border styling', () => {
-    // ARRANGE
-    const ticket = createTicket({
-      id: 123,
-      ticketableType: 'achievement',
-      state: undefined,
-      ticketable: createAchievement({ badgeUnlockedUrl: 'test-badge.png' }),
-    });
-
-    render(<ShortcodeTicket ticketId={123} />, {
-      jotaiAtoms: [
-        [persistedTicketsAtom, [ticket]],
-        //
-      ],
-    });
-
-    // ASSERT
-    const linkEl = screen.getByRole('link');
-    expect(linkEl).not.toHaveClass('border-green-600');
-    expect(linkEl).not.toHaveClass('border-red-600');
-  });
 });

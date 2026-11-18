@@ -12,30 +12,18 @@ use Illuminate\Support\Facades\Auth;
 
 class UserCommentApiController extends Controller
 {
-    public function index(): void
-    {
-    }
-
     public function store(StoreCommentRequest $request, User $user): JsonResponse
     {
         $this->authorize('create', [UserComment::class, $user]);
 
         $data = StoreCommentData::fromRequest($request);
 
-        /** @var User $me */
-        $me = Auth::user();
+        /** @var User $user */
+        $user = Auth::user();
 
-        addArticleComment($me->username, $data->commentableType, $data->commentableId, $data->body);
+        addArticleComment($user->username, $data->commentableType, $data->commentableId, $data->body);
 
         return response()->json(['success' => true]);
-    }
-
-    public function show(): void
-    {
-    }
-
-    public function update(): void
-    {
     }
 
     public function destroy(User $user, UserComment $comment): JsonResponse

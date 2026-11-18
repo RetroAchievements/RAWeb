@@ -12,7 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class BuildThinRecentForumPostsDataAction
 {
+    /** Extra comments to read when masked authors can remove rows after the topic join. */
+    public const int MASKED_AUTHOR_SCAN_BUFFER = 250;
+
     /**
+     * @param array<int, int> $maskedAuthorIds authors the viewer has blocked
      * @return Collection<int, ForumTopicData>
      */
     public function execute(
@@ -20,14 +24,16 @@ class BuildThinRecentForumPostsDataAction
         int $numMessageChars = 260,
         ?int $permissions = Permissions::Unregistered,
         ?int $fromAuthorId = null,
+        array $maskedAuthorIds = [],
     ): Collection {
         $userClause = $this->buildUserClause($fromAuthorId, $permissions);
 
         $subQuery = DB::table('forum_topic_comments as ftc')
             ->select('*')
             ->whereRaw($userClause)
+            ->whereNotIn('ftc.author_id', $maskedAuthorIds)
             ->orderBy('ftc.created_at', 'desc')
-            ->limit($limit + 20); // cater for spam messages
+            ->limit($limit + 20 + (empty($maskedAuthorIds) ? 0 : self::MASKED_AUTHOR_SCAN_BUFFER)); // cater for spam messages
 
         $latestComments = DB::table(DB::raw("({$subQuery->toSql()}) as LatestComments"))
             ->mergeBindings($subQuery)
@@ -47,18 +53,12 @@ class BuildThinRecentForumPostsDataAction
             ])
             ->where('ft.required_permissions', '<=', $permissions ?? Permissions::Unregistered)
             ->whereNull('ft.deleted_at')
+            ->whereNotIn('ft.author_id', $maskedAuthorIds)
             ->orderBy('LatestComments.created_at', 'desc')
             ->limit($limit)
             ->get();
 
-        $shortcodeIds = [];
-        foreach ($latestComments as $post) {
-            $postShortcodeIds = Shortcode::extractShortcodeIds($post->Payload);
-            foreach ($postShortcodeIds as $key => $ids) {
-                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
-            }
-        }
-        $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
+        $shortcodeRecords = Shortcode::fetchRecordsFor($latestComments->pluck('Payload'));
 
         return $latestComments->map(function ($post) use ($numMessageChars, $shortcodeRecords) {
             $postArray = (array) $post;

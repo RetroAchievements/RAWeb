@@ -74,6 +74,7 @@ class ForumTopicData extends Data
                 body: Shortcode::stripAndClamp($comment['Payload'], $numMessageChars, shortcodeRecords: $shortcodeRecords),
                 createdAt: Carbon::parse($comment['PostedAt']),
                 updatedAt: null,
+                editedAt: null,
                 user: UserData::fromRecentForumTopic($comment),
                 isAuthorized: true
             )),
@@ -105,6 +106,7 @@ class ForumTopicData extends Data
                     body: Shortcode::stripAndClamp($topic['ShortMsg'], 200, shortcodeRecords: $shortcodeRecords),
                     createdAt: Carbon::parse($topic['PostedAt']),
                     updatedAt: null, // If no updated date is available, you can set it to null or handle accordingly
+                    editedAt: null,
                     user: UserData::fromRecentForumTopic($topic),
                     isAuthorized: true // Assuming it's authorized
                 )
@@ -136,6 +138,7 @@ class ForumTopicData extends Data
                 body: Shortcode::stripAndClamp($userPost['ShortMsg'], 200, shortcodeRecords: $shortcodeRecords),
                 createdAt: Carbon::parse($userPost['PostedAt']),
                 updatedAt: null,
+                editedAt: null,
                 user: null,
                 isAuthorized: true
             )),

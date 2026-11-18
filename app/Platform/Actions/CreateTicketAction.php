@@ -11,7 +11,6 @@ use App\Enums\ClientSupportLevel;
 use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\Emulator;
-use App\Models\EmulatorCoreRestriction;
 use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\Ticket;
@@ -20,6 +19,7 @@ use App\Notifications\Ticket\TicketCreatedNotification;
 use App\Platform\Data\StoreTicketData;
 use App\Platform\Services\UserAgentService;
 use App\Platform\Services\UserTicketCountService;
+use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 
 class CreateTicketAction
@@ -32,27 +32,26 @@ class CreateTicketAction
             throw new InvalidArgumentException('Ticket creation supports achievements only.');
         }
 
-        $emulator = Emulator::where('name', $data->emulator)->first();
+        $emulator = $data->emulator ? Emulator::where('name', $data->emulator)->first() : null;
 
         $achievement = $data->ticketable;
         $maintainer = $achievement->getMaintainerAt(now());
 
-        $ticket = Ticket::create([
+        // Build the ticket in memory before we save it later so duplicate activitylog
+        // records don't get inserted into the history for the record.
+        $ticket = new Ticket([
             'ticketable_type' => 'achievement',
             'ticketable_id' => $achievement->id,
             'reporter_id' => $user->id,
-            'ticketable_author_id' => $maintainer?->id,
+            'assignee_id' => $maintainer?->id,
             'type' => $data->issue,
             'hardcore' => $data->mode === 'hardcore',
-            'body' => $this->formatTicketNote($data, !$emulator),
+            'body' => $this->formatTicketNote($data, $data->emulator && !$emulator),
         ]);
 
-        if ($maintainer) {
-            app(UserTicketCountService::class)->clearForUserId($maintainer->id);
-        }
-
-        $ticket->game_hash_id = $data->gameHash->id;
+        $ticket->game_hash_id = $data->gameHash?->id;
         $ticket->emulator_core = $data->core ?: null;
+        $ticket->trigger_id = $achievement->trigger_id;
 
         if ($emulator) {
             $ticket->emulator_id = $emulator->id;
@@ -62,6 +61,12 @@ class CreateTicketAction
         $ticket->state = $this->resolveTicketState($data, $user, $achievement, $emulator);
 
         $ticket->save();
+
+        (new RefreshTicketSignalVerdictsAction())->execute(new Collection([$ticket]));
+
+        if ($maintainer) {
+            app(UserTicketCountService::class)->clearForUserId($maintainer->id);
+        }
 
         // Don't notify developers about quarantined tickets.
         if ($ticket->state !== TicketState::Quarantined) {
@@ -78,6 +83,17 @@ class CreateTicketAction
         Achievement $achievement,
         ?Emulator $emulator,
     ): TicketState {
+        $game = $achievement->game;
+        if ($game->is_ticket_quarantine_enabled || $game->parentGame?->is_ticket_quarantine_enabled) {
+            return TicketState::Quarantined;
+        }
+
+        // Standalone games ship their own clients, which can't necessarily debug triggers.
+        // For standalones, we intentionally bypass all the checks below.
+        if ($game->getIsStandalone()) {
+            return TicketState::Open;
+        }
+
         // The form's emulator list is the emulators table plus a synthetic "Other" entry, so a
         // name that resolves to nothing means the reporter is on a client we can't reason about.
         // Hold the ticket rather than failing open on a missing primary signal.
@@ -90,15 +106,12 @@ class CreateTicketAction
             return TicketState::Quarantined;
         }
 
-        // Quarantine a ticket when the reported core is restricted.
-        if (!empty($data->core) && EmulatorCoreRestriction::forCore($data->core)->exists()) {
-            return TicketState::Quarantined;
-        }
-
         // Fall back to the session's user agent. It carries signals the form can't:
-        // client version thresholds and offline submission clients.
+        // how old the client is, offline submissions, and which core was used.
+        $relatedGameIds = $achievement->getRelatedGameIds();
+
         $latestSession = PlayerSession::where('user_id', $user->id)
-            ->where('game_id', $achievement->game_id)
+            ->whereIn('game_id', $relatedGameIds)
             ->latest()
             ->first();
         if ($latestSession?->user_agent) {

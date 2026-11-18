@@ -5,8 +5,12 @@ namespace App\Platform\Actions;
 use App\Community\Enums\AwardType;
 use App\Models\Achievement;
 use App\Models\AchievementMaintainerUnlock;
+use App\Models\Game;
+use App\Models\GameAchievementSet;
+use App\Models\PlayerBadge;
 use App\Models\PlayerProgressReset;
 use App\Models\User;
+use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\PlayerProgressResetType;
 use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
@@ -15,6 +19,7 @@ use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerMetricsJob;
 use Illuminate\Support\Facades\DB;
 
 class ResetPlayerProgressAction
@@ -164,6 +169,39 @@ class ResetPlayerProgressAction
                 ->whereIn('achievement_id', $achievementIds)
                 ->delete();
 
+            // UpdatePlayerGameMetricsAction and RevalidateAchievementSetBadgeEligibilityAction
+            // won't revoke beaten/completion status if all the achievements for the game are demoted.
+            if (Game::where('id', $gameID)->value('achievements_published') == 0) {
+                $playerGame = $user->playerGames()->where('game_id', $gameID)->first();
+                if ($playerGame) {
+                    $playerGame->beaten_at = null;
+                    $playerGame->beaten_hardcore_at = null;
+                    $playerGame->completed_at = null;
+                    $playerGame->completed_hardcore_at = null;
+                    $playerGame->save();
+                }
+
+                $achievementSetId = GameAchievementSet::where('game_id', $gameID)->where('type', AchievementSetType::Core)->value('achievement_set_id');
+                $playerAchievementSet = $user->playerAchievementSets()->where('achievement_set_id', $achievementSetId)->first();
+                if ($playerAchievementSet) {
+                    $playerAchievementSet->completed_at = null;
+                    $playerAchievementSet->completed_hardcore_at = null;
+                    $playerAchievementSet->save();
+                }
+
+                $badges = PlayerBadge::where('user_id', $user->id)
+                    ->whereIn('award_type', [AwardType::Mastery, AwardType::GameBeaten])
+                    ->where('award_key', $gameID)
+                    ->get();
+
+                foreach ($badges as $badge) {
+                    PlayerBadgeLost::dispatch($user, $badge->award_type, $badge->award_key, $badge->award_tier);
+                    $badge->delete();
+                }
+
+                expireGameTopAchievers($gameID);
+            }
+
             // Track the game reset.
             PlayerProgressReset::create([
                 'user_id' => $user->id,
@@ -242,6 +280,12 @@ class ResetPlayerProgressAction
             // metrics for each achievement won't be recalculated. we really only need to
             // recalculate the affected achievement anyway, so do that now.
             dispatch(new UpdateAchievementMetricsJob($achievementID))->onQueue('achievement-metrics');
+        }
+
+        if (!$isFullReset) {
+            // kept points live outside any single game's metrics, so the
+            // player's totals have to be recalculated from scratch.
+            dispatch(new UpdatePlayerMetricsJob($user->id))->onQueue('player-metrics');
         }
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));

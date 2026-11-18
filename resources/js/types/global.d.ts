@@ -60,6 +60,7 @@ declare module '@tanstack/react-table' {
 
     align?: 'right' | 'left';
     Icon?: IconType;
+    responsiveClassName?: string;
     sortType?: 'default' | 'date' | 'quantity' | 'boolean';
   }
 }

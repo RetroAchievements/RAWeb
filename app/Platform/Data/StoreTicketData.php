@@ -18,10 +18,10 @@ class StoreTicketData extends Data
         public string $mode,
         public TicketType $issue,
         public string $description,
-        public string $emulator,
+        public ?string $emulator,
         public ?string $emulatorVersion,
         public ?string $core,
-        public GameHash $gameHash,
+        public ?GameHash $gameHash,
         public ?string $extra,
     ) {
     }
@@ -40,7 +40,7 @@ class StoreTicketData extends Data
             emulator: $request->emulator,
             emulatorVersion: $request->emulatorVersion,
             core: $request->core,
-            gameHash: GameHash::find($request->gameHashId),
+            gameHash: $request->gameHashId ? GameHash::find($request->gameHashId) : null,
             extra: $request->extra,
         );
     }

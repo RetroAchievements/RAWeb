@@ -17,6 +17,8 @@ use App\Platform\Events\AchievementUnpromoted;
 use App\Platform\Events\GameBecamePlayable;
 use App\Platform\Events\GameMetricsUpdated;
 use App\Platform\Events\GamePlayerGameMetricsUpdated;
+use App\Platform\Events\LeaderboardPromoted;
+use App\Platform\Events\LeaderboardUnpromoted;
 use App\Platform\Events\PlayerAchievementLocked;
 use App\Platform\Events\PlayerAchievementUnlocked;
 use App\Platform\Events\PlayerBadgeAwarded;
@@ -32,6 +34,7 @@ use App\Platform\Events\PlayerRankedStatusChanged;
 use App\Platform\Events\PlayerSessionHeartbeat;
 use App\Platform\Listeners\DispatchIncrementDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateAchievementMetricsJob;
+use App\Platform\Listeners\DispatchUpdateDemotedAchievementPlayerMetricsJob;
 use App\Platform\Listeners\DispatchUpdateDeveloperContributionYieldJob;
 use App\Platform\Listeners\DispatchUpdateGameAchievementUnlockMediansJob;
 use App\Platform\Listeners\DispatchUpdateGameBeatenMetricsJob;
@@ -65,9 +68,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         AchievementDeleted::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            DispatchUpdateDemotedAchievementPlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         AchievementRestored::class => [
             DispatchUpdateGameMetricsJob::class, // dispatches GameMetricsUpdated
+            DispatchUpdateDemotedAchievementPlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         AchievementMoved::class => [
             DispatchUpdateGamePlayerCountJob::class,
@@ -94,6 +99,7 @@ class EventServiceProvider extends ServiceProvider
             DispatchUpdateGameMetricsJob::class,
             DispatchUpdateDeveloperContributionYieldJob::class, // dispatches UpdateDeveloperContributionYield
             DispatchUpdateAchievementMetricsJob::class,
+            DispatchUpdateDemotedAchievementPlayerMetricsJob::class, // dispatches PlayerMetricsUpdated
         ],
         AchievementTypeChanged::class => [
             DispatchUpdateGameMetricsJob::class,
@@ -106,6 +112,11 @@ class EventServiceProvider extends ServiceProvider
         GamePlayerGameMetricsUpdated::class => [
             DispatchUpdateGamePlayerCountJob::class,
             DispatchUpdateGameBeatenMetricsJob::class,
+        ],
+        LeaderboardPromoted::class => [
+            EnsureTriggerVersionedOnPromotion::class,
+        ],
+        LeaderboardUnpromoted::class => [
         ],
         PlayerAchievementLocked::class => [
             DispatchUpdateAchievementMetricsJob::class,

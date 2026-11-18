@@ -280,7 +280,7 @@ class AwardAchievementsAction extends BaseAuthenticatedApiAction
             // NOTE: this double-counts achievements the user is upgrading from casual to hardcore
             //       and anything the user has previously reset.
             if ($lastAwardedId) {
-                StaticData::incrementEach([
+                StaticData::query()->incrementEach([
                     'NumAwarded' => count($newAwardedIds),
                     'TotalPointsEarned' => $pointsEarned,
                 ], [

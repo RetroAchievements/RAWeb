@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Community\Enums\CommentableType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Platform\Actions\GetHasCasualUnlockFromRestrictedClientAction;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Support\Database\Eloquent\BaseModel;
@@ -14,9 +19,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use LogicException;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Ticket extends BaseModel
 {
@@ -24,12 +32,30 @@ class Ticket extends BaseModel
     use HasFactory;
     use SoftDeletes;
 
+    use LogsActivity {
+        LogsActivity::activities as auditLog;
+    }
+
     protected $table = 'tickets';
+
+    /**
+     * The audit log event written when the reporter is reminded to answer a request for more information.
+     */
+    public const REPORTER_REMINDED_EVENT = 'reporterReminded';
+
+    /**
+     * The audit log events written when a dev claims a ticket, releases their own claim,
+     * is notified about an upcoming expiry, or allows their own claim to expire.
+     */
+    public const CLAIMED_EVENT = 'claimed';
+    public const CLAIM_RELEASED_EVENT = 'claimReleased';
+    public const CLAIM_EXPIRED_EVENT = 'claimExpired'; // the Server account is the causer
+    public const CLAIM_EXPIRY_WARNED_EVENT = 'claimExpiryWarned';
 
     protected $fillable = [
         'ticketable_type',
         'ticketable_id',
-        'ticketable_author_id',
+        'assignee_id',
         'reporter_id',
         'type',
         'hardcore',
@@ -39,6 +65,9 @@ class Ticket extends BaseModel
     protected $casts = [
         'type' => TicketType::class,
         'state' => TicketState::class,
+        'resolution' => TicketResolution::class,
+        'current_signal_verdict' => TicketSignalVerdict::class, // only open tickets have one of these
+        'resolved_signal_verdict' => TicketSignalVerdict::class, // the verdict a ticket had when it was resolved or closed - cleared on reopen
         'resolved_at' => 'datetime',
     ];
 
@@ -59,11 +88,78 @@ class Ticket extends BaseModel
         throw new LogicException("Ticket {$this->id} has no resolvable ticketable (type: {$this->ticketable_type}).");
     }
 
+    /**
+     * Only truthy when the ticket is assigned to a user other than the triggerable's maintainer.
+     * Only assignments like these can actually expire.
+     */
+    public function isClaimed(): bool
+    {
+        if ($this->assignee_id === null || !$this->state->isOpen()) {
+            return false;
+        }
+
+        $ticketableModel = $this->getTicketableModel();
+        $maintainerUserId = $ticketableModel instanceof Achievement
+            ? ($ticketableModel->activeMaintainer->user_id ?? $ticketableModel->user_id)
+            : $ticketableModel->author_id;
+
+        return $this->assignee_id !== $maintainerUserId;
+    }
+
+    public function canReporterRequestManualUnlock(): bool
+    {
+        if (
+            $this->resolution !== TicketResolution::NetworkProblems
+            || $this->ticketable_type !== TicketableType::Achievement->value
+            || $this->reporter_id === null
+        ) {
+            return false;
+        }
+
+        $reporterAchievementUnlock = PlayerAchievement::query()
+            ->where('user_id', $this->reporter_id)
+            ->where('achievement_id', $this->ticketable_id)
+            ->first();
+
+        if ($reporterAchievementUnlock === null) {
+            return true;
+        }
+
+        if (!$this->hardcore || $reporterAchievementUnlock->unlocked_hardcore_at !== null) {
+            return false;
+        }
+
+        /** @var Achievement $achievement */
+        $achievement = $this->ticketable;
+
+        return !(new GetHasCasualUnlockFromRestrictedClientAction())->execute($reporterAchievementUnlock, $achievement);
+    }
+
+    // == logging
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'state',
+                'resolution',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
     // == accessors
 
     public function getIsOpenAttribute(): bool
     {
         return $this->state->isOpen();
+    }
+
+    public function getIsWaitingOnReporterAttribute(): bool
+    {
+        return
+            $this->state === TicketState::Request
+            || $this->resolution === TicketResolution::NoReplyFromReporter;
     }
 
     // == mutators
@@ -76,6 +172,24 @@ class Ticket extends BaseModel
     public function ticketable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * TODO use HasComments / polymorphic relationship
+     *
+     * @return HasMany<TicketComment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(TicketComment::class, 'commentable_id')->where('commentable_type', CommentableType::Ticket);
+    }
+
+    /**
+     * @return HasMany<TicketComment, $this>
+     */
+    public function discussionComments(): HasMany
+    {
+        return $this->comments()->notAutomated()->orderBy('created_at')->orderBy('id');
     }
 
     /**
@@ -103,9 +217,9 @@ class Ticket extends BaseModel
     /**
      * @return BelongsTo<User, $this>
      */
-    public function author(): BelongsTo
+    public function assignee(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'ticketable_author_id')->withTrashed();
+        return $this->belongsTo(User::class, 'assignee_id')->withTrashed();
     }
 
     /**
@@ -140,6 +254,14 @@ class Ticket extends BaseModel
         return $this->belongsTo(GameHash::class, 'game_hash_id', 'id');
     }
 
+    /**
+     * @return BelongsTo<Trigger, $this>
+     */
+    public function trigger(): BelongsTo
+    {
+        return $this->belongsTo(Trigger::class, 'trigger_id', 'id')->withTrashed();
+    }
+
     // == scopes
 
     /**
@@ -167,18 +289,20 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
-    public function scopeResolved(Builder $query): Builder
-    {
-        return $query->whereIn('state', [TicketState::Resolved, TicketState::Closed]);
-    }
-
-    /**
-     * @param Builder<Ticket> $query
-     * @return Builder<Ticket>
-     */
     public function scopeQuarantined(Builder $query): Builder
     {
         return $query->where('state', TicketState::Quarantined);
+    }
+
+    /**
+     * Excludes tickets whose ticketable was deleted.
+     *
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeWithLiveTicketable(Builder $query): Builder
+    {
+        return $query->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
     }
 
     /**
@@ -187,18 +311,12 @@ class Ticket extends BaseModel
      */
     public function scopeVisibleTo(Builder $query, ?User $user = null): Builder
     {
+        // Guests can't see tickets.
         if ($user === null) {
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->can('manage', self::class)) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $q) use ($user) {
-            $q->where('state', '!=', TicketState::Quarantined->value)
-                ->orWhere('reporter_id', $user->id);
-        });
+        return $query;
     }
 
     /**
@@ -218,6 +336,19 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
+    public function scopeForSystem(Builder $query, int $systemId): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $q) => $q->whereHas('game', fn (Builder $game) => $game->where('system_id', $systemId)),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
     public function scopeForAchievement(Builder $query, Achievement $achievement): Builder
     {
         return $query->where('ticketable_id', $achievement->id)
@@ -230,7 +361,58 @@ class Ticket extends BaseModel
      */
     public function scopeForAssignee(Builder $query, User $user): Builder
     {
-        return $query->where('ticketable_author_id', $user->id);
+        return $query->where('assignee_id', $user->id);
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeForMaintainer(Builder $query, User $user): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $morphQuery, string $ticketableType) => match ($ticketableType) {
+                Achievement::class => $morphQuery->where(fn (Builder $achievementQuery) => $achievementQuery
+                    ->whereHas('activeMaintainer', fn (Builder $maintainerQuery) => $maintainerQuery->where('user_id', $user->id))
+                    ->orWhere(fn (Builder $unmaintainedQuery) => $unmaintainedQuery
+                        ->whereDoesntHave('activeMaintainer')
+                        ->where('user_id', $user->id)
+                    )
+                ),
+                Leaderboard::class => $morphQuery->where('author_id', $user->id),
+                default => throw new LogicException("Unexpected ticketable type: {$ticketableType}"),
+            },
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeOnGamesSubscribedToBy(Builder $query, User $user): Builder
+    {
+        return $query->whereHasMorph(
+            'ticketable',
+            [Achievement::class, Leaderboard::class],
+            fn (Builder $q) => $q->whereIn('game_id', Subscription::query()
+                ->select('subject_id')
+                ->where('subject_type', SubscriptionSubjectType::GameTickets)
+                ->where('user_id', $user->id)
+                ->where('state', true)),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeNotAssignedTo(Builder $query, User $user): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->whereNull('assignee_id')
+            ->orWhere('assignee_id', '!=', $user->id));
     }
 
     /**

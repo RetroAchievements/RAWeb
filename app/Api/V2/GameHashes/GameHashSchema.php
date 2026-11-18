@@ -6,6 +6,7 @@ namespace App\Api\V2\GameHashes;
 
 use App\Models\GameHash;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
+use LaravelJsonApi\Eloquent\Fields\ArrayList;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
@@ -48,11 +49,30 @@ class GameHashSchema extends Schema
             Str::make('name')->readOnly(),
             Str::make('compatibility')->readOnly(),
             Str::make('patchUrl', 'patch_url')->readOnly(),
+            ArrayList::make('labels')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->readOnly(),
             DateTime::make('updatedAt', 'updated_at')->readOnly(),
 
             BelongsTo::make('game')->readOnly(),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'raMd5' => false,
+            'name' => true,
+            'compatibility' => false,
+            'patchUrl' => true,
+            'createdAt' => true,
+            'updatedAt' => true,
+            'labels' => false,
         ];
     }
 

@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\PlayerGame;
 use App\Models\Role;
+use App\Models\System;
 use App\Models\User;
 use App\Platform\Actions\SyncEventAchievementMetadataAction;
 use App\Platform\Actions\UpsertTriggerVersionAction;
@@ -119,6 +120,11 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
 
     protected function process(): array
     {
+        // Normalize "0" to "00000".
+        if (preg_match('/^0+$/', $this->badgeName) === 1) {
+            $this->badgeName = '00000';
+        }
+
         if (!$this->achievementId) {
             return $this->createAchievement();
         }
@@ -135,6 +141,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         $achievement = Achievement::find($this->achievementId);
         if (!$achievement) {
             return $this->resourceNotFound('achievement');
+        }
+
+        if ($achievement->game?->system_id === System::Events && !$this->user->can('update', $achievement)) {
+            return $this->accessDenied('Event achievements are not managed through the Connect API.');
         }
 
         // Check if user has permission to update the achievement.
@@ -156,6 +166,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             // Technically, writers can change the title and description and artists can change the
             // badge, but they probably won't use the client to do so. they'll use the management pages.
             return $this->mustBeDeveloper();
+        }
+
+        if ($this->badgeName !== $achievement->image_name && !$this->isAllowedBadge($this->badgeName)) {
+            return $this->invalidParameter("Unknown badge: $this->badgeName");
         }
 
         $fields = [];
@@ -272,6 +286,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             return $this->gameNotFound();
         }
 
+        if ($game->system_id === System::Events) {
+            return $this->accessDenied('Event achievements are not managed through the Connect API.');
+        }
+
         // Check if user has permission to create an achievement.
         if (!$this->user->can('create', [Achievement::class, $game])) {
             return $this->mustBeDeveloper();
@@ -280,6 +298,10 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
         // Make sure the user has a claim on the game.
         if (!$this->user->hasActiveClaimOnGameId($game->id)) {
             return $this->mustHaveActiveClaim();
+        }
+
+        if (!$this->isAllowedBadge($this->badgeName)) {
+            return $this->invalidParameter("Unknown badge: $this->badgeName");
         }
 
         if (!AchievementPoints::isValid($this->points)) {
@@ -321,5 +343,19 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
             'Success' => true,
             'AchievementID' => $achievement->id,
         ];
+    }
+
+    /**
+     * New badge numbers are "highest badge on any achievement + 1".
+     */
+    private function isAllowedBadge(string $badgeName): bool
+    {
+        if (preg_match('/^\d{5,7}$/', $badgeName) !== 1) {
+            return false;
+        }
+
+        $nextBadge = (new GetBadgeIdRangeAction())->execute()['NextBadge'];
+
+        return (int) $badgeName < $nextBadge + 1000;
     }
 }

@@ -139,6 +139,51 @@ class UserAgentServiceTest extends TestCase
         ], $this->parseUserAgent($userAgent));
     }
 
+    public function testRetroArchUserAgentWithOsVersionContainingParentheses(): void
+    {
+        $userAgent = 'RetroArch/1.21.0 (Windows 11 Home x64 25H2 (10.0.26100.9457) 10.0) fceumm_libretro/(SVN)_449db5d';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.21.0',
+            'os' => 'Windows 11 Home x64 25H2 (10.0.26100.9457) 10.0',
+            'clientVariation' => 'fceumm',
+            'extra' => [
+                'fceumm_libretro' => '(SVN)_449db5d',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testRetroArchUserAgentWithOsReleaseInParenthesesMidway(): void
+    {
+        $userAgent = 'RetroArch/1.22.2 (Windows 11 (25H2) x64 - Build 26200 10.0) fceumm_libretro/(SVN)_236ccdf';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.22.2',
+            'os' => 'Windows 11 (25H2) x64 - Build 26200 10.0',
+            'clientVariation' => 'fceumm',
+            'extra' => [
+                'fceumm_libretro' => '(SVN)_236ccdf',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
+    public function testRetroArchUserAgentWithTruncatedOsKeepsTheCore(): void
+    {
+        $userAgent = 'RetroArch/1.21.0 (Windows 11 Enterprise LTSC 2024 Evaluation x64 24H2 (10.0.26100 10.0) genesis_plus_gx_libretro/v1.7.4_17c9c5e';
+
+        $this->assertEquals([
+            'client' => 'RetroArch',
+            'clientVersion' => '1.21.0',
+            'os' => 'Windows 11 Enterprise LTSC 2024 Evaluation x64 24H2 (10.0.26100 10.0',
+            'clientVariation' => 'genesis_plus_gx',
+            'extra' => [
+                'genesis_plus_gx_libretro' => '1.7.4_17c9c5e',
+            ],
+        ], $this->parseUserAgent($userAgent));
+    }
+
     public function testRetroArchUserAgentWithUnversionedCore(): void
     {
         $userAgent = 'RetroArch/1.10.3 fceumm_libretro/(SVN)';

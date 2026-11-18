@@ -15,6 +15,11 @@ class MutedUserMessageAlert extends Alert
     ) {
     }
 
+    public function emoji(): ?string
+    {
+        return '📨';
+    }
+
     /**
      * "Muted user [SomePerson](<https://retroachievements.org/user/SomePerson>) sent [a DM](<https://retroachievements.org/message-thread/123>) to RAdmin"
      */

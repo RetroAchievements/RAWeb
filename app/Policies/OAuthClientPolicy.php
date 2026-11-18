@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\OAuthClient;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class OAuthClientPolicy
 {
     use HandlesAuthorization;
+
+    public function manage(User $user): bool
+    {
+        return $user->hasAnyRole([
+            Role::ADMINISTRATOR,
+        ]);
+    }
 
     public function viewAny(?User $user): bool
     {

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
@@ -7,62 +8,79 @@ import { z } from 'zod';
 import { toastMessage } from '@/common/components/+vendor/BaseToaster';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { useCreateTicketMutation } from '@/features/achievements/hooks/mutations/useCreateTicketMutation';
+import { shouldTicketTypeOfferManualUnlock } from '@/features/achievements/utils/shouldTicketTypeOfferManualUnlock';
 
-const createAchievementTicketFormSchema = z.object({
+export interface CreateAchievementTicketFormValues {
   /** @see TicketType.php */
-  issue: z.enum(['DidNotTrigger', 'TriggeredAtWrongTime', 'NetworkIssue']),
-  emulator: z.string().min(1),
-  emulatorVersion: z.string().optional(),
-  core: z.string().optional(),
-  mode: z.enum(['hardcore', 'casual']),
-  hash: z.string().min(1),
-  description: z.string().min(25, { message: 'Please be more detailed in your description.' }),
-});
+  issue: 'DidNotTrigger' | 'TriggeredAtWrongTime' | 'NetworkIssue';
+  mode: 'hardcore' | 'casual';
+  description: string;
 
-export type CreateAchievementTicketFormValues = z.infer<typeof createAchievementTicketFormSchema>;
+  core?: string;
+  emulator?: string;
+  emulatorVersion?: string;
+  hash?: string;
+}
+
+function buildCreateAchievementTicketFormSchema(
+  hasEmulatorOptions: boolean,
+  hasGameHashOptions: boolean,
+): z.ZodType<CreateAchievementTicketFormValues, CreateAchievementTicketFormValues> {
+  return z.object({
+    issue: z.enum(['DidNotTrigger', 'TriggeredAtWrongTime', 'NetworkIssue']),
+    emulator: hasEmulatorOptions ? z.string().min(1) : z.string().optional(),
+    emulatorVersion: z.string().optional(),
+    core: z.string().optional(),
+    mode: z.enum(['hardcore', 'casual']),
+    hash: hasGameHashOptions ? z.string().min(1) : z.string().optional(),
+    description: z.string().min(25, { message: 'Please be more detailed in your description.' }),
+  });
+}
 
 export function useCreateAchievementTicketForm(
   initialValues: Partial<CreateAchievementTicketFormValues>,
 ) {
   const {
     achievement,
+    emulators,
+    gameHashes,
     ziggy: { query },
   } = usePageProps<App.Platform.Data.CreateAchievementTicketPageProps>();
   const { t } = useTranslation();
 
   const form = useForm<CreateAchievementTicketFormValues>({
-    resolver: zodResolver(createAchievementTicketFormSchema),
+    resolver: zodResolver(
+      buildCreateAchievementTicketFormSchema(emulators.length > 0, gameHashes.length > 0),
+    ),
     defaultValues: initialValues,
   });
 
   const mutation = useCreateTicketMutation();
 
   const onSubmit = async (formValues: CreateAchievementTicketFormValues) => {
+    const ticketType = getTicketTypeFromIssue(formValues.issue);
+
     toastMessage.promise(
       mutation.mutateAsync({
         payload: {
           ticketableModel: 'achievement',
           ticketableId: achievement.id,
           mode: formValues.mode,
-          issue: getTicketTypeFromIssue(formValues.issue),
+          issue: ticketType,
           description: formValues.description,
-          emulator: formValues.emulator,
+          emulator: formValues.emulator ?? null,
           emulatorVersion: formValues.emulatorVersion?.trim() ? formValues.emulatorVersion : null,
           core: formValues.core,
-          gameHashId: Number(formValues.hash),
+          gameHashId: formValues.hash ? Number(formValues.hash) : null,
           extra: query.extra ?? null,
         },
       }),
       {
         loading: t('Submitting...'),
         success: (submitResponse) => {
-          setTimeout(() => {
-            const { ticketId } = submitResponse.data;
-
-            // TODO use router.visit after migrating this page to React
-            // eslint-disable-next-line react-compiler/react-compiler -- Full-page navigation is intentional. Eventually when ticket.show is powered by Inertia, this can be changed.
-            window.location.href = route('ticket.show', { ticket: ticketId });
-          }, 1000);
+          if (!shouldTicketTypeOfferManualUnlock(ticketType)) {
+            router.visit(route('ticket.show', { ticket: submitResponse.data.ticketId }));
+          }
 
           return t('Submitted!');
         },

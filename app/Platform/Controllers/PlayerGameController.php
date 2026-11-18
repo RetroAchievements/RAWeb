@@ -129,8 +129,9 @@ class PlayerGameController extends Controller
         Game $game,
         BuildPlayerGameActivityDataAction $buildPlayerGameActivityData,
     ): InertiaResponse {
+        $this->authorize('viewActivity', [PlayerGame::class, $user, $game]);
+
         $playerGame = $user->playerGames()->whereGameId($game->id)->first();
-        $this->authorize('viewSessionHistory', [PlayerGame::class, $playerGame]);
 
         $props = new PlayerGameActivityPagePropsData(
             player: UserData::fromUser($user),

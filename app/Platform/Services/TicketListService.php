@@ -4,53 +4,46 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
-use App\Enums\Permissions;
 use App\Models\Achievement;
 use App\Models\Emulator;
+use App\Models\Game;
 use App\Models\Leaderboard;
+use App\Models\Role;
 use App\Models\Ticket;
+use App\Models\User;
+use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
+use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListStatusFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TicketListService
 {
-    public int $totalTickets = 0;
-    public int $numFilteredTickets = 0;
-    public int $perPage = 0;
-    public int $pageNumber = 0;
-    public int $totalPages = 0;
+    private const MAX_FACET_COUNT_ROWS = 10_000;
 
-    public static function shouldShowResolverColumn(array $filterOptions): bool
-    {
-        return in_array($filterOptions['status'] ?? 'unresolved', ['all', 'resolved'], true);
-    }
+    /** @var array<int, string>|null */
+    private ?array $emulatorNamesById = null;
 
-    public function getFilterOptions(Request $request): array
+    /**
+     * @return array{status: string, type: int, publishedStatus: string, mode: string, developerType: string, developer: string, reporter: string, emulator: string, core: string, system: string, resolution: string, signal: string}
+     */
+    public function getFilterOptions(Request $request, TicketListStatusFilter $defaultStatus = TicketListStatusFilter::Unresolved): array
     {
-        if ($this->perPage !== 0) {
-            $validatedData = $request->validate([
-                'page.number' => 'sometimes|integer|min:1',
-            ]);
-            $this->pageNumber = (int) ($validatedData['page']['number'] ?? 1);
+        $rules = ['filter.status' => ['sometimes', Rule::enum(TicketListStatusFilter::class)]];
+        foreach (TicketListFilterKind::cases() as $kind) {
+            $rules["filter.{$kind->value}"] = $kind->validationRules();
         }
 
-        $validatedData = $request->validate([
-            'filter.status' => 'sometimes|string|in:all,unresolved,resolved,quarantined',
-            'filter.type' => 'sometimes|integer|min:0|max:2',
-            'filter.publishedStatus' => 'sometimes|string|in:all,published,unpublished',
-            'filter.mode' => 'sometimes|string|in:all,hardcore,softcore,unspecified',
-            'filter.developerType' => 'sometimes|string|in:all,active,junior,inactive',
-            'filter.developer' => 'sometimes|string|in:all,self,others',
-            'filter.reporter' => 'sometimes|string|in:all,self,others',
-            'filter.emulator' => 'sometimes|string',
-        ]);
+        $validatedData = $request->validate($rules);
+        $status = $validatedData['filter']['status'] ?? $defaultStatus->value;
 
-        return [
-            'status' => $validatedData['filter']['status'] ?? 'unresolved',
+        $filterOptions = [
+            'status' => $status,
             'type' => (int) ($validatedData['filter']['type'] ?? 0),
             'publishedStatus' => $validatedData['filter']['publishedStatus'] ?? 'all',
             'mode' => $validatedData['filter']['mode'] ?? 'all',
@@ -58,160 +51,43 @@ class TicketListService
             'developer' => $validatedData['filter']['developer'] ?? 'all',
             'reporter' => $validatedData['filter']['reporter'] ?? 'all',
             'emulator' => $validatedData['filter']['emulator'] ?? 'all',
+            'core' => trim($validatedData['filter']['core'] ?? ''),
+            'system' => $validatedData['filter']['system'] ?? 'all',
+            'resolution' => $validatedData['filter']['resolution'] ?? 'all',
+            'signal' => $validatedData['filter']['signal'] ?? 'all',
         ];
+
+        foreach (TicketListFilterKind::cases() as $kind) {
+            if (!$kind->appliesToStatus(TicketListStatusFilter::from($status))) {
+                $filterOptions[$kind->value] = $kind->noFilterValue();
+            }
+        }
+
+        return $filterOptions;
     }
 
-    public function getSelectFilters(
-        bool $showStatus = true,
-        bool $showPublishedStatus = true,
-        bool $showDevType = true,
-        bool $showDeveloper = false,
-        bool $showReporter = false,
-        ?int $systemId = null,
-    ): array {
-        $availableSelectFilters = [];
-
-        if ($showStatus) {
-            $availableSelectFilters[] = [
-                'kind' => 'status',
-                'label' => 'Ticket Status',
-                'options' => [
-                    'all' => 'All',
-                    'unresolved' => 'Open',
-                    'resolved' => 'Resolved',
-                    'quarantined' => 'Quarantined',
-                ],
-            ];
-        }
-
-        $availableSelectFilters[] = [
-            'kind' => 'type',
-            'label' => 'Ticket Type',
-            'options' => [
-                0 => 'All',
-                TicketType::TriggeredAtWrongTime->toLegacyInteger() => TicketType::TriggeredAtWrongTime->label(),
-                TicketType::DidNotTrigger->toLegacyInteger() => TicketType::DidNotTrigger->label(),
-            ],
-        ];
-
-        if ($showPublishedStatus) {
-            $availableSelectFilters[] = [
-                'kind' => 'publishedStatus',
-                'label' => 'Published Status',
-                'options' => [
-                    'all' => 'All',
-                    'published' => 'Published',
-                    'unpublished' => 'Unpublished',
-                ],
-            ];
-        }
-
-        $availableSelectFilters[] = [
-            'kind' => 'mode',
-            'label' => 'Mode',
-            'options' => [
-                'all' => 'All',
-                'hardcore' => 'Hardcore',
-                'softcore' => 'Casual',
-                'unspecified' => 'Unspecified',
-            ],
-        ];
-
-        if ($showDevType) {
-            $availableSelectFilters[] = [
-                'kind' => 'developerType',
-                'label' => 'Developer Type',
-                'options' => [
-                    'all' => 'All',
-                    'active' => 'Active',
-                    'junior' => 'Junior',
-                    'inactive' => 'Inactive',
-                ],
-            ];
-        }
-
-        if ($showDeveloper) {
-            $availableSelectFilters[] = [
-                'kind' => 'developer',
-                'label' => 'Developer',
-                'options' => [
-                    'all' => 'All',
-                    'self' => 'Self',
-                    'others' => 'Others',
-                ],
-            ];
-        }
-
-        if ($showReporter) {
-            $availableSelectFilters[] = [
-                'kind' => 'reporter',
-                'label' => 'Reporter',
-                'options' => [
-                    'all' => 'All',
-                    'self' => 'Self',
-                    'others' => 'Others',
-                ],
-            ];
-        }
-
-        $emulatorOptions = ['all' => 'All'];
-        if ($systemId) {
-            $emulators = Emulator::forSystem($systemId);
-        } else {
-            $emulators = Emulator::whereIn('id', DB::table('system_emulators')->distinct('emulator_id')->pluck('emulator_id')->toArray());
-        }
-        foreach ($emulators->orderBy('name')->get() as $emulator) {
-            $emulatorOptions[$emulator->name] = $emulator->name;
-        }
-        $emulatorOptions['unknown'] = 'Unknown';
-
-        $availableSelectFilters[] = [
-            'kind' => 'emulator',
-            'label' => 'Emulator',
-            'options' => $emulatorOptions,
-        ];
-
-        return $availableSelectFilters;
-    }
-
-    /**
-     * @param Builder<Ticket> $tickets
-     *
-     * @return Collection<int, Ticket>
-     */
-    public function getTickets(array $filterOptions, ?Builder $tickets = null): Collection
+    public function hasNonStatusFilters(array $filterOptions): bool
     {
-        return $this->buildQuery($filterOptions, $tickets)->orderBy('created_at', 'desc')->get();
+        foreach (TicketListFilterKind::cases() as $kind) {
+            $noFilterValue = $kind->noFilterValue();
+
+            if (($filterOptions[$kind->value] ?? $noFilterValue) !== $noFilterValue) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @param Builder<Ticket> $tickets
-     *
      * @return Builder<Ticket>
      */
-    public function buildQuery(array $filterOptions, ?Builder $tickets = null): Builder
+    public function applyFilters(Builder $tickets, array $filterOptions, ?User $comparisonUser = null): Builder
     {
-        if ($tickets === null) {
-            $tickets = Ticket::query();
-        }
-
-        // Don't include tickets where the ticketable is hard deleted.
-        $tickets->whereHasMorph('ticketable', [Achievement::class, Leaderboard::class]);
-
-        $this->totalTickets = $tickets->count();
-
-        switch ($filterOptions['status']) {
-            case 'unresolved':
-                $tickets->open();
-                break;
-
-            case 'resolved':
-                $tickets->resolved();
-                break;
-
-            case 'quarantined':
-                $tickets->quarantined();
-                break;
+        $states = TicketListStatusFilter::from($filterOptions['status'])->states();
+        if ($states !== null) {
+            $tickets->whereIn('state', $states);
         }
 
         if ($filterOptions['type'] > 0) {
@@ -245,20 +121,20 @@ class TicketListService
 
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('author', function ($query) {
-                    $query->where('Permissions', '>=', Permissions::JuniorDeveloper);
+                $tickets->whereHas('assignee.roles', function ($query) {
+                    $query->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
                 });
                 break;
 
             case 'junior':
-                $tickets->whereHas('author', function ($query) {
-                    $query->where('Permissions', '=', Permissions::JuniorDeveloper);
+                $tickets->whereHas('assignee.roles', function ($query) {
+                    $query->where('name', Role::DEVELOPER_JUNIOR);
                 });
                 break;
 
             case 'inactive':
                 // For achievement tickets, also exclude any with an active maintainer.
-                // Leaderboards don't have a maintainer concept, so author permissions
+                // Leaderboards don't have a maintainer concept, so author roles
                 // alone are checked.
                 $tickets->where(function ($query) {
                     $query->where(function ($achievementQuery) {
@@ -268,23 +144,23 @@ class TicketListService
                                 $ticketableQuery->whereDoesntHave('activeMaintainer');
                             });
                     })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
-                })->whereHas('author', function ($query) {
-                    $query->where('Permissions', '<', Permissions::JuniorDeveloper);
+                })->whereHas('assignee', function ($query) {
+                    $query->whereDoesntHave('roles', fn ($roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
                 });
                 break;
         }
 
-        if (array_key_exists('userId', $filterOptions)) {
+        if ($comparisonUser !== null) {
             switch ($filterOptions['developer']) {
                 case 'all':
                     break;
 
                 case 'self':
-                    $tickets->where('ticketable_author_id', '=', $filterOptions['userId']);
+                    $tickets->where('assignee_id', '=', $comparisonUser->id);
                     break;
 
                 case 'others':
-                    $tickets->where('ticketable_author_id', '!=', $filterOptions['userId']);
+                    $tickets->where('assignee_id', '!=', $comparisonUser->id);
                     break;
             }
 
@@ -293,11 +169,11 @@ class TicketListService
                     break;
 
                 case 'self':
-                    $tickets->where('reporter_id', '=', $filterOptions['userId']);
+                    $tickets->where('reporter_id', '=', $comparisonUser->id);
                     break;
 
                 case 'others':
-                    $tickets->where('reporter_id', '!=', $filterOptions['userId']);
+                    $tickets->where('reporter_id', '!=', $comparisonUser->id);
                     break;
             }
         }
@@ -313,18 +189,330 @@ class TicketListService
             }
         }
 
-        $this->numFilteredTickets = $tickets->count();
-
-        if ($this->perPage > 0) {
-            $this->totalPages = (int) ceil($this->numFilteredTickets / $this->perPage);
-
-            if ($this->pageNumber < 1 || $this->pageNumber > $this->totalPages) {
-                $this->pageNumber = 1;
-            }
-
-            $tickets->offset(($this->pageNumber - 1) * $this->perPage)->take($this->perPage);
+        if (($filterOptions['core'] ?? '') !== '') {
+            $tickets->whereRaw('instr(lower(tickets.emulator_core), ?) > 0', [mb_strtolower($filterOptions['core'])]);
         }
 
-        return $tickets->with(['ticketable', 'author', 'reporter', 'resolver']);
+        if ($filterOptions['system'] !== 'all') {
+            $tickets->forSystem((int) $filterOptions['system']);
+        }
+
+        if ($filterOptions['resolution'] !== 'all') {
+            $tickets->where('tickets.resolution', $filterOptions['resolution']);
+        }
+
+        $signalFilter = $filterOptions['signal'];
+        if ($signalFilter === 'none') {
+            $tickets->whereNull('tickets.current_signal_verdict');
+        } elseif ($signalFilter !== 'all') {
+            $tickets->where('tickets.current_signal_verdict', $signalFilter);
+        }
+
+        return $tickets;
+    }
+
+    /**
+     * How many tickets each filter option matches.
+     *
+     * @param Builder<Ticket> $tickets
+     * @param list<TicketListFilterKind> $kinds
+     * @return array<string, array<string, int>>
+     */
+    public function getFacetCounts(
+        array $filterOptions,
+        Builder $tickets,
+        array $kinds,
+        ?User $comparisonUser = null,
+        ?int $filteredTotal = null,
+    ): array {
+        $widestFacetRowCount = $this->hasNonStatusFilters($filterOptions)
+            ? $this->applyFilters(clone $tickets, $this->withoutFacetFilters($filterOptions), $comparisonUser)->count()
+            : $filteredTotal;
+
+        $isOverRowLimit = $widestFacetRowCount !== null && $widestFacetRowCount > self::MAX_FACET_COUNT_ROWS;
+        $status = TicketListStatusFilter::from($filterOptions['status']);
+
+        $counts = [];
+        foreach ($kinds as $kind) {
+            if (in_array($kind, [TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Core], true)) {
+                continue;
+            }
+
+            if ($isOverRowLimit && !$kind->isExemptFromFacetRowLimit()) {
+                continue;
+            }
+
+            if (!$kind->appliesToStatus($status)) {
+                continue;
+            }
+
+            $query = $this->applyFilters(clone $tickets, $this->withoutFilter($filterOptions, $kind), $comparisonUser)->reorder();
+            $counts[$kind->value] = match ($kind) {
+                TicketListFilterKind::Type => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.type',
+                    fn (?string $value) => match ($value) {
+                        TicketType::TriggeredAtWrongTime->value => (string) TicketType::TriggeredAtWrongTime->toLegacyInteger(),
+                        TicketType::DidNotTrigger->value => (string) TicketType::DidNotTrigger->toLegacyInteger(),
+                        default => null,
+                    },
+                ),
+                TicketListFilterKind::Mode => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.hardcore',
+                    fn (?string $value) => match ($value) {
+                        null => 'unspecified',
+                        '1' => 'hardcore',
+                        default => 'softcore',
+                    },
+                ),
+                TicketListFilterKind::Emulator => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.emulator_id',
+                    fn (?string $value) => $value === null
+                        ? 'unknown'
+                        : ($this->emulatorNamesById()[(int) $value] ?? null),
+                ),
+                TicketListFilterKind::PublishedStatus => $this->countPublishedStatusFacet($query),
+                TicketListFilterKind::System => $this->countGroupedFacet(
+                    $this->joinTicketableGame($query),
+                    $kind,
+                    'facet_system_id',
+                    fn (?string $value): ?string => $value,
+                ),
+                TicketListFilterKind::DeveloperType => $this->countDeveloperTypeFacet($query),
+                TicketListFilterKind::Resolution => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.resolution',
+                    fn (?string $value): ?string => $value,
+                ),
+                TicketListFilterKind::Signal => $this->countGroupedFacet(
+                    $query,
+                    $kind,
+                    'tickets.current_signal_verdict',
+                    fn (?string $storedVerdict): string => $storedVerdict ?? 'none',
+                ),
+            };
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @param callable(?string): ?string $toFilterValue
+     * @return array<string, int>
+     */
+    private function countGroupedFacet(
+        Builder $query,
+        TicketListFilterKind $kind,
+        string $column,
+        callable $toFilterValue,
+    ): array {
+        $rows = $query->select($column . ' as facet_value', DB::raw('count(*) as aggregate'))
+            ->groupBy('facet_value')
+            ->toBase()->get();
+
+        $noFilterValue = (string) $kind->noFilterValue();
+        $counts = [$noFilterValue => 0];
+
+        foreach ($rows as $row) {
+            $aggregate = (int) $row->aggregate;
+            $counts[$noFilterValue] += $aggregate;
+
+            $value = $toFilterValue($row->facet_value === null ? null : (string) $row->facet_value);
+            if ($value !== null) {
+                $counts[$value] = ($counts[$value] ?? 0) + $aggregate;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return array<string, int>
+     */
+    private function countPublishedStatusFacet(Builder $query): array
+    {
+        $kind = TicketListFilterKind::PublishedStatus;
+
+        $rows = $this->joinTicketables(
+            $query,
+            ['is_promoted'],
+            ['state as facet_state'],
+        )->selectRaw('count(*) as aggregate')
+            ->selectRaw('coalesce(is_promoted, facet_state != ?) as published', [LeaderboardState::Unpromoted->value])
+            ->groupBy('published')->toBase()->get();
+
+        $counts = array_fill_keys($kind->values(), 0);
+        foreach ($rows as $row) {
+            $counts[$kind->noFilterValue()] += (int) $row->aggregate;
+            if ($row->published !== null) {
+                $counts[$row->published ? 'published' : 'unpublished'] += (int) $row->aggregate;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    private function joinTicketableGame(Builder $query): Builder
+    {
+        return $this->joinTicketables(
+            $query,
+            ['game_id as facet_achievement_game_id'],
+            ['game_id as facet_leaderboard_game_id'],
+        )->leftJoinSub(Game::select('id as facet_game_id', 'system_id as facet_system_id'), 'facet_game', fn ($join) => $join
+            ->on('facet_game_id', '=', DB::raw('coalesce(facet_achievement_game_id, facet_leaderboard_game_id)')));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @param list<string> $achievementColumns
+     * @param list<string> $leaderboardColumns
+     * @return Builder<Ticket>
+     */
+    private function joinTicketables(Builder $query, array $achievementColumns, array $leaderboardColumns): Builder
+    {
+        return $query
+            ->leftJoinSub(Achievement::select(['id as facet_achievement_id', ...$achievementColumns]), 'facet_achievement', fn ($join) => $join
+                ->on('facet_achievement_id', '=', 'tickets.ticketable_id')
+                ->where('tickets.ticketable_type', TicketableType::Achievement->value))
+            ->leftJoinSub(Leaderboard::select(['id as facet_leaderboard_id', ...$leaderboardColumns]), 'facet_leaderboard', fn ($join) => $join
+                ->on('facet_leaderboard_id', '=', 'tickets.ticketable_id')
+                ->where('tickets.ticketable_type', TicketableType::Leaderboard->value));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return array<string, int>
+     */
+    private function countDeveloperTypeFacet(Builder $query): array
+    {
+        $kind = TicketListFilterKind::DeveloperType;
+        $developerRoles = DB::table('auth_model_roles')
+            ->join('auth_roles', 'auth_roles.id', '=', 'auth_model_roles.role_id')
+            ->where('model_type', (new User())->getMorphClass())
+            ->whereIn('auth_roles.name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR])
+            ->select('model_id as assignee_facet_id')
+            ->selectRaw('max(auth_roles.name = ?) as facet_junior', [Role::DEVELOPER_JUNIOR])
+            ->groupBy('model_id');
+
+        $rows = $query->selectRaw('count(*) as aggregate')
+            ->withExists('assignee')
+            ->leftJoinSub($developerRoles, 'facet_roles', 'assignee_facet_id', '=', 'tickets.assignee_id')
+            ->selectRaw('(assignee_facet_id is not null) as active, coalesce(facet_junior, 0) as junior')
+            ->withExists(['achievement as unmaintained' => fn ($achievement) => $achievement
+                ->where('tickets.ticketable_type', TicketableType::Achievement->value)
+                ->whereDoesntHave('activeMaintainer')])
+            ->addSelect('tickets.ticketable_type')
+            ->groupBy('assignee_exists', 'active', 'junior', 'unmaintained', 'tickets.ticketable_type')->toBase()->get();
+
+        $counts = array_fill_keys($kind->values(), 0);
+        foreach ($rows as $row) {
+            $count = (int) $row->aggregate;
+            $counts[$kind->noFilterValue()] += $count;
+
+            if (!$row->assignee_exists) {
+                continue;
+            }
+
+            if ($row->active) {
+                $counts['active'] += $count;
+                if ($row->junior) {
+                    $counts['junior'] += $count;
+                }
+            } elseif ($row->ticketable_type === TicketableType::Leaderboard->value || $row->unmaintained) {
+                $counts['inactive'] += $count;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function emulatorNamesById(): array
+    {
+        return $this->emulatorNamesById ??= Emulator::pluck('name', 'id')->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function withoutFilter(array $filterOptions, TicketListFilterKind $kind): array
+    {
+        return array_merge($filterOptions, [$kind->value => $kind->noFilterValue()]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function withoutFacetFilters(array $filterOptions): array
+    {
+        foreach (TicketListFilterKind::cases() as $kind) {
+            $filterOptions = $this->withoutFilter($filterOptions, $kind);
+        }
+
+        return $filterOptions;
+    }
+
+    /**
+     * Returns a count of tickets per status bucket under every filter except
+     * status itself. The counts describe what each status choice would show
+     * for a given set of filter options in the UI.
+     *
+     * @param Builder<Ticket> $tickets
+     * @param User|null $comparisonUser the user the developer and reporter filters compare against
+     * @return array{unresolved: int, open: int, request: int, resolved: int, closed: int, quarantined: int, all: int}
+     */
+    public function getStateCounts(array $filterOptions, ?Builder $tickets = null, ?User $comparisonUser = null): array
+    {
+        $countQuery = $tickets === null ? Ticket::query() : clone $tickets;
+        $resolution = $filterOptions['resolution'];
+
+        $query = $this->applyFilters(
+            $countQuery,
+            array_merge($filterOptions, ['status' => TicketListStatusFilter::All->value, 'resolution' => 'all']),
+            $comparisonUser,
+        )
+            ->reorder()
+            ->select('state', DB::raw('count(*) as aggregate'));
+
+        if ($resolution !== 'all') {
+            $query->selectRaw('coalesce(sum(tickets.resolution = ?), 0) as resolution_aggregate', [$resolution]);
+        }
+
+        $rows = $query->groupBy('state')->toBase()->get()->keyBy('state');
+        $countsWithoutResolution = $rows->map(fn (object $row): int => (int) $row->aggregate);
+        $countsWithResolution = $rows->map(fn (object $row): int => (int) ($row->resolution_aggregate ?? $row->aggregate));
+
+        $countFor = fn (TicketState $state): int => $countsWithoutResolution->get($state->value, 0);
+
+        $open = $countFor(TicketState::Open);
+        $request = $countFor(TicketState::Request);
+        $unresolved = $open + $request;
+        $resolved = $countFor(TicketState::Resolved);
+        $closed = $countsWithResolution->get(TicketState::Closed->value, 0);
+        $quarantined = $countFor(TicketState::Quarantined);
+
+        return [
+            'unresolved' => $unresolved,
+            'open' => $open,
+            'request' => $request,
+            'resolved' => $resolved,
+            'closed' => $closed,
+            'quarantined' => $quarantined,
+            'all' => $countsWithResolution->sum(),
+        ];
     }
 }

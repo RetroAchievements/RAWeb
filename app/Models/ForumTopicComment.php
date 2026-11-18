@@ -29,12 +29,14 @@ class ForumTopicComment extends BaseModel
         'author_id',
         'sent_by_id',
         'edited_by_id',
+        'edited_at',
         'is_authorized',
         'authorized_at',
     ];
 
     protected $casts = [
         'authorized_at' => 'datetime',
+        'edited_at' => 'datetime',
         'is_authorized' => 'boolean',
     ];
 

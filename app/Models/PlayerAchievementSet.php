@@ -25,6 +25,8 @@ class PlayerAchievementSet extends BasePivot
         'completed_hardcore_at' => 'datetime',
         'completion_dates' => 'json',
         'completion_dates_hardcore' => 'json',
+        'completion_percentage' => 'double',
+        'completion_percentage_hardcore' => 'double',
         'last_unlock_at' => 'datetime',
         'last_unlock_hardcore_at' => 'datetime',
     ];

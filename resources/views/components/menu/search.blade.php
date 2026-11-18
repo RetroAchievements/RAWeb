@@ -12,7 +12,7 @@
         'text-neutral-400/50 transition-all hover:bg-neutral-800/60 hover:text-neutral-400',
         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-600',
         'light:bg-white light:text-neutral-600 light:hover:bg-neutral-50 light:hover:text-neutral-900',
-        'border border-transparent'
+        'border border-transparent light:border-neutral-300'
     ])
     onclick="window.openGlobalSearch ? window.openGlobalSearch() : window.dispatchEvent(new CustomEvent('open-global-search'))"
     type="button"

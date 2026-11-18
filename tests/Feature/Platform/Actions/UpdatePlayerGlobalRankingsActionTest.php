@@ -117,6 +117,81 @@ it('tolerates inverted unlock counters without aborting the rebuild', function (
     expect(findPlayerGlobalRanking($inverted, GlobalRankingMode::Casual)->achievements_unlocked)->toBe(0);
 });
 
+it('updates modified rankings in place, deletes ineligible users, and inserts newly ranked players', function () {
+    // ARRANGE
+    $firstRanked = User::factory()->create(['points_hardcore' => 1_000, 'points' => 100]);
+    $secondRanked = User::factory()->create(['points_hardcore' => 500, 'points' => 500]);
+    $advancingPlayer = User::factory()->create(['points_hardcore' => 300, 'points' => 300]);
+    $qualifyingPlayer = User::factory()->create(['points_hardcore' => 0, 'points' => 0, 'points_weighted' => 0]);
+    $disqualifiedPlayer = User::factory()->create(['points_hardcore' => 200, 'points' => 200]); // see Rank::MIN_POINTS
+
+    app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
+
+    // ... set a sentinel timestamp to ensure unchanged entries are not rewritten ...
+    PlayerGlobalRanking::query()
+        ->where('user_id', $firstRanked->id)
+        ->update(['created_at' => '2000-01-01 00:00:00']);
+
+    $advancingPlayer->update(['points_hardcore' => 600]);
+    $qualifyingPlayer->update(['points_hardcore' => 400, 'points' => 400]);
+    $disqualifiedPlayer->update(['points_hardcore' => 0, 'points' => 0, 'points_weighted' => 0]);
+
+    // ACT
+    app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
+
+    // ASSERT
+    $topHardcore = findPlayerGlobalRanking($firstRanked, GlobalRankingMode::Hardcore);
+    $topCasual = findPlayerGlobalRanking($firstRanked, GlobalRankingMode::Casual);
+
+    expect($topHardcore->rank_number)->toEqual(1)
+        ->and($topHardcore->created_at->toDateTimeString())->toEqual('2000-01-01 00:00:00')
+        ->and($topCasual->rank_number)->toBeNull()
+        ->and($topCasual->created_at->toDateTimeString())->toEqual('2000-01-01 00:00:00')
+        ->and(findPlayerGlobalRanking($advancingPlayer, GlobalRankingMode::Hardcore)->rank_number)->toEqual(2)
+        ->and(findPlayerGlobalRanking($secondRanked, GlobalRankingMode::Hardcore)->rank_number)->toEqual(3)
+        ->and(findPlayerGlobalRanking($qualifyingPlayer, GlobalRankingMode::Hardcore)->rank_number)->toEqual(4)
+        ->and(PlayerGlobalRanking::query()->where('user_id', $disqualifiedPlayer->id)->exists())->toBeFalse()
+        ->and(PlayerGlobalRankingTotal::forRankType(RankType::Hardcore))->toEqual(4);
+});
+
+it('preserves existing ranking records across different ranking windows', function () {
+    // ARRANGE
+    $activePlayer = User::factory()->create(['points_hardcore' => 500, 'points' => 500]);
+    $allTimePlayer = User::factory()->create(['points_hardcore' => 300, 'points' => 300]);
+    PlayerAchievement::factory()->create([
+        'user_id' => $activePlayer->id,
+        'achievement_id' => Achievement::factory()->create(['points' => 25])->id,
+        'unlocked_at' => now('UTC')->subHour(),
+        'unlocked_hardcore_at' => now('UTC')->subHour(),
+    ]);
+
+    app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
+
+    $originalAllTimeId = findPlayerGlobalRanking($activePlayer, GlobalRankingMode::Hardcore)->id;
+    $allTimeOnlyRowId = findPlayerGlobalRanking($allTimePlayer, GlobalRankingMode::Hardcore)->id;
+
+    // ... apply sentinel timestamp to verify the all-time record is not replaced ...
+    PlayerGlobalRanking::query()
+        ->where('window', GlobalRankingWindow::AllTime)
+        ->update(['created_at' => '2000-01-01 00:00:00']);
+
+    // ACT
+    app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::Daily);
+    $dailyId = findPlayerGlobalRanking($activePlayer, GlobalRankingMode::Hardcore, GlobalRankingWindow::Daily)->id;
+    app(UpdatePlayerGlobalRankingsAction::class)->execute(GlobalRankingWindow::AllTime);
+
+    // ASSERT
+    $allTimeHardcore = findPlayerGlobalRanking($activePlayer, GlobalRankingMode::Hardcore);
+    $dailyHardcore = findPlayerGlobalRanking($activePlayer, GlobalRankingMode::Hardcore, GlobalRankingWindow::Daily);
+
+    expect($allTimeHardcore->id)->toEqual($originalAllTimeId)
+        ->and(findPlayerGlobalRanking($allTimePlayer, GlobalRankingMode::Hardcore)->id)->toEqual($allTimeOnlyRowId)
+        ->and($allTimeHardcore->points)->toEqual(500)
+        ->and($allTimeHardcore->created_at->toDateTimeString())->toEqual('2000-01-01 00:00:00')
+        ->and($dailyHardcore->id)->toEqual($dailyId)
+        ->and($dailyHardcore->points)->toEqual(25);
+});
+
 it('builds current daily rows and replaces stale rows', function () {
     // ARRANGE
     $today = User::factory()->create(['points_hardcore' => 10]);

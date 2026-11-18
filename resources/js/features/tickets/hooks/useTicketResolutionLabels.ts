@@ -1,0 +1,30 @@
+import { useTranslation } from 'react-i18next';
+
+import type { TranslatedString } from '@/types/i18next';
+
+/**
+ * The filter options and the table column both show resolutions, so they
+ * share one label map to keep the wording the same in both places.
+ */
+export function useTicketResolutionLabels(): Record<
+  App.Community.Enums.TicketResolution,
+  TranslatedString
+> {
+  const { t } = useTranslation();
+
+  return {
+    fixed: t('Fixed'),
+    mistaken_report: t('Mistaken report'),
+    not_enough_information: t('Not enough information'),
+    no_reply_from_reporter: t('No reply from reporter'),
+    wrong_rom: t('Wrong ROM'),
+    network_problems: t('Network problems'),
+    unable_to_reproduce: t('Unable to reproduce'),
+    unable_to_debug: t('Unable to debug'),
+    already_fixed: t('Already fixed'),
+    emulator_problem: t('Emulator or core problem'),
+    covered_by_another_ticket: t('Covered by another ticket'),
+    demoted: t('Demoted'),
+    other: t('Other'),
+  };
+}

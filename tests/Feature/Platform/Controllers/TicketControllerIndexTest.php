@@ -1,0 +1,437 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Community\Enums\TicketSignalVerdict;
+use App\Community\Enums\TicketState;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\PlayerSession;
+use App\Models\Role;
+use App\Models\System;
+use App\Models\Ticket;
+use App\Models\TicketVerdictAccuracyResult;
+use App\Models\User;
+use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+use function Pest\Laravel\seed;
+
+uses(LazilyRefreshDatabase::class);
+
+/**
+ * @return Ticket[]
+ */
+function createTicketListPageTickets(int $ticketCount): array
+{
+    $developer = User::factory()->create();
+    $reporter = User::factory()->create();
+
+    $system = System::factory()->create();
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+
+    $states = [
+        TicketState::Open,
+        TicketState::Request,
+        TicketState::Quarantined,
+        TicketState::Resolved,
+        TicketState::Closed,
+    ];
+
+    $tickets = [];
+    for ($i = 0; $i < $ticketCount; $i++) {
+        $state = $states[$i % count($states)];
+        $isTerminal = in_array($state, [TicketState::Resolved, TicketState::Closed], true);
+
+        $tickets[] = Ticket::factory()
+            ->forAchievement($achievement)
+            ->create([
+                'assignee_id' => $developer->id,
+                'reporter_id' => $reporter->id,
+                'state' => $state,
+                'created_at' => Carbon::parse('2024-01-01 00:00:00')->addHours($i),
+                'resolved_at' => $isTerminal ? Carbon::parse('2024-06-01 00:00:00')->addHours($i) : null,
+            ]);
+    }
+
+    return $tickets;
+}
+
+it('given a guest, the index route redirects to login', function () {
+    // ACT
+    $response = get(route('tickets.index'));
+
+    // ASSERT
+    $response->assertRedirect(route('login'));
+});
+
+it('given an authenticated user, the list renders with scope all, at most fifty items, and every state count', function () {
+    // ARRANGE
+    createTicketListPageTickets(130);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.index'));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('tickets')
+        ->where('scope', 'all')
+        ->where('paginatedTickets.perPage', 50)
+        ->has('paginatedTickets.items', 50)
+        ->where('paginatedTickets.total', 52)
+        ->has('stateCounts', fn (Assert $counts) => $counts
+            ->has('unresolved')
+            ->has('open')
+            ->has('request')
+            ->has('resolved')
+            ->has('closed')
+            ->has('quarantined')
+            ->has('all')
+        )
+        ->missing('game')
+        ->missing('achievement')
+        ->missing('user')
+    );
+});
+
+it('given a hub or event game, the game route returns a 404', function (int $systemId) {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => $systemId]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('game.tickets', ['game' => $game->id]));
+
+    // ASSERT
+    $response->assertNotFound();
+})->with([
+    'hub' => System::Hubs,
+    'event' => System::Events,
+]);
+
+it('given a hub or event achievement, the achievement route returns a 404', function (int $systemId) {
+    // ARRANGE
+    $game = Game::factory()->create(['system_id' => $systemId]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('achievement.tickets', ['achievement' => $achievement->id]));
+
+    // ASSERT
+    $response->assertNotFound();
+})->with([
+    'hub' => System::Hubs,
+    'event' => System::Events,
+]);
+
+it('uses persisted display preferences for the initial ticket list', function () {
+    // ARRANGE
+    $tickets = createTicketListPageTickets(2);
+    actingAs(User::factory()->create());
+    $cookieName = 'datatable_view_preference_tickets_all';
+    $preferences = [
+        'columnVisibility' => ['game' => false],
+        'sortParam' => 'createdAt',
+    ];
+
+    // ACT
+    $response = $this
+        ->withUnencryptedCookie($cookieName, json_encode($preferences))
+        ->get(route('tickets.index'));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('persistenceCookieName', $cookieName)
+        ->where('persistedViewPreferences', $preferences)
+        ->where('paginatedTickets.items.0.id', $tickets[0]->id)
+        ->where('paginatedTickets.items.1.id', $tickets[1]->id)
+    );
+});
+
+it("given a scoped list, reads that scope's preference cookie", function () {
+    // ARRANGE
+    $tickets = createTicketListPageTickets(2);
+    $game = $tickets[0]->getTicketableModel()->game;
+    actingAs(User::factory()->create());
+
+    $scopedPreferences = ['columnVisibility' => ['hash' => true], 'sortParam' => 'createdAt'];
+    $globalPreferences = ['columnVisibility' => ['emulator' => true], 'sortParam' => 'state'];
+
+    // ACT
+    $response = $this
+        ->withUnencryptedCookie('datatable_view_preference_tickets_game', json_encode($scopedPreferences))
+        ->withUnencryptedCookie('datatable_view_preference_tickets_all', json_encode($globalPreferences))
+        ->get(route('game.tickets', ['game' => $game->id]));
+
+    // ASSERT
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('persistenceCookieName', 'datatable_view_preference_tickets_game')
+        ->where('persistedViewPreferences', $scopedPreferences)
+    );
+});
+
+it('given the resolved by list has no sort in the URL, uses resolution date as the default sort and orders tickets by newest resolution', function () {
+    // ARRANGE
+    $resolver = User::factory()->create();
+    actingAs($resolver);
+
+    $system = System::factory()->create();
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+    $ticketResolvedLater = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $resolver->id,
+        'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-09 00:00:00'),
+    ]);
+    $ticketResolvedEarlier = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $resolver->id,
+        'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-02 00:00:00'),
+    ]);
+
+    // ACT
+    $response = get(route('developer.tickets.resolved', ['user' => $resolver->display_name]));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('scope', 'resolvedBy')
+        ->where('defaultSortParam', '-resolvedAt')
+        ->where('paginatedTickets.items.0.id', $ticketResolvedLater->id)
+        ->where('paginatedTickets.items.1.id', $ticketResolvedEarlier->id)
+    );
+});
+
+it('given the main list has no sort in the URL, reports created date as the default sort', function () {
+    // ARRANGE
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.index'));
+
+    // ASSERT
+    $response->assertInertia(fn (Assert $page) => $page->where('defaultSortParam', '-createdAt'));
+});
+
+it('given a guest, inbox redirects to login', function () {
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $response->assertRedirect(route('login'));
+});
+
+it('given an authenticated user, inbox renders every section for that user', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    actingAs($viewer);
+
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('tickets/mine')
+        ->has('sections', 6)
+        ->where('sectionLimit', 8)
+        ->where('attentionCount', 0)
+        ->where('user.displayName', $viewer->display_name)
+    );
+});
+
+it('given resolved tickets, orders the resolved by you section by resolution date', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    actingAs($viewer);
+
+    $system = System::factory()->create();
+    $game = Game::factory()->create(['system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+    $ticketResolvedLater = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $viewer->id,
+        'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-09 00:00:00'),
+    ]);
+    $ticketResolvedEarlier = Ticket::factory()->forAchievement($achievement)->create([
+        'state' => TicketState::Resolved,
+        'resolver_id' => $viewer->id,
+        'created_at' => Carbon::parse('2024-05-01 00:00:00'),
+        'resolved_at' => Carbon::parse('2024-06-02 00:00:00'),
+    ]);
+
+    // ACT
+    $response = get(route('tickets.mine'));
+
+    // ASSERT
+    $sections = collect($response->viewData('page')['props']['sections']);
+    $section = $sections->firstWhere('kind', 'resolvedByYou');
+
+    expect(array_column($section['tickets'], 'id'))->toEqual([$ticketResolvedLater->id, $ticketResolvedEarlier->id]);
+});
+
+it('given a user param, the inbox reports on that user rather than the currently authenticated user', function () {
+    // ARRANGE
+    $target = User::factory()->create();
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.mine', ['user' => $target->display_name]));
+
+    // ASSERT
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('user.displayName', $target->display_name)
+    );
+});
+
+it('given a user param for a banned user, a non-dev is hit with a 404', function () {
+    // ARRANGE
+    $target = User::factory()->create(['banned_at' => Carbon::now()]);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('tickets.mine', ['user' => $target->display_name]));
+
+    // ASSERT
+    $response->assertNotFound();
+});
+
+it('given the open status filter, returns only open tickets while unresolved also returns requests', function () {
+    // ARRANGE
+    createTicketListPageTickets(10);
+    actingAs(User::factory()->create());
+
+    // ACT
+    $openResponse = get(route('tickets.index', ['filter' => ['status' => 'open']]));
+    $unresolvedResponse = get(route('tickets.index', ['filter' => ['status' => 'unresolved']]));
+
+    // ASSERT
+    $openTotal = $openResponse->viewData('page')['props']['paginatedTickets']['total'];
+    $unresolvedTotal = $unresolvedResponse->viewData('page')['props']['paginatedTickets']['total'];
+    $requestCount = $openResponse->viewData('page')['props']['stateCounts']['request'];
+
+    expect($requestCount)->toBeGreaterThan(0);
+    expect($unresolvedTotal)->toEqual($openTotal + $requestCount);
+});
+
+describe('ticket signals', function () {
+    it('given a developer browsing the list page, exposes signal data where available', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $game->id,
+            'rich_presence_updated_at' => Carbon::now()->subDays(10),
+        ]);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.viewTriageSignals', true)
+            ->where('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks'])
+        );
+    });
+
+    it('given a junior developer browsing the list page, exposes signal data where available', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $game->id,
+            'rich_presence_updated_at' => Carbon::now()->subDays(10),
+        ]);
+        actingAs($juniorDeveloper);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.viewTriageSignals', true)
+            ->where('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks'])
+        );
+    });
+
+    it('given a stored accuracy result, attaches it to every row that has a signal verdict', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        Ticket::factory()->forAchievement(Achievement::factory()->promoted()->create(['game_id' => $game->id]))->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+        Ticket::factory()->forAchievement(Achievement::factory()->promoted()->create(['game_id' => $game->id]))->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $game->id,
+            'rich_presence_updated_at' => Carbon::now()->subDays(10),
+        ]);
+        TicketVerdictAccuracyResult::factory()->create([
+            'verdict' => TicketSignalVerdict::ProbablyDefect,
+            'ticket_count' => 1950,
+            'correct_count' => 1600,
+        ]);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('paginatedTickets.items', 2)
+            ->where('paginatedTickets.items.0.signals.accuracy', ['ticketCount' => 1950, 'correctCount' => 1600])
+            ->where('paginatedTickets.items.1.signals.accuracy', ['ticketCount' => 1950, 'correctCount' => 1600])
+        );
+    });
+
+    it('given a player without a dev role on the list page, does not expose signal data', function () {
+        // ARRANGE
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['reporter_id' => User::factory()->create()->id]);
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('tickets.index'));
+
+        // ASSERT
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('can.viewTriageSignals', false)
+            ->has('paginatedTickets.items', 1)
+            ->missing('paginatedTickets.items.0.signals')
+        );
+    });
+});

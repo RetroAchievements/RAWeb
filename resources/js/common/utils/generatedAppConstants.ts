@@ -34,6 +34,7 @@ export const UserPreference = {
     Game_OptOutOfAllSubsets: 18,
     User_EnableBetaFeatures: 19,
     EmailOff_DailyDigest: 20,
+    Game_ShowEvergreenEventIndicators: 21,
 } as const;
 
 
@@ -59,6 +60,7 @@ export const StringifiedUserPreference = {
     Game_OptOutOfAllSubsets: '18',
     User_EnableBetaFeatures: '19',
     EmailOff_DailyDigest: '20',
+    Game_ShowEvergreenEventIndicators: '21',
 } as const;
 
 
@@ -87,11 +89,9 @@ export const UserRole = {
     MEDIA_EDITOR: 'media-editor',
     CHEAT_INVESTIGATOR: 'cheat-investigator',
     FOUNDER: 'founder',
-    ARCHITECT: 'architect',
     ENGINEER: 'engineer',
     TEAM_ACCOUNT: 'team-account',
     COMMUNITY_MANAGER: 'community-manager',
-    DEVELOPER_RETIRED: 'developer-retired',
     SUPPORTER: 'supporter',
 } as const;
 

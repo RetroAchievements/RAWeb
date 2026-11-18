@@ -14,6 +14,10 @@ if (isset($currentQueryParams['filter']['status'])) {
     unset($currentQueryParams['filter']['status']);
 }
 
+if (isset($currentQueryParams['page']['number'])) {
+    unset($currentQueryParams['page']['number']);
+}
+
 $canShowBeatenCasual = $beatenCasualCount > 0;
 $canShowBeatenHardcore = $beatenHardcoreCount > 0 || ($beatenHardcoreCount === 0 && $beatenCasualCount === 0);
 $canShowCompleted = $completedCount > 0;

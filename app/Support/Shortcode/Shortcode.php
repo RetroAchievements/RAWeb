@@ -215,6 +215,22 @@ final class Shortcode
         ];
     }
 
+    /**
+     * @param iterable<string> $inputs
+     */
+    public static function fetchRecordsFor(iterable $inputs): array
+    {
+        $shortcodeIds = [];
+
+        foreach ($inputs as $input) {
+            foreach (self::extractShortcodeIds($input) as $key => $ids) {
+                $shortcodeIds[$key] = array_merge($shortcodeIds[$key] ?? [], $ids);
+            }
+        }
+
+        return self::fetchRecords($shortcodeIds);
+    }
+
     public static function fetchRecords(array $shortcodeIds): array
     {
         $results = [];
@@ -294,7 +310,7 @@ final class Shortcode
             $input = trim($input);
         }
 
-        if (!$shortcodeRecords) {
+        if ($shortcodeRecords === null) {
             $shortcodeIds = Shortcode::extractShortcodeIds($input);
             $shortcodeRecords = Shortcode::fetchRecords($shortcodeIds);
         }
@@ -764,6 +780,15 @@ final class Shortcode
             $finalUrl,
             htmlspecialchars($shortcode->getContent(), ENT_QUOTES, 'UTF-8')
         );
+    }
+
+    public static function prepareForMailPanel(string $input): string
+    {
+        $input = self::stripAndClamp($input, 1850, preserveWhitespace: true);
+        $input = str_replace(["\r\n", "\r"], "\n", $input);
+        $input = preg_replace('/\n{3,}/', "\n\n", $input);
+
+        return nl2br(self::sanitizeForMailMarkdown($input));
     }
 
     private function protocolPrefix(?string $href): string

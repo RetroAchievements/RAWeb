@@ -2,6 +2,7 @@
 
 // TODO migrate to ForumController::show()
 
+use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Enums\Permissions;
 use App\Models\Forum;
 use App\Models\User;
@@ -51,7 +52,14 @@ if ($requestedForumID == 0 && $permissions >= Permissions::Moderator) {
     $thisCategoryID = $forum->category->id;
     $thisCategoryName = $forum->category->title;
 
-    $topicList = getForumTopics($requestedForumID, $offset, $count, $permissions, $numTotalTopics);
+    $topicList = getForumTopics(
+        $requestedForumID,
+        $offset,
+        $count,
+        $permissions,
+        $numTotalTopics,
+        maskedAuthorIds: (new GetMaskedForumAuthorIdsAction())->execute($userModel),
+    );
 
     $requestedForum = $thisForumTitle;
 }

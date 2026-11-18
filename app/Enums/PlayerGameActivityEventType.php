@@ -6,11 +6,9 @@ namespace App\Enums;
 
 enum PlayerGameActivityEventType: string
 {
-    case Unlock = 'unlock';
-
-    case RichPresence = 'rich-presence';
-
-    case Reset = 'reset';
-
     case Custom = 'custom';
+    case Reset = 'reset';
+    case RichPresence = 'rich-presence';
+    case TicketCreated = 'ticket-created';
+    case Unlock = 'unlock';
 }

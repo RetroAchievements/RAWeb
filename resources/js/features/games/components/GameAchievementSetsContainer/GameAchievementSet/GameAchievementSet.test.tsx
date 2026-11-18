@@ -15,6 +15,7 @@ import {
   createGame,
   createGameAchievementSet,
   createLeaderboard,
+  createPlayerAchievementSet,
   createZiggyProps,
 } from '@/test/factories';
 
@@ -441,6 +442,46 @@ describe('Component: GameAchievementSet', () => {
           aggregateCredits: createAggregateAchievementSetCredits(),
           backingGame: game,
           ziggy: createZiggyProps(),
+          isViewingPublishedAchievements: true,
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getAllByText(/0%/i)[0]).toBeVisible();
+  });
+
+  it('given the user is authenticated and the user previously completed the set before it was demoted, shows progress indicators', () => {
+    // ARRANGE
+    const game = createGame();
+
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 123 }),
+    });
+
+    render(
+      <GameAchievementSet achievements={[]} gameAchievementSet={gameAchievementSet} />,
+      {
+        jotaiAtoms: [
+          [currentPlayableListSortAtom, 'normal'],
+          //
+        ],
+        pageProps: {
+          game,
+          achievementSetClaims: [],
+          auth: { user: createAuthenticatedUser() },
+          aggregateCredits: createAggregateAchievementSetCredits(),
+          backingGame: game,
+          ziggy: createZiggyProps(),
+          playerAchievementSets: {
+            123: createPlayerAchievementSet({
+              completedAt: '2024-05-15T14:30:00.000000Z', // !!
+              completedHardcoreAt: '2024-05-15T14:30:00.000000Z', // !!
+              timeTaken: 7200, // !!
+              timeTakenHardcore: null,
+            }),
+          },
+          isViewingPublishedAchievements: true,
         },
       },
     );

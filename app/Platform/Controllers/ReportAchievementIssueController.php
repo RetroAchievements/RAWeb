@@ -11,8 +11,10 @@ use App\Models\Achievement;
 use App\Models\PlayerAchievement;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\GetHasCasualUnlockFromRestrictedClientAction;
 use App\Platform\Data\AchievementData;
 use App\Platform\Data\ReportAchievementIssuePagePropsData;
+use App\Platform\Enums\TicketCreationBlockReason;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +27,7 @@ class ReportAchievementIssueController extends Controller
     {
         $this->authorize('view', $achievement);
         $this->authorize('viewAny', Ticket::class);
+        $this->authorize('create', Ticket::class);
 
         /** @var User $user */
         $user = Auth::user();
@@ -43,14 +46,20 @@ class ReportAchievementIssueController extends Controller
             'game.system',
         );
 
+        $hasSession = $foundPlayerAchievement !== null || $user->hasPlayedGameForAchievement($achievement);
+        $blockReason = $hasSession ? null : TicketCreationBlockReason::NoPlaySession;
+
         $can = UserPermissionsData::fromUser($user, triggerable: $achievement)->include('createTicket');
+        $can->createTicket = $blockReason === null; // intentional shadowing
 
         $props = new ReportAchievementIssuePagePropsData(
             achievement: $achievementData,
-            hasSession: $foundPlayerAchievement ? true : $user->hasPlayedGameForAchievement($achievement),
+            hasSession: $hasSession,
             ticketType: $this->determineTicketType($foundPlayerAchievement, $allPlayerAchievements),
             extra: $request->input('extra'),
             can: $can,
+            ticketBlockReason: $blockReason,
+            hasCasualUnlockFromRestrictedClient: (new GetHasCasualUnlockFromRestrictedClientAction())->execute($foundPlayerAchievement, $achievement),
         );
 
         return Inertia::render('achievement/[achievement]/report-issue', $props);
