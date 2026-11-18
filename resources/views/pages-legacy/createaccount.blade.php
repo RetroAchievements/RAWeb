@@ -15,8 +15,9 @@ $turnstileTheme = match (request()->cookie('scheme', '')) {
 };
 ?>
 <x-app-layout pageTitle="Create Account">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <h3>Create Account</h3>
+    <?php if (!session('message')): ?>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <div class="infobox">
         <form method=post action="/request/auth/register.php" x-data="{ isSending: false }" x-on:submit="isSending = true">
             <?= csrf_field() ?>
@@ -76,4 +77,5 @@ $turnstileTheme = match (request()->cookie('scheme', '')) {
             </table>
         </form>
     </div>
+    <?php endif ?>
 </x-app-layout>

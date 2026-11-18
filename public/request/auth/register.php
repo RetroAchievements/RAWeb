@@ -28,7 +28,9 @@ if (config('services.cloudflare.turnstile_secret_key')) {
     );
 
     if (!$isHuman) {
-        return back()->withErrors(__('legacy.error.captcha'));
+        return back()
+            ->withInput(request()->except('password', 'cf-turnstile-response'))
+            ->withErrors(__('legacy.error.captcha'));
     }
 }
 
