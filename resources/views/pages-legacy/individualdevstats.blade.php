@@ -780,14 +780,14 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Tickets resolved
         echo "<tr><td>Tickets Resolved:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev]) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[status]' => 'resolved']) . "\">";
         echo $devUser->resolvedTickets()->where('state', '=', TicketState::Resolved)->count();
         echo "</a>";
         echo "</td></tr>";
 
         // Tickets resolved for other users
         echo "<tr><td>Tickets Resolved for Others:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[status]' => 'resolved', 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
         echo $closedResolvedTicketInfo['ResolvedCount'];
         echo "</a>";
         echo "</td></tr>";

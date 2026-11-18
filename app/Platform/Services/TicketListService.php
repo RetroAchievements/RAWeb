@@ -156,11 +156,11 @@ class TicketListService
                     break;
 
                 case 'self':
-                    $tickets->where('assignee_id', '=', $comparisonUser->id);
+                    $tickets->forDeveloperAtFiling($comparisonUser);
                     break;
 
                 case 'others':
-                    $tickets->where('assignee_id', '!=', $comparisonUser->id);
+                    $tickets->whereNot(fn (Builder $othersQuery) => $othersQuery->forDeveloperAtFiling($comparisonUser));
                     break;
             }
 

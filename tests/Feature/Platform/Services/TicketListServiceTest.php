@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Models\Achievement;
+use App\Models\AchievementMaintainer;
 use App\Models\Emulator;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -186,6 +187,48 @@ describe('applyFilters', function () {
         'reporter self' => ['reporter', 'self', 'own'],
         'reporter others' => ['reporter', 'others', 'other'],
     ]);
+
+    it('given a developer claimed a ticket on an achievement they are not the maintainer of, the developer filter still counts it as others', function () {
+        // ARRANGE
+        $claimer = User::factory()->create();
+        $author = User::factory()->create();
+        $achievement = createTicketableAchievement($author);
+        $claimedTicket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'assignee_id' => $claimer->id,
+            'resolver_id' => $claimer->id,
+        ]);
+        $service = new TicketListService();
+
+        // ACT
+        $othersIds = buildTicketIds($service, defaultTicketListFilterOptions(['status' => 'resolved', 'developer' => 'others']), $claimer);
+        $selfIds = buildTicketIds($service, defaultTicketListFilterOptions(['status' => 'resolved', 'developer' => 'self']), $claimer);
+
+        // ASSERT
+        expect($othersIds)->toEqual([$claimedTicket->id]);
+        expect($selfIds)->toBeEmpty();
+    });
+
+    it('given a developer maintained an achievement for a while, the developer filter counts only tickets filed during that time as self', function () {
+        // ARRANGE
+        $maintainer = User::factory()->create();
+        $author = User::factory()->create();
+        $achievement = createTicketableAchievement($author);
+        AchievementMaintainer::create(['achievement_id' => $achievement->id, 'user_id' => $maintainer->id, 'effective_from' => '2024-03-01 00:00:00', 'effective_until' => '2025-06-01 00:00:00', 'is_active' => false]);
+        $filedBefore = Ticket::factory()->forAchievement($achievement)->resolved()->create(['resolver_id' => $maintainer->id, 'created_at' => '2023-11-20 10:00:00']);
+        $filedDuring = Ticket::factory()->forAchievement($achievement)->resolved()->create(['resolver_id' => $maintainer->id, 'created_at' => '2024-09-14 10:00:00']);
+        $filedAfter = Ticket::factory()->forAchievement($achievement)->resolved()->create(['resolver_id' => $maintainer->id, 'created_at' => '2025-06-01 00:00:00']);
+        $service = new TicketListService();
+
+        // ACT
+        $maintainerSelfIds = buildTicketIds($service, defaultTicketListFilterOptions(['status' => 'resolved', 'developer' => 'self']), $maintainer);
+        $maintainerOthersIds = buildTicketIds($service, defaultTicketListFilterOptions(['status' => 'resolved', 'developer' => 'others']), $maintainer);
+        $authorSelfIds = buildTicketIds($service, defaultTicketListFilterOptions(['status' => 'resolved', 'developer' => 'self']), $author);
+
+        // ASSERT
+        expect($maintainerSelfIds)->toEqual([$filedDuring->id]);
+        expect($maintainerOthersIds)->toEqual(sortedTicketIds([$filedBefore, $filedAfter]));
+        expect($authorSelfIds)->toEqual(sortedTicketIds([$filedBefore, $filedAfter]));
+    });
 
     it('given no comparison user, the developer and reporter values are ignored', function () {
         // ARRANGE
