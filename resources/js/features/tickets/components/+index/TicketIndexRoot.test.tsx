@@ -1,0 +1,1362 @@
+import userEvent from '@testing-library/user-event';
+import axios from 'axios';
+
+import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, fireEvent, render, screen, waitFor } from '@/test';
+import {
+  createGame,
+  createPaginatedData,
+  createSystem,
+  createTicketListEntry,
+  createTicketListStateCounts,
+  createUser,
+  createZiggyProps,
+} from '@/test/factories';
+
+import { openPropertySubmenu } from '../../test/openPropertySubmenu';
+import { TicketIndexRoot } from './TicketIndexRoot';
+
+type TicketIndexRenderProps = Partial<App.Platform.Data.TicketListPageProps> & {
+  ziggy?: ReturnType<typeof createZiggyProps>;
+};
+
+function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
+  return render<App.Platform.Data.TicketListPageProps>(<TicketIndexRoot />, {
+    pageProps: {
+      scope: 'all',
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: 1,
+      }),
+      stateCounts: createTicketListStateCounts(),
+      defaultSortParam: '-createdAt',
+      defaultStatusFilter: 'unresolved',
+      hasStatusFilter: true,
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+      ],
+      facetCounts: {},
+      persistenceCookieName: 'datatable_view_preference_tickets_all',
+      persistedViewPreferences: null,
+      can: {},
+      ziggy: createZiggyProps({ query: {} }),
+      ...pageProps,
+    },
+  });
+}
+
+type TicketListResponse = Pick<
+  App.Platform.Data.TicketListPageProps,
+  'paginatedTickets' | 'stateCounts' | 'facetCounts'
+>;
+
+function createTicketListResponse(
+  paginatedTickets: TicketListResponse['paginatedTickets'],
+  overrides: Partial<Omit<TicketListResponse, 'paginatedTickets'>> = {},
+): TicketListResponse {
+  return {
+    paginatedTickets,
+    stateCounts: createTicketListStateCounts(),
+    facetCounts: {},
+    ...overrides,
+  };
+}
+
+describe('Component: TicketIndexRoot', () => {
+  it('shows the ticket manager list', () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get');
+    renderTicketIndexRoot();
+
+    // ASSERT
+    expect(screen.getByTestId('ticket-list')).toBeVisible();
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('renders every default column and one row per ticket from the page props', () => {
+    // ARRANGE
+    const tickets = [
+      createTicketListEntry({
+        id: 1001,
+        state: 'open',
+        ticketableTitle: 'First Blood',
+        game: createGame({ title: 'Sonic the Hedgehog', system: createSystem() }),
+        assignee: createUser({ displayName: 'Dev' }),
+        reporter: createUser({ displayName: 'Scott' }),
+      }),
+      createTicketListEntry({
+        id: 1002,
+        state: 'quarantined',
+        ticketableTitle: 'Second Wind',
+        game: createGame({ title: 'Streets of Rage', system: createSystem() }),
+        assignee: createUser({ displayName: 'Kiterra' }),
+        reporter: createUser({ displayName: 'Salsa' }),
+      }),
+    ];
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData(tickets, {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: tickets.length,
+        unfilteredTotal: 300,
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      'ID',
+      'Issue with',
+      'Developer',
+      'Reporter',
+      'Created',
+    ]);
+
+    expect(screen.getAllByRole('row')).toHaveLength(3);
+
+    expect(screen.getByRole('link', { name: 'Ticket #1001' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('ticket.show'),
+    );
+    expect(screen.getByRole('link', { name: 'Ticket #1002' })).toBeVisible();
+
+    expect(screen.getByRole('link', { name: 'First Blood' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('achievement.show'),
+    );
+    expect(screen.getByRole('link', { name: 'Second Wind' })).toBeVisible();
+
+    expect(screen.getByRole('link', { name: /dev/i })).toHaveAttribute(
+      'href',
+      expect.stringContaining('user.show'),
+    );
+    expect(screen.getByRole('link', { name: /scott/i })).toBeVisible();
+
+    expect(screen.getAllByRole('img', { name: 'Quarantined' })[0]).toBeVisible();
+
+    expect(screen.getByText('2 of 300 tickets')).toBeVisible();
+  });
+
+  it('given the page has no tickets, shows the empty state instead of a table', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([], {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: 0,
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('No tickets match these filters.')).toBeVisible();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('given the default status has no matches, shows ticket history without a reset action', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ system: createSystem() }),
+      paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('No tickets match these filters.')).toBeVisible();
+    expect(screen.getByText('0 of 24 tickets')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['Reset filters', 'unresolved'],
+    ['Reset', 'unresolved'],
+  ])(
+    '%s clears custom filters while preserving the game scope and sort',
+    async (action, status) => {
+      // ARRANGE
+      vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+      const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+        data: createTicketListResponse(
+          createPaginatedData([createTicketListEntry({ id: 4001 })], {
+            total: 1,
+            unfilteredTotal: 24,
+            lastPage: 1,
+          }),
+        ),
+      });
+
+      renderTicketIndexRoot({
+        scope: 'game',
+        game: createGame({ id: 1701, system: createSystem() }),
+        availableFilters: [
+          { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+          {
+            kind: 'mode',
+            values: ['all', 'hardcore', 'softcore'],
+            valueLabels: {},
+            isFreeText: false,
+          },
+          {
+            kind: 'emulator',
+            values: ['all', 'RetroArch', 'unknown'],
+            valueLabels: {},
+            isFreeText: false,
+          },
+        ],
+        paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+        ziggy: createZiggyProps({
+          query: {
+            sort: 'createdAt',
+            filter: { status: 'open', type: '1', mode: 'hardcore', emulator: 'RetroArch' },
+          },
+        }),
+      });
+
+      // ACT
+      await userEvent.click(screen.getByRole('button', { name: action }));
+
+      // ASSERT
+      await waitFor(() => {
+        expect(getSpy).toHaveBeenCalledWith([
+          'api.ticket.index',
+          {
+            scope: 'game',
+            game: 1701,
+            sort: 'createdAt',
+            'filter[status]': status,
+            'filter[type]': '0',
+            'filter[mode]': 'all',
+            'filter[emulator]': 'all',
+            'page[number]': 1,
+          },
+        ]);
+      });
+
+      expect(await screen.findByRole('link', { name: 'Ticket #4001' })).toBeVisible();
+      expect(screen.queryByText('No tickets match these filters.')).not.toBeInTheDocument();
+    },
+  );
+
+  it('given the user hovers the empty state button, prefetches tickets with the default filters', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], { total: 1, lastPage: 1 }),
+      ),
+    });
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ id: 1701, system: createSystem() }),
+      paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+      ziggy: createZiggyProps({ query: { sort: 'createdAt', filter: { type: '1' } } }),
+    });
+    const resetFiltersButton = screen.getByRole('button', { name: 'Reset filters' });
+
+    // ACT
+    await userEvent.hover(resetFiltersButton);
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'game',
+          game: 1701,
+          sort: 'createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
+      ]);
+    });
+  });
+
+  it.each([
+    ['awaitingReporter', 'request', false],
+    ['all', 'all', true],
+  ] as const)(
+    'does not offer to clear filters in an unfiltered %s scope',
+    (scope, status, hasStatusFilter) => {
+      // ARRANGE
+      renderTicketIndexRoot({
+        scope,
+        defaultStatusFilter: status,
+        hasStatusFilter,
+        availableFilters: [],
+        paginatedTickets: createPaginatedData([], { total: 0, unfilteredTotal: 24 }),
+      });
+
+      // ASSERT
+      expect(screen.queryByRole('button', { name: 'Reset filters' })).not.toBeInTheDocument();
+    },
+  );
+
+  it('given the scope exposes filters, offers them all behind one filter button', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      stateCounts: createTicketListStateCounts({ unresolved: 7, resolved: 3 }),
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'mode',
+          values: ['all', 'hardcore', 'softcore'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+    });
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.getByTestId('filter-property-status')).toBeVisible();
+    expect(screen.getByTestId('filter-property-type')).toBeVisible();
+    expect(screen.getByTestId('filter-property-mode')).toBeVisible();
+  });
+
+  it('given the server counted a facet, every one of its options carries a count', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        {
+          kind: 'emulator',
+          values: ['all', 'RetroArch', 'unknown'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      facetCounts: { emulator: { all: 100, RetroArch: 40 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /^RetroArch/ })).toHaveTextContent('40');
+    expect(screen.getByRole('menuitem', { name: /^all/i })).toHaveTextContent('100');
+    expect(screen.getByRole('menuitem', { name: /^Unknown/ })).toHaveTextContent('0');
+  });
+
+  it('given a free text filter, shows a text input with an example term', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [{ kind: 'core', values: [''], valueLabels: {}, isFreeText: true }],
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('textbox', { name: 'Core contains' })).toBeVisible();
+    expect(screen.getByPlaceholderText('Search cores...')).toBeVisible();
+    expect(screen.queryByRole('menuitem', { name: /all/i })).not.toBeInTheDocument();
+  });
+
+  it('given a filter with ID values, shows the server-supplied labels', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        {
+          kind: 'system',
+          values: ['all', '7'],
+          valueLabels: { '7': 'NES/Famicom' },
+          isFreeText: false,
+        },
+      ],
+      facetCounts: { system: { all: 12, '7': 5 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /^NES\/Famicom/ })).toHaveTextContent('5');
+    expect(screen.getByRole('menuitem', { name: /^All/ })).toHaveTextContent('12');
+  });
+
+  it('given the resolution filter, shows a label and count for every filter option', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      defaultStatusFilter: 'all',
+      availableFilters: [
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce', 'wrong_rom'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      facetCounts: { resolution: { all: 31, unable_to_reproduce: 17 } },
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: /unable to reproduce/i })).toHaveTextContent('17');
+    expect(screen.getByRole('menuitem', { name: /wrong rom/i })).toHaveTextContent('0');
+    expect(screen.getByRole('menuitem', { name: /^All/ })).toHaveTextContent('31');
+  });
+
+  it('given the status is Closed, shows the resolution filter and the chip for its value in the URL', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      ziggy: createZiggyProps({
+        query: { filter: { status: 'closed', resolution: 'unable_to_reproduce' } },
+      }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.getByTestId('chip-resolution')).toHaveTextContent('Unable to reproduce');
+    expect(screen.getByRole('menuitem', { name: /^Resolution/ })).toBeVisible();
+  });
+
+  it('given the status is not All or Closed, hides the resolution filter and ignores its value in the URL', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      ziggy: createZiggyProps({
+        query: { filter: { status: 'unresolved', resolution: 'unable_to_reproduce' } },
+      }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByTestId('add-filter'));
+
+    // ASSERT
+    expect(screen.queryByTestId('chip-resolution')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /^Resolution/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /^Issue type/ })).toBeVisible();
+    expect(screen.queryByTestId('reset-all-filters')).not.toBeInTheDocument();
+  });
+
+  it('given the user leaves Closed with a resolution filter set and then picks All, the filter does not persist', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      availableFilters: [
+        { kind: 'type', values: ['0', '1', '2'], valueLabels: {}, isFreeText: false },
+        {
+          kind: 'resolution',
+          values: ['all', 'unable_to_reproduce'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+      ziggy: createZiggyProps({
+        query: { filter: { status: 'closed', resolution: 'unable_to_reproduce' } },
+      }),
+    });
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^unresolved/i }));
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^all/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy.mock.lastCall?.[0]).toEqual([
+        'api.ticket.index',
+        expect.objectContaining({ 'filter[status]': 'all' }),
+      ]);
+    });
+    expect(getSpy.mock.lastCall?.[0]).toEqual([
+      'api.ticket.index',
+      expect.not.objectContaining({ 'filter[resolution]': expect.anything() }),
+    ]);
+    expect(screen.queryByTestId('chip-resolution')).not.toBeInTheDocument();
+  });
+
+  it('omits counts when the server does not provide them', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      availableFilters: [
+        {
+          kind: 'developerType',
+          values: ['all', 'active', 'junior'],
+          valueLabels: {},
+          isFreeText: false,
+        },
+      ],
+    });
+
+    // ACT
+    await openPropertySubmenu(1);
+
+    // ASSERT
+    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveTextContent(/^Active$/);
+  });
+
+  it('given the default status narrows the list, shows it as a chip with the current value', () => {
+    // ARRANGE
+    renderTicketIndexRoot();
+
+    // ASSERT
+    expect(screen.getByTestId('chip-status')).toHaveTextContent('Unresolved');
+    expect(screen.queryByTestId('chip-type')).not.toBeInTheDocument();
+  });
+
+  it('given the filters have their current default values, the reset button is hidden and only appears once a non-default value is set', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot();
+
+    expect(screen.queryByTestId('reset-all-filters')).not.toBeInTheDocument();
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^resolved/i }));
+
+    // ASSERT
+    expect(screen.getByTestId('reset-all-filters')).toBeVisible();
+  });
+
+  it('given the user adds a status filter, refetches with it and syncs the URL', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: 1,
+      }),
+    });
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'quarantined',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
+      ]);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #4001' })).toBeVisible();
+    });
+
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true, ticketListSortParam: '-createdAt' },
+      '',
+      expect.stringContaining('filter%5Bstatus%5D=quarantined'),
+    );
+
+    expect(pushStateSpy).not.toHaveBeenCalledWith(
+      { inertia: true, ticketListSortParam: '-createdAt' },
+      '',
+      expect.stringContaining('filter%5Btype%5D'),
+    );
+  });
+
+  it('given the user clears a chip, returns that filter to its default value', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Remove Status filter' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'all',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
+      ]);
+    });
+
+    expect(screen.queryByTestId('chip-status')).not.toBeInTheDocument();
+  });
+
+  it('given the user is not on the first page and sets a filter value, returns the user to the first page', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 2,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+      ziggy: createZiggyProps({ query: { 'page[number]': '2' } }),
+    });
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^resolved/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'resolved',
+          'filter[type]': '0',
+          'page[number]': 1,
+        },
+      ]);
+    });
+  });
+
+  it('given the query returns fresh state counts, the status value list shows them', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+        { stateCounts: createTicketListStateCounts({ unresolved: 99, resolved: 5 }) },
+      ),
+    });
+
+    renderTicketIndexRoot({
+      stateCounts: createTicketListStateCounts({ unresolved: 7, resolved: 3 }),
+    });
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.click(screen.getByRole('menuitem', { name: /^resolved/i }));
+    await userEvent.click(screen.getByTestId('chip-status-value'));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: /unresolved/i })).toHaveTextContent('99');
+    });
+  });
+
+  it('given the user advances to the next page, fetches the next page from the API and syncs the URL', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 2001 })], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 1,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByRole('button', { name: 'Go to next page' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 2,
+        },
+      ]);
+    });
+
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('link', { name: 'Ticket #1001' })).toBeVisible();
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: '-createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 3,
+        },
+      ]);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #2001' })).toBeVisible();
+    });
+
+    expect(getSpy).toHaveBeenCalledTimes(2);
+
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true, ticketListSortParam: '-createdAt' },
+      '',
+      expect.stringContaining('page%5Bnumber%5D=2'),
+    );
+
+    await act(async () => {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #1001' })).toBeVisible();
+    });
+  });
+
+  it('given the user types a page number instead of clicking, the query fetches the page', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 3001 })], {
+          currentPage: 3,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 1,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+    });
+
+    // ACT
+    const inputEl = screen.getByRole('spinbutton', { name: 'current page number' });
+    await userEvent.clear(inputEl);
+    await userEvent.type(inputEl, '3');
+
+    // ASSERT
+    await waitFor(
+      () => {
+        expect(getSpy).toHaveBeenCalledWith([
+          'api.ticket.index',
+          {
+            scope: 'all',
+            sort: '-createdAt',
+            'filter[status]': 'unresolved',
+            'filter[type]': '0',
+            'page[number]': 3,
+          },
+        ]);
+      },
+      { timeout: 2000 },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Ticket #3001' })).toBeVisible();
+    });
+  });
+
+  it('given the URL has a filter and a sort, also sends those things to the API when the user paginates', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 1,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+      ziggy: createZiggyProps({ query: { filter: { status: 'resolved' }, sort: 'state' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'all',
+          sort: 'state',
+          'filter[status]': 'resolved',
+          'filter[type]': '0',
+          'page[number]': 2,
+        },
+      ]);
+    });
+  });
+
+  it('given the user hides a column then shows it again, the display returns to its default state', async () => {
+    // ARRANGE
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
+
+    // ASSERT
+    expect(screen.queryByRole('columnheader', { name: 'Reporter' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('reset-display')).toBeVisible();
+
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
+
+    expect(screen.getByRole('columnheader', { name: 'Reporter' })).toBeVisible();
+    expect(screen.queryByTestId('reset-display')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given the scope opens on a resolved date sort, treats that sort as the default display', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      defaultSortParam: '-resolvedAt',
+    });
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given a resolved by scope, marks a changed sort and resets it to the resolved date default', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 4001 })], {
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 50,
+          total: 1,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      defaultSortParam: '-resolvedAt',
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.click(screen.getByRole('option', { name: 'Created' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(pushStateSpy).toHaveBeenCalledWith(
+        { inertia: true, ticketListSortParam: '-createdAt' },
+        '',
+        expect.stringContaining('sort=-createdAt'),
+      );
+    });
+    expect(screen.getByTestId('display-changed-dot')).toBeVisible();
+
+    await userEvent.click(screen.getByTestId('reset-display'));
+
+    await waitFor(() => {
+      expect(pushStateSpy).toHaveBeenLastCalledWith(
+        { inertia: true, ticketListSortParam: '-resolvedAt' },
+        '',
+        expect.not.stringContaining('sort='),
+      );
+    });
+    expect(screen.queryByTestId('display-changed-dot')).not.toBeInTheDocument();
+  });
+
+  it('given a resolved date sort, shows the resolved column by default', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { sort: '-resolvedAt' } }),
+    });
+
+    // ASSERT
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: 'Created' })).toBeVisible();
+  });
+
+  it('given a hidden resolved column preference, keeps it hidden under a resolved date sort', async () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'resolvedBy',
+      user: createUser(),
+      persistedViewPreferences: {
+        columnVisibility: { resolvedAt: false },
+        sortParam: '-resolvedAt',
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByRole('columnheader', { name: 'Resolved' })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('column-toggle-resolvedAt'));
+
+    expect(screen.getByRole('columnheader', { name: 'Resolved' })).toBeVisible();
+    expect(screen.queryByRole('columnheader', { name: 'Resolved by' })).not.toBeInTheDocument();
+  });
+
+  it('given only column visibility changed, resetting the display keeps the current page', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry()], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 2,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+      ziggy: createZiggyProps({ query: { 'page[number]': '2' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('column-toggle-reporter'));
+    await userEvent.hover(screen.getByTestId('reset-display'));
+    await userEvent.click(screen.getByTestId('reset-display'));
+
+    // ASSERT
+    expect(screen.getByRole('spinbutton', { name: 'current page number' })).toHaveValue(2);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the list is scoped to a game, the API request contains the game param', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(
+        createPaginatedData([createTicketListEntry({ id: 2001 })], {
+          currentPage: 2,
+          lastPage: 3,
+          perPage: 50,
+          total: 150,
+        }),
+      ),
+    });
+
+    renderTicketIndexRoot({
+      scope: 'game',
+      game: createGame({ id: 1701, title: 'Sonic the Hedgehog', system: createSystem() }),
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 1,
+        lastPage: 3,
+        perPage: 50,
+        total: 150,
+      }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(getSpy).toHaveBeenCalledWith([
+        'api.ticket.index',
+        {
+          scope: 'game',
+          game: 1701,
+          sort: '-createdAt',
+          'filter[status]': 'unresolved',
+          'filter[type]': '0',
+          'page[number]': 2,
+        },
+      ]);
+    });
+  });
+
+  it('given the scope sets a specific default status, shows that status', () => {
+    // ARRANGE
+    renderTicketIndexRoot({ scope: 'assignedTo', defaultStatusFilter: 'request' });
+
+    // ASSERT
+    expect(screen.getByTestId('chip-status-value')).toHaveTextContent('Request');
+  });
+
+  it('given the scope has a defaultStatusFilter value of "all", no status value chip displays', () => {
+    // ARRANGE
+    renderTicketIndexRoot({ scope: 'resolvedBy', defaultStatusFilter: 'all' });
+
+    // ASSERT
+    expect(screen.queryByTestId('chip-status-value')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('reset-all-filters')).not.toBeInTheDocument();
+  });
+
+  it('given the scope has no filters at all, hides the status chip and the filter button', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      scope: 'awaitingReporter',
+      defaultStatusFilter: 'request',
+      hasStatusFilter: false,
+      availableFilters: [],
+    });
+
+    // ASSERT
+    expect(screen.queryByTestId('chip-status-value')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('add-filter')).not.toBeInTheDocument();
+  });
+
+  it('given a single ticket, the total copy uses the singular form', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry()], {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: 1,
+      }),
+    });
+
+    // ASSERT
+    expect(screen.getByText('1 ticket')).toBeVisible();
+  });
+
+  it('given the user hovers a status chip option, reuses the prefetched first page on selection', async () => {
+    // ARRANGE
+    const pushStateSpy = vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([createTicketListEntry({ id: 9001 })])),
+    });
+
+    renderTicketIndexRoot({
+      paginatedTickets: createPaginatedData([createTicketListEntry({ id: 1001 })], {
+        currentPage: 4,
+        lastPage: 5,
+        perPage: 50,
+        total: 250,
+      }),
+      ziggy: createZiggyProps({ query: { filter: { type: '1' } } }),
+    });
+
+    const originalRow = screen.getByRole('link', { name: 'Ticket #1001' });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Change Status filter' }));
+    await userEvent.hover(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'quarantined',
+        'filter[type]': '1',
+        'page[number]': 1,
+      },
+    ]);
+    expect(originalRow).toBeVisible();
+    expect(originalRow).toHaveAttribute('aria-label', 'Ticket #1001');
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Ticket #9001' })).toBeVisible());
+    expect(getSpy).toHaveBeenCalledOnce();
+  });
+
+  it('given the user hovers a status menu option, prefetches that status', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    await userEvent.hover(screen.getByRole('menuitem', { name: /^quarantined/i }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'quarantined',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user mouses through a filter option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await openPropertySubmenu(0);
+    const quarantinedMenuItem = screen.getByRole('menuitem', { name: /^quarantined/i });
+    await userEvent.hover(quarantinedMenuItem);
+    fireEvent.mouseLeave(quarantinedMenuItem);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user hovers a sort field, prefetches it with the current direction', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.hover(screen.getByRole('option', { name: 'Status' }));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-state',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user hovers the resolved sort field, prefetches it with the resolved status and reuses it on selection', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.hover(screen.getByRole('option', { name: 'Resolved' }));
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    await userEvent.click(screen.getByRole('option', { name: 'Resolved' }));
+
+    // ASSERT
+    expect(getSpy).toHaveBeenCalledOnce();
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-resolvedAt',
+        'filter[status]': 'resolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user mouses through a sort field option, does not prefetch it', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot();
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByTestId('sort-field'));
+    const statusOption = screen.getByRole('option', { name: 'Status' });
+    await userEvent.hover(statusOption);
+    fireEvent.mouseLeave(statusOption);
+
+    // ASSERT
+    await __UNSAFE_VERY_DANGEROUS_SLEEP(200);
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
+  it('given the user hovers the reset filters button, prefetches the default filters', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { filter: { status: 'resolved' } } }),
+    });
+
+    // ACT
+    await userEvent.hover(screen.getByTestId('reset-all-filters'));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user hovers the reset display button, prefetches the default sort', async () => {
+    // ARRANGE
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({
+      ziggy: createZiggyProps({ query: { sort: 'state' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.hover(screen.getByTestId('reset-display'));
+
+    // ASSERT
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: '-createdAt',
+        'filter[status]': 'unresolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+});

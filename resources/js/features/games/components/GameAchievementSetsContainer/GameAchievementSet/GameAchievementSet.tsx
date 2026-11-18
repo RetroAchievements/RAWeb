@@ -20,6 +20,7 @@ import {
   userAchievementListChangeCounterAtom,
 } from '@/features/games/state/games.atoms';
 import { filterAchievements } from '@/features/games/utils/filterAchievements';
+import { getCanManageProgress } from '@/features/games/utils/getCanManageProgress';
 import { UNGROUPED_BUCKET_ID } from '@/features/games/utils/UNGROUPED_BUCKET_ID';
 
 import { AchievementSetCredits } from '../../AchievementSetCredits';
@@ -39,7 +40,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
   achievements,
   gameAchievementSet,
 }) => {
-  const { allLeaderboards, auth, isViewingPublishedAchievements, numLeaderboards } =
+  const { allLeaderboards, auth, isViewingPublishedAchievements, playerAchievementSets, numLeaderboards, activeEventAchievements } =
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
@@ -108,6 +109,8 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
     disabledLeaderboards.length > 0 &&
     isViewingPublishedAchievements;
 
+  const canShowAwardIndicators = getCanManageProgress(gameAchievementSet.achievementSet.id, achievements, playerAchievementSets);
+
   return (
     <div className="flex flex-col gap-2.5">
       <div
@@ -120,7 +123,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
           <GameAchievementSetHeader gameAchievementSet={gameAchievementSet} />
         </div>
 
-        {auth?.user && achievements.length ? (
+        {auth?.user && canShowAwardIndicators ? (
           <div className="my-2 flex justify-center sm:hidden">
             <GameAchievementSetProgress
               achievements={achievements}
@@ -178,6 +181,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                               shouldShowAuthor={!isViewingPublishedAchievements}
                               shouldShowWeightedPoints={isViewingPublishedAchievements}
                               playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                              activeEventAchievements={activeEventAchievements}
                             />
                           ))}
                         </AchievementGroupSection>
@@ -201,6 +205,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                             isLargeList={isLargeAchievementsList}
                             shouldShowAuthor={!isViewingPublishedAchievements}
                             playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                            activeEventAchievements={activeEventAchievements}
                           />
                         ))}
                       </AchievementGroupSection>
@@ -227,6 +232,7 @@ export const GameAchievementSet: FC<GameAchievementSetProps> = ({
                         shouldShowAuthor={!isViewingPublishedAchievements}
                         shouldShowWeightedPoints={isViewingPublishedAchievements}
                         playersTotal={gameAchievementSet.achievementSet.playersTotal}
+                        activeEventAchievements={activeEventAchievements}
                       />
                     ))}
 

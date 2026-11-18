@@ -6,6 +6,8 @@ import { route } from 'ziggy-js';
 import { useCardTooltip } from '../../../hooks/useCardTooltip';
 import { persistedTicketsAtom } from '../../../state/shortcode.atoms';
 import { cn } from '../../../utils/cn';
+import { getIsTicketStateFinished } from '../../../utils/getIsTicketStateFinished';
+import { getIsTicketStateOpen } from '../../../utils/getIsTicketStateOpen';
 
 interface ShortcodeTicketProps {
   ticketId: number;
@@ -24,6 +26,8 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
     return null;
   }
 
+  const stateClassName = getTicketStateClassName(foundTicket.state!);
+
   if (
     foundTicket.ticketableType === 'achievement' &&
     foundTicket.ticketable &&
@@ -34,7 +38,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
         data-testid="achievement-ticket-embed"
         href={route('ticket.show', { ticket: ticketId })}
         {...cardTooltipProps}
-        className={cn('inline-block rounded-sm', getTicketStateClassName(foundTicket.state))}
+        className={cn('inline-block rounded-sm', stateClassName)}
       >
         <img
           loading="lazy"
@@ -57,10 +61,7 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
         data-testid="leaderboard-ticket-embed"
         href={route('ticket.show', { ticket: ticketId })}
         {...cardTooltipProps}
-        className={cn(
-          'inline-block rounded px-1.5 py-0.5',
-          getTicketStateClassName(foundTicket.state),
-        )}
+        className={cn('inline-block rounded px-1.5 py-0.5', stateClassName)}
       >
         {t('Ticket #{{ticketId}}', { ticketId })}
       </a>
@@ -70,12 +71,12 @@ export const ShortcodeTicket: FC<ShortcodeTicketProps> = ({ ticketId }) => {
   return null;
 };
 
-function getTicketStateClassName(ticketState: App.Community.Enums.TicketState | undefined): string {
-  if (ticketState === 'open' || ticketState === 'request') {
+function getTicketStateClassName(ticketState: App.Community.Enums.TicketState): string {
+  if (getIsTicketStateOpen(ticketState)) {
     return 'border border-green-600';
   }
 
-  if (ticketState === 'closed' || ticketState === 'resolved') {
+  if (getIsTicketStateFinished(ticketState)) {
     return 'border border-red-600';
   }
 

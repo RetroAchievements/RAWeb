@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -13,6 +14,8 @@ $userPage = $userDetails?->display_name ?? $userDetails?->username;
 if (!isset($userPage) || !$userDetails) {
     abort(404);
 }
+
+Gate::authorize('view', $userDetails);
 
 $listOffset = requestInputSanitized('o', 0, 'integer');
 $sortBy = requestInputSanitized('s', 3, 'integer');

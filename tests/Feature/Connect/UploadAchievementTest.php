@@ -151,7 +151,7 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -168,7 +168,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -206,7 +206,7 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -223,6 +223,127 @@ describe('developer', function () {
         $this->assertEquals(0, $game->achievements_unpublished);
     });
 
+    test('cannot create new achievement with an out-of-range badge', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '21474836',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Unknown badge: 21474836',
+            ]);
+
+        $this->assertEquals(0, Achievement::count());
+    });
+
+    test('can create new achievement with a freshly uploaded badge above the highest one', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+        UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user)->update(['image_name' => '000500']);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '000502',
+        ])))
+            ->assertStatus(200)
+            ->assertJson(['Success' => true]);
+
+        $this->assertEquals('000502', Achievement::orderByDesc('id')->first()->image_name);
+    });
+
+    test('cannot create new achievement with a badge name exceptionally far above the highest one', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+        UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user)->update(['image_name' => '000500']);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '002000',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Unknown badge: 002000',
+            ]);
+
+        $this->assertEquals(1, Achievement::count());
+    });
+
+    test('can create new achievement with the placeholder badge', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        UploadAchievementTestHelpers::addClaim($game, $this->user);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $game->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 5,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '0',
+        ])))
+            ->assertStatus(200)
+            ->assertJson(['Success' => true]);
+
+        $this->assertEquals('00000', Achievement::first()->image_name);
+    });
+
+    test('cannot change a badge name to a number that is out of range', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $achievement = UploadAchievementTestHelpers::createUnpromotedAchievement($game, $this->user);
+        $achievement->update(['image_name' => '000123']);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $achievement->id,
+            'g' => $game->id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 10,
+            'm' => '0xH0000=2',
+            'f' => 5,
+            'b' => '0002000',
+        ])))
+            ->assertStatus(422)
+            ->assertExactJson([
+                'Status' => 422,
+                'Code' => 'invalid_parameter',
+                'Success' => false,
+                'Error' => 'Unknown badge: 0002000',
+            ]);
+
+        $achievement->refresh();
+        $this->assertEquals('000123', $achievement->image_name);
+        $this->assertNotEquals('Title2', $achievement->title);
+    });
+
     test('can create new achievement for collaboration claim', function () {
         $this->user->assignRole(Role::DEVELOPER);
         $game = UploadAchievementTestHelpers::createGame();
@@ -237,7 +358,7 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -254,7 +375,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -296,7 +417,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(200)
@@ -315,7 +436,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertEquals(AchievementType::Progression, $achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
         $this->assertEquals($triggerVersion, $achievement->trigger_id); // changes before promoting aren't tracked
 
@@ -341,12 +462,12 @@ describe('developer', function () {
         $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
             'a' => $achievement->id,
             'g' => $game->id,
-            'n' => 'Title1',
-            'd' => 'Description1',
-            'z' => 5,
-            'm' => '0xH0000=1',
+            'n' => $achievement->title,
+            'd' => $achievement->description,
+            'z' => $achievement->points,
+            'm' => $achievement->trigger_definition,
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => $achievement->image_name,
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -355,25 +476,17 @@ describe('developer', function () {
             ]);
 
         $achievement->refresh();
-        $this->assertEquals($game->id, $achievement->game_id);
-        $this->assertEquals('Title1', $achievement->title);
-        $this->assertEquals('Description1', $achievement->description);
-        $this->assertEquals('0xH0000=1', $achievement->trigger_definition);
-        $this->assertEquals(5, $achievement->points);
-        $this->assertTrue($achievement->is_promoted);
-        $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
         $this->assertEquals(1, $game->achievements_published);
         $this->assertEquals(0, $game->achievements_unpublished);
-        $this->assertEquals(5, $game->points_total);
+        $this->assertEquals($achievement->points, $game->points_total);
 
         // trigger should be versioned on promotion
         $this->assertNotNull($achievement->trigger);
-        $this->assertEquals('0xH0000=1', $achievement->trigger->conditions);
+        $this->assertEquals($achievement->trigger_definition, $achievement->trigger->conditions);
         $this->assertEquals(1, $achievement->trigger->version);
         $this->assertEquals($triggerVersion, $achievement->trigger->id);
 
@@ -383,7 +496,7 @@ describe('developer', function () {
         $this->assertEquals($achievement->id, $coreSet->achievements()->first()->id);
         $this->assertEquals(1, $coreSet->achievements_published);
         $this->assertEquals(0, $coreSet->achievements_unpublished);
-        $this->assertEquals(5, $coreSet->points_total);
+        $this->assertEquals($achievement->points, $coreSet->points_total);
 
         // user promoted own achievement
         $activity = $achievement->auditLog->where('event', 'updated')->last();
@@ -407,7 +520,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -426,7 +539,7 @@ describe('developer', function () {
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals(AchievementType::Progression, $achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
         $this->assertNotEquals($triggerVersion, $achievement->trigger_id); // changes after publishing are tracked
 
@@ -466,7 +579,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -520,7 +633,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -565,7 +678,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(200)
@@ -584,7 +697,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertEquals(AchievementType::Progression, $achievement->type);
         $this->assertEquals($otherUser->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
         $this->assertEquals($triggerVersion, $achievement->trigger_id); // changes before promoting aren't tracked
 
@@ -610,7 +723,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -629,7 +742,7 @@ describe('developer', function () {
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals(AchievementType::Progression, $achievement->type);
         $this->assertEquals($otherUser->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
         $this->assertNotEquals($triggerVersion, $achievement->trigger_id); // changes after publishing are tracked
 
@@ -664,7 +777,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -719,7 +832,7 @@ describe('developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -768,7 +881,7 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -785,7 +898,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -806,7 +919,7 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -823,7 +936,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -848,7 +961,7 @@ describe('developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -865,7 +978,7 @@ describe('developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -888,7 +1001,7 @@ describe('junior developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -905,7 +1018,7 @@ describe('junior developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -925,7 +1038,7 @@ describe('junior developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -956,7 +1069,7 @@ describe('junior developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -973,7 +1086,7 @@ describe('junior developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -998,7 +1111,7 @@ describe('junior developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -1032,7 +1145,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(200)
@@ -1051,7 +1164,7 @@ describe('junior developer', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertEquals(AchievementType::Progression, $achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
         $this->assertEquals($triggerVersion, $achievement->trigger_id); // changes before promoting aren't tracked
 
@@ -1069,7 +1182,7 @@ describe('junior developer', function () {
         $achievement->description = 'Description1';
         $achievement->trigger_definition = '0xH0000=1';
         $achievement->points = 5;
-        $achievement->image_name = '001234';
+        $achievement->image_name = '000123';
         $achievement->save();
 
         // even with a claim, junior developer is not allowed to edit promoted logic
@@ -1083,7 +1196,7 @@ describe('junior developer', function () {
             'z' => 5,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -1101,7 +1214,7 @@ describe('junior developer', function () {
         $this->assertEquals(5, $achievement->points);
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
     });
 
     test('can update own promoted non-logic', function () {
@@ -1112,7 +1225,7 @@ describe('junior developer', function () {
         $achievement->description = 'Description1';
         $achievement->trigger_definition = '0xH0000=1';
         $achievement->points = 5;
-        $achievement->image_name = '001234';
+        $achievement->image_name = '000123';
         $achievement->save();
 
         // even with a claim, junior developer is not allowed to edit promoted
@@ -1126,7 +1239,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=1',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -1143,7 +1256,7 @@ describe('junior developer', function () {
         $this->assertEquals(10, $achievement->points);
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
 
         // user edited achievement
         $activity = $achievement->auditLog->where('event', 'updated')->last();
@@ -1176,7 +1289,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1214,7 +1327,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1250,7 +1363,7 @@ describe('junior developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -1278,7 +1391,7 @@ describe('junior developer', function () {
         $achievement->description = 'Description1';
         $achievement->trigger_definition = '0xH0000=1';
         $achievement->points = 5;
-        $achievement->image_name = '001234';
+        $achievement->image_name = '000123';
         $achievement->save();
 
         // even with a claim, junior developer can only modify their own achievements
@@ -1292,7 +1405,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(403)
@@ -1312,7 +1425,7 @@ describe('junior developer', function () {
         $this->assertEquals(5, $achievement->points);
         $this->assertFalse($achievement->is_promoted);
         $this->assertEquals($otherUser->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
 
         $game->refresh();
         $this->assertEquals(0, $game->achievements_published);
@@ -1329,7 +1442,7 @@ describe('junior developer', function () {
         $achievement->description = 'Description1';
         $achievement->trigger_definition = '0xH0000=1';
         $achievement->points = 5;
-        $achievement->image_name = '001234';
+        $achievement->image_name = '000123';
         $achievement->save();
         $triggerVersion = $achievement->trigger_id;
 
@@ -1344,7 +1457,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1363,7 +1476,7 @@ describe('junior developer', function () {
         $this->assertEquals(5, $achievement->points);
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals($otherUser->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertEquals($triggerVersion, $achievement->trigger_id);
     });
 
@@ -1384,7 +1497,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1420,7 +1533,7 @@ describe('junior developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1451,7 +1564,7 @@ describe('non-developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -1480,7 +1593,7 @@ describe('non-developer', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -1510,7 +1623,7 @@ describe('non-developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(403)
@@ -1541,7 +1654,7 @@ describe('non-developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1580,7 +1693,7 @@ describe('non-developer', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(403)
@@ -1614,7 +1727,7 @@ describe('subset', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -1631,7 +1744,7 @@ describe('subset', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -1653,7 +1766,7 @@ describe('subset', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -1686,7 +1799,7 @@ describe('subset', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -1703,7 +1816,7 @@ describe('subset', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -1726,7 +1839,7 @@ describe('subset', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(422)
@@ -1757,7 +1870,7 @@ describe('subset', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression', // hard-code in case enum changes
         ])))
             ->assertStatus(422)
@@ -1789,7 +1902,7 @@ describe('subset', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'win_condition', // hard-code in case enum changes
         ])))
             ->assertStatus(422)
@@ -1821,7 +1934,7 @@ describe('subset', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'missable', // hard-code in case enum changes
         ])))
             ->assertStatus(200)
@@ -1858,7 +1971,7 @@ describe('behavior', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -1889,7 +2002,7 @@ describe('behavior', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -1906,7 +2019,7 @@ describe('behavior', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('001234', $achievement->image_name);
+        $this->assertEquals('000123', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -1931,7 +2044,7 @@ describe('behavior', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '002345',
+            'b' => '000234',
         ])))
             ->assertStatus(200)
             ->assertExactJson([
@@ -1948,7 +2061,7 @@ describe('behavior', function () {
         $this->assertFalse($achievement->is_promoted);
         $this->assertNull($achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();
@@ -1973,7 +2086,7 @@ describe('behavior', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 3, // Publish - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(403)
             ->assertExactJson([
@@ -2007,7 +2120,7 @@ describe('behavior', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             // 'x' not provided
         ])))
             ->assertStatus(200)
@@ -2036,7 +2149,7 @@ describe('behavior', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             // 'x' not provided
         ])))
             ->assertStatus(200)
@@ -2289,7 +2402,7 @@ describe('behavior', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -2301,8 +2414,94 @@ describe('behavior', function () {
         $eventAchievement->refresh();
         $this->assertEquals('Title2', $eventAchievement->title);
         $this->assertEquals('Description2', $eventAchievement->description);
-        $this->assertEquals('002345', $eventAchievement->image_name);
+        $this->assertEquals('000234', $eventAchievement->image_name);
         $this->assertEquals(1, $eventAchievement->points);
+    });
+});
+
+describe('event achievements', function () {
+    test('developer cannot update an event achievement', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $sourceAchievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventAchievement = UploadAchievementTestHelpers::createEventAchievement($sourceAchievement);
+        $originalTitle = $eventAchievement->refresh()->title;
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $eventAchievement->id,
+            'g' => $eventAchievement->game_id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 1,
+            'm' => '',
+            'f' => 3, // keep promoted state unchanged
+            'b' => '000234',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Event achievements are not managed through the Connect API.',
+            ]);
+
+        $eventAchievement->refresh();
+        $this->assertEquals($originalTitle, $eventAchievement->title);
+    });
+
+    test('event manager can update an event achievement', function () {
+        Role::create(['name' => Role::EVENT_MANAGER, 'display' => 3]);
+        $this->user->assignRole([Role::DEVELOPER, Role::EVENT_MANAGER]);
+        $game = UploadAchievementTestHelpers::createGame();
+        $sourceAchievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventAchievement = UploadAchievementTestHelpers::createEventAchievement($sourceAchievement);
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'a' => $eventAchievement->id,
+            'g' => $eventAchievement->game_id,
+            'n' => 'Title2',
+            'd' => 'Description2',
+            'z' => 1,
+            'm' => '',
+            'f' => 3,
+            'b' => '000234',
+        ])))
+            ->assertStatus(200)
+            ->assertExactJson([
+                'Success' => true,
+                'AchievementID' => $eventAchievement->id,
+            ]);
+
+        $eventAchievement->refresh();
+        $this->assertEquals('Title2', $eventAchievement->title);
+    });
+
+    test('developer cannot create an achievement in an event game, even with a claim', function () {
+        $this->user->assignRole(Role::DEVELOPER);
+        $game = UploadAchievementTestHelpers::createGame();
+        $sourceAchievement = UploadAchievementTestHelpers::createPromotedAchievement($game, $this->user);
+        $eventGame = UploadAchievementTestHelpers::createEventAchievement($sourceAchievement)->game;
+        UploadAchievementTestHelpers::addClaim($eventGame, $this->user);
+        $achievementCountBefore = Achievement::where('game_id', $eventGame->id)->count();
+
+        $this->get(UploadAchievementTestHelpers::apiUrlWithChecksum($this->apiParams('uploadachievement', [
+            'g' => $eventGame->id,
+            'n' => 'Title1',
+            'd' => 'Description1',
+            'z' => 1,
+            'm' => '0xH0000=1',
+            'f' => 5,
+            'b' => '000123',
+        ])))
+            ->assertStatus(403)
+            ->assertExactJson([
+                'Status' => 403,
+                'Code' => 'access_denied',
+                'Success' => false,
+                'Error' => 'Event achievements are not managed through the Connect API.',
+            ]);
+
+        $this->assertEquals($achievementCountBefore, Achievement::where('game_id', $eventGame->id)->count());
     });
 });
 
@@ -2318,7 +2517,7 @@ describe('validation', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 5, // Unpromoted - hardcode for test to prevent false success if enum changes
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(422)
             ->assertExactJson([
@@ -2343,7 +2542,7 @@ describe('validation', function () {
             'z' => 5,
             'm' => '0xH0000=1',
             'f' => 4,
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(422)
             ->assertExactJson([
@@ -2368,7 +2567,7 @@ describe('validation', function () {
             'z' => 15,
             'm' => '0xH0000=1',
             'f' => 5,
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(422)
             ->assertExactJson([
@@ -2393,7 +2592,7 @@ describe('validation', function () {
             'z' => 10,
             'm' => '0xH0000=1',
             'f' => 5,
-            'b' => '001234',
+            'b' => '000123',
             'x' => 'unknown',
         ])))
             ->assertStatus(422)
@@ -2420,7 +2619,7 @@ describe('validation', function () {
             'z' => 10,
             'm' => '0xH0000=1',
             'f' => 5,
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(404)
             ->assertExactJson([
@@ -2445,7 +2644,7 @@ describe('validation', function () {
             'z' => 10,
             'm' => '0xH0000=1',
             'f' => 5,
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(404)
             ->assertExactJson([
@@ -2471,7 +2670,7 @@ describe('validation', function () {
             'z' => 10,
             'm' => '0xH0000=1',
             'f' => 5,
-            'b' => '001234',
+            'b' => '000123',
         ])))
             ->assertStatus(422)
             ->assertExactJson([
@@ -2499,7 +2698,7 @@ describe('validation', function () {
             'z' => 10,
             'm' => '0xH0000=2',
             'f' => 3,
-            'b' => '002345',
+            'b' => '000234',
             'x' => 'progression',
         ])))
             ->assertStatus(200)
@@ -2518,7 +2717,7 @@ describe('validation', function () {
         $this->assertTrue($achievement->is_promoted);
         $this->assertEquals(AchievementType::Progression, $achievement->type);
         $this->assertEquals($this->user->id, $achievement->user_id);
-        $this->assertEquals('002345', $achievement->image_name);
+        $this->assertEquals('000234', $achievement->image_name);
         $this->assertNotNull($achievement->modified_at);
 
         $game->refresh();

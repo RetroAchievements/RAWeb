@@ -260,7 +260,7 @@ class SubscriptionService
     {
         return match ($subjectType) {
             SubscriptionSubjectType::Achievement => new AchievementWallSubscriptionHandler(),
-            SubscriptionSubjectType::AchievementTicket => new TicketSubscriptionHandler(),
+            SubscriptionSubjectType::Ticket => new TicketSubscriptionHandler(),
             SubscriptionSubjectType::ForumTopic => new ForumTopicSubscriptionHandler(),
             SubscriptionSubjectType::GameAchievements => new GameAchievementsSubscriptionHandler(),
             SubscriptionSubjectType::GameTickets => new GameTicketsSubscriptionHandler(),
@@ -268,8 +268,9 @@ class SubscriptionService
             SubscriptionSubjectType::Leaderboard => new LeaderboardWallSubscriptionHandler(),
             SubscriptionSubjectType::UserWall => new UserWallSubscriptionHandler(),
 
-            // screenshot decisions don't use real-time subscriptions
+            // screenshot decisions and set release notifications don't use real-time subscriptions
             SubscriptionSubjectType::GameScreenshotDecision => throw new InvalidArgumentException("No subscription handler for GameScreenshotDecision"),
+            SubscriptionSubjectType::AchievementSetRelease => throw new InvalidArgumentException("No subscription handler for AchievementSetRelease"),
         };
     }
 }
@@ -447,7 +448,7 @@ class TicketSubscriptionHandler extends CommentSubscriptionHandler
 {
     protected function getCommentableType(): CommentableType
     {
-        return CommentableType::AchievementTicket;
+        return CommentableType::Ticket;
     }
 
     /**

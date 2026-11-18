@@ -3,34 +3,6 @@
 use App\Models\MemoryNote;
 use App\Models\User;
 
-function loadCodeNotes(int $gameId): array
-{
-    $codeNotes = MemoryNote::query()
-        ->with(['user' => function ($query) {
-            $query->withTrashed();
-        }])
-        ->where('game_id', $gameId)
-        ->orderBy('address')
-        ->get()
-        ->map(function ($note) {
-            return [
-                'User' => $note->user->display_name,
-                'Address' => $note->address_hex,
-                'Note' => $note->body,
-            ];
-        })
-        ->toArray();
-
-    return empty($codeNotes) ? [] : $codeNotes;
-}
-
-function getCodeNotes(int $gameId, array &$codeNotesOut): bool
-{
-    $codeNotesOut = loadCodeNotes($gameId);
-
-    return true;
-}
-
 /**
  * Gets the number of code notes created for each game the user has created any notes for.
  */

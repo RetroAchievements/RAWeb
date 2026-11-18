@@ -18,8 +18,15 @@ class ForumTopicCommentData extends Data
         public string $body,
         public Carbon $createdAt,
         public ?Carbon $updatedAt,
+        public ?Carbon $editedAt,
         public ?UserData $user,
         public bool $isAuthorized, // TODO migrate to $authorizedAt
+
+        /**
+         * True if the viewing user blocked the author of this post.
+         */
+        public bool $isFromBlockedUser = false,
+
         public ?int $forumTopicId = null, // TODO remove and use $forumTopic instead
         public Lazy|ForumTopicData|null $forumTopic = null,
         public Lazy|UserData|null $sentBy = null,
@@ -34,8 +41,10 @@ class ForumTopicCommentData extends Data
             body: $comment->body,
             createdAt: $comment->created_at,
             updatedAt: $comment->updated_at,
+            editedAt: $comment->edited_at,
             user: UserData::from($comment->user),
             isAuthorized: $comment->is_authorized,
+            isFromBlockedUser: false,
             forumTopicId: $comment->forum_topic_id,
             forumTopic: Lazy::create(fn () => $comment->forumTopic ? ForumTopicData::fromForumTopic($comment->forumTopic) : null),
             sentBy: Lazy::create(fn () => $comment->sent_by_id ? UserData::from($comment->sentBy) : null),

@@ -14,6 +14,7 @@ use App\Platform\Controllers\Api\GameSetRequestApiController;
 use App\Platform\Controllers\Api\HubApiController;
 use App\Platform\Controllers\Api\SystemApiController;
 use App\Platform\Controllers\Api\TicketApiController;
+use App\Platform\Controllers\Api\TicketReporterUnlockApiController;
 use App\Platform\Controllers\Api\UserDisplayedBadgePreferenceApiController;
 use App\Platform\Controllers\Api\UserEventAwardTierPreferenceApiController;
 use App\Platform\Controllers\EventAwardEarnersController;
@@ -28,6 +29,7 @@ use App\Platform\Controllers\ReportAchievementIssueController;
 use App\Platform\Controllers\SystemController;
 use App\Platform\Controllers\TicketController;
 use App\Platform\Controllers\UserGameAchievementSetPreferenceController;
+use App\Platform\Enums\TicketListScope;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -115,6 +117,17 @@ class RouteServiceProvider extends ServiceProvider
             // Route::get('game/{game}/players', [GamePlayerController::class, 'index'])->name('game.player.index');
             Route::get('game/random', [GameController::class, 'random'])->name('game.random');
 
+            /**
+             * @see Middleware\ValidateSignature::class
+             * These are deliberately unauthenticated routes that require a signature to use.
+             */
+            Route::get('ticket/{ticket}/no-longer-a-problem', [TicketController::class, 'noLongerAProblem'])
+                ->middleware(['inertia', 'signed'])
+                ->name('ticket.no-longer-a-problem');
+            Route::post('ticket/{ticket}/no-longer-a-problem', [TicketController::class, 'closeAsNoLongerAProblem'])
+                ->middleware('signed')
+                ->name('ticket.no-longer-a-problem.close');
+
             // Route::get('create', CreateController::class)->name('create');
             // Route::resource('developers', DeveloperController::class)->only('index');
 
@@ -168,7 +181,13 @@ class RouteServiceProvider extends ServiceProvider
                     Route::put('user/media-contribution/tier-preference', [UserDisplayedBadgePreferenceApiController::class, 'updateMediaContributionTier'])
                         ->name('api.user.media-contribution-tier-preference.update');
 
+                    Route::get('tickets', [TicketApiController::class, 'index'])->name('api.ticket.index');
                     Route::post('ticket', [TicketApiController::class, 'store'])->name('api.ticket.store');
+                    Route::patch('ticket/{ticket}/state', [TicketApiController::class, 'updateState'])->name('api.ticket.state.update');
+                    Route::post('ticket/{ticket}/claim', [TicketApiController::class, 'claim'])->name('api.ticket.claim.store');
+                    Route::delete('ticket/{ticket}/claim', [TicketApiController::class, 'releaseClaim'])->name('api.ticket.claim.destroy');
+                    Route::post('ticket/{ticket}/reporter-unlock', [TicketReporterUnlockApiController::class, 'store'])
+                        ->name('api.ticket.reporter-unlock.store');
 
                     Route::post('game/{game}/screenshots', [GameScreenshotApiController::class, 'store'])
                         ->middleware('throttle:10,1')
@@ -182,6 +201,35 @@ class RouteServiceProvider extends ServiceProvider
                 Route::middleware(['inertia'])->group(function () {
                     Route::get('achievement/{achievement}/report-issue', [ReportAchievementIssueController::class, 'index'])->name('achievement.report-issue');
                     Route::get('achievement/{achievement}/tickets/create', [TicketController::class, 'create'])->name('achievement.tickets.create');
+
+                    Route::get('tickets/mine', [TicketController::class, 'mine'])->name('tickets.mine');
+                    Route::get('tickets/subscribed', [TicketController::class, 'subscribed'])
+                        ->defaults('scope', TicketListScope::SubscribedBy->value)
+                        ->name('tickets.subscribed');
+                    Route::get('tickets', [TicketController::class, 'index'])
+                        ->defaults('scope', TicketListScope::All->value)
+                        ->name('tickets.index');
+                    Route::get('game/{game}/tickets', [TicketController::class, 'forGame'])
+                        ->defaults('scope', TicketListScope::Game->value)
+                        ->name('game.tickets');
+                    Route::get('achievement/{achievement}/tickets', [TicketController::class, 'forAchievement'])
+                        ->defaults('scope', TicketListScope::Achievement->value)
+                        ->name('achievement.tickets');
+                    Route::get('user/{user}/tickets', [TicketController::class, 'forAssignee'])
+                        ->withTrashed()
+                        ->defaults('scope', TicketListScope::AssignedTo->value)
+                        ->name('developer.tickets');
+                    Route::get('user/{user}/tickets/created', [TicketController::class, 'forReporter'])
+                        ->defaults('scope', TicketListScope::ReportedBy->value)
+                        ->name('user.tickets.created');
+                    Route::get('user/{user}/tickets/feedback', [TicketController::class, 'forAwaitingReporter'])
+                        ->defaults('scope', TicketListScope::AwaitingReporter->value)
+                        ->name('reporter.tickets');
+                    Route::get('user/{user}/tickets/resolved', [TicketController::class, 'forResolver'])
+                        ->defaults('scope', TicketListScope::ResolvedBy->value)
+                        ->name('developer.tickets.resolved');
+
+                    Route::get('ticket/{ticket}', [TicketController::class, 'show'])->name('ticket.show');
                 });
             });
         });

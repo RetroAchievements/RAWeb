@@ -32,6 +32,7 @@ class AchievementsRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('title')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('game'))
             ->columns([
                 Tables\Columns\ImageColumn::make('badge_url')
                     ->label('')
@@ -103,7 +104,7 @@ class AchievementsRelationManager extends RelationManager
                     ->orderBy('achievements.created_at', 'asc');
             })
             ->checkIfRecordIsSelectableUsing(
-                fn (Model $record): bool => $user->can('update', $record->loadMissing('game')),
+                fn (Model $record): bool => $user->can('update', $record),
             );
     }
 }

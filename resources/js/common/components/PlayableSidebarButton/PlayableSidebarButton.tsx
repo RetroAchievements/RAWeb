@@ -15,6 +15,7 @@ interface BasePlayableSidebarButtonProps {
   children?: ReactNode;
   className?: string;
   count?: number;
+  disabled?: boolean;
   href?: string;
   isInertiaLink?: boolean;
   onClick?: () => void;
@@ -31,6 +32,7 @@ export const PlayableSidebarButton: FC<PlayableSidebarButtonProps> = ({
   children,
   className,
   count,
+  disabled,
   href,
   IconComponent,
   isInertiaLink,
@@ -45,7 +47,7 @@ export const PlayableSidebarButton: FC<PlayableSidebarButtonProps> = ({
 
   if (onClick && !href) {
     return (
-      <button onClick={onClick} className={finalClassName} {...rest}>
+      <button onClick={onClick} disabled={disabled} className={finalClassName} {...rest}>
         <ButtonContent
           count={count}
           IconComponent={IconComponent}

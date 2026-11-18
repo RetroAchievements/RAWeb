@@ -251,7 +251,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->assertHasBeatenBadge($user, $game, 1);
         $this->assertDoesNotHaveMasteryBadge($user, $game);
 
-        $staticData->refresh();
+        $staticData = StaticData::first();
         $this->assertEquals(9, $staticData->num_hardcore_game_beaten_awards);
         $this->assertEquals($game->id, $staticData->last_game_hardcore_beaten_game_id);
         $this->assertEquals($user->id, $staticData->last_game_hardcore_beaten_user_id);
@@ -269,7 +269,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->assertHasBeatenBadge($user, $game, 1);
         $this->assertHasMasteryBadge($user, $game);
 
-        $staticData->refresh();
+        $staticData = StaticData::first();
         $this->assertEquals(9, $staticData->num_hardcore_game_beaten_awards);
         $this->assertEquals($game->id, $staticData->last_game_hardcore_beaten_game_id);
         $this->assertEquals($user->id, $staticData->last_game_hardcore_beaten_user_id);
@@ -298,7 +298,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->assertHasBeatenBadge($unrankedUser, $game, 1);
         $this->assertDoesNotHaveMasteryBadge($unrankedUser, $game);
 
-        $staticData->refresh();
+        $staticData = StaticData::first();
         $this->assertEquals(9, $staticData->num_hardcore_game_beaten_awards);
         $this->assertEquals($game->id, $staticData->last_game_hardcore_beaten_game_id);
         $this->assertEquals($user->id, $staticData->last_game_hardcore_beaten_user_id);
@@ -311,7 +311,7 @@ class RevalidateAchievementSetBadgeEligibilityActionTest extends TestCase
         $this->assertHasBeatenBadge($unrankedUser, $game, 1);
         $this->assertHasMasteryBadge($unrankedUser, $game);
 
-        $staticData->refresh();
+        $staticData = StaticData::first();
         $this->assertEquals(7, $staticData->num_hardcore_mastery_awards);
         $this->assertEquals($game->id, $staticData->last_game_hardcore_mastered_game_id);
         $this->assertEquals($user->id, $staticData->last_game_hardcore_mastered_user_id);

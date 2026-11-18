@@ -16,13 +16,25 @@ if (empty($gameData)) {
     abort(404);
 }
 
+$isEditable = false;
 $userModel = null;
 if ($user) {
     $userModel = User::find($userDetails['id']);
+    $isEditable = $userModel->Permissions >= Permissions::JuniorDeveloper;
 }
 
-$codeNotes = [];
-getCodeNotes($gameID, $codeNotes);
+$baseMemoryNoteQuery = function(int $gameId)
+{
+    return MemoryNote::query()
+        ->where('game_id', $gameId)
+        ->whereNot('body', '')
+        ->whereNot('body', "''")
+        ->select(['address', 'body', 'user_id'])
+        ->orderBy('address')
+        ->toBase();
+};
+
+$codeNoteCount = $baseMemoryNoteQuery($gameID)->count();
 
 $baseGameId = $gameID;
 if (str_contains($gameData['Title'], "[Subset - ")) {
@@ -40,48 +52,59 @@ if (str_contains($gameData['Title'], "[Subset - ")) {
     if ($subsetGameAchievementSet) {
         $baseGameId = $subsetGameAchievementSet->game_id;
         
-        if (empty($codeNotes)) {
+        if ($codeNoteCount === 0) {
             // no notes for subset. redirect to base set
             abort_with(redirect('codenotes.php?g=' . $baseGameId));
         }
     }
 }
 
+$offset = requestInputSanitized('o', 0, 'integer');
+$perPage = 1000;
+
 if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
     // empty collection for subset selector
     $subsets = new Collection();
 
-    // codeNotes are for the subset. rename them and fetch the code notes for the base set
-    $subsetNotes = $codeNotes;
-    $codeNotes = [];
-    getCodeNotes($baseGameId, $codeNotes);
+    $codeNoteCount = $baseMemoryNoteQuery($baseGameId)->count();
+    $codeNotes = $baseMemoryNoteQuery($baseGameId)
+        ->limit($perPage)
+        ->offset($offset)
+        ->get();
 
-    // merge subset notes into the base set notes
-    foreach ($subsetNotes as $subsetNote) {
-        $found = false;
-        foreach ($codeNotes as &$codeNote) {
-            if ($codeNote['Address'] === $subsetNote['Address']) {
-                $codeNote['SubsetUser'] = $subsetNote['User'];
-                $codeNote['SubsetNote'] = $subsetNote['Note'];
-
-                $found = true;
-                break;
+    if ($codeNoteCount > $perPage) {
+        if ($codeNotes->isEmpty()) {
+            $subsetNotes = new Collection();
+        } else {
+            $subsetNotes = $baseMemoryNoteQuery($gameID);
+            if ($offset > 0) {
+                $subsetNotes->where('address', '>=', $codeNotes->first()->address);
             }
+            if ($offset + $perPage < $codeNoteCount) {
+                $subsetNotes->where('address', '<=', $codeNotes->last()->address);
+            }
+            $subsetNotes = $subsetNotes->get();
         }
-        if (!$found) {
-            $codeNotes[] = [
-                'Address' => $subsetNote['Address'],
-                'User' => null,
-                'Note' => '',
-                'SubsetUser' => $subsetNote['User'],
-                'SubsetNote' => $subsetNote['Note'],
-            ];
-        }
+    } else {
+        $subsetNotes = $baseMemoryNoteQuery($gameID)->get();
     }
 
-    usort($codeNotes, fn($a, $b) => strcmp($a['Address'], $b['Address']));
+    // make sure dummy notes exist for all addresses defined in the subset
+    foreach ($subsetNotes as $note) {
+        $baseNote = $codeNotes->where('address', $note->address)->first();
+        if (!$baseNote) {
+            $codeNotes->push((object) ['address' => $note->address, 'body' => '', 'user_id' => 0]);
+        }
+    }
+    $codeNotes = $codeNotes->sortBy('address');
+
     $hasSubsetNotes = true;
 } else {
+    $codeNotes = $baseMemoryNoteQuery($gameID)
+        ->limit($perPage)
+        ->offset($offset)
+        ->get();
+
     $subsets = GameAchievementSet::query()
         ->whereIn('achievement_set_id',
             GameAchievementSet::where('game_id', $gameID)
@@ -96,7 +119,10 @@ if ($permissions >= Permissions::Developer && $baseGameId !== $gameID) {
     $hasSubsetNotes = false;
 }
 
-$codeNoteCount = count(array_filter($codeNotes, function ($x) { return $x['Note'] !== "" && $x['Note'] !== "''"; }));
+$addrFormat = ($codeNotes->last()?->address > 0xFFFF) ? "%06x" : "%04x";
+
+$allUserIds = $codeNotes->pluck('user_id')->merge($subsetNotes->pluck('user_id'))->unique();
+$users = User::withTrashed()->whereIn('id', $allUserIds)->pluck('display_name', 'id');
 
 $pageTitle = "Code Notes - {$gameData['Title']}";
 ?>
@@ -403,8 +429,140 @@ function saveCodeNote(rowIndex, isDeleting = false) {
             echo "<p><span class='font-bold subset-code-note-count'>$numSubsetNotes</span> subset notes beed to be merged.</p>";
         }
     }
-    if (isset($user) && $permissions >= Permissions::Registered) {
-        RenderCodeNotes($codeNotes, $userModel, $permissions, $hasSubsetNotes);
+    if ($userModel?->Permissions >= Permissions::Registered) {
+        echo "<table class='table-highlight'>";
+
+        echo "<thead>";
+        echo "<tr class='do-not-highlight'>";
+        echo "<th style='font-size:100%; width:10%'>Mem</th>";
+        if ($hasSubsetNotes) {
+            echo "<th style='font-size:100%; width:35%'>Base Set Note</th>";
+            echo "<th style='font-size:100%; width:10%'>Base Set Note Author</th>";
+            echo "<th style='font-size:100%; width:35%'>Subset Note</th>";
+            echo "<th style='font-size:100%; width:10%'>Subset Note Author</th>";
+        } else {
+            echo "<th style='font-size:100%;'>Note</th>";
+            echo "<th style='font-size:100%; width:10%'>Author</th>";
+        }
+        if ($isEditable) {
+            echo "<th>Dev</th>";
+        }
+        echo "</tr>";
+        echo "</thead>";
+
+        echo "<tbody>";
+
+        $subsetNote = null;
+        $rowIndex = 0;
+        foreach ($codeNotes as $nextCodeNote) {
+            if ($hasSubsetNotes) {
+                $subsetNote = $subsetNotes->where('address', $nextCodeNote->address)->first();
+            }
+
+            $trimmedNote = trim($nextCodeNote->body);
+            if (empty($trimmedNote) && !$subsetNote) {
+                continue;
+            }
+
+            if ($userModel?->Permissions >= Permissions::Developer) {
+                $canEditNote = true;
+            } elseif ($userModel?->Permissions === Permissions::JuniorDeveloper) {
+                $canEditNote = $nextCodeNote->user_id === $userModel->id;
+            } else {
+                $canEditNote = false;
+            }
+
+            echo "<tr id='row-$rowIndex' class='note-row'>";
+
+            $addrFormatted = sprintf($addrFormat, $nextCodeNote->address);
+
+            $originalMemNote = $trimmedNote;
+            sanitize_outputs($originalMemNote);
+            $memNote = nl2br($originalMemNote);
+
+            if ($subsetNote) {
+                $subsetMemNote = trim($subsetNote->body);
+                sanitize_outputs($subsetMemNote);
+                $subsetMemNote = nl2br($subsetMemNote);
+
+                $keepButtonExtra = '';
+                $keepText = 'Keep Base Set Note';
+                if (empty($trimmedNote)) {
+                    $keepText = 'Discard Subset Note';
+                    $keepButtonExtra = ' btn-danger';
+                    $memNote = "<span class='text-text-muted'><i>No base set note</i></span>";
+                }
+                $keepBaseButton = "<button class='btn keep-base-btn$keepButtonExtra inline' type='button' onclick='keepBaseNote($rowIndex)'>$keepText</button>";
+            } else {
+                $subsetMemNote = '';
+                $keepBaseButton = '';
+            }
+
+            echo "<td data-address='$addrFormatted'>";
+            echo "<span class='font-mono'>0x$addrFormatted</span>";
+            echo "</td>";
+
+            echo <<<HTML
+                <td>
+                    <div class="font-mono note-display block" style="word-break: break-word;">$memNote</div>
+                    <textarea class="w-full font-mono note-edit hidden">$originalMemNote</textarea>
+                    <div class="mt-[6px] flex justify-between">
+                        <button class="btn save-btn hidden" type="button" onclick="saveCodeNote($rowIndex)">Save</button>
+                        <button class="btn delete-btn btn-danger hidden" type="button" onclick="deleteCodeNote($rowIndex)">Delete</button>
+                        $keepBaseButton
+                    </div>
+                </td>
+            HTML;
+
+            if ($nextCodeNote->user_id) {
+                $userName = $users[$nextCodeNote->user_id] ?? '[Unknown User]';
+                echo "<td class='note-author-avatar' data-current-author='" . $userName . "'>";
+                echo userAvatar($userName, label: false, iconSize: 24);
+                echo "</td>";
+            } else {
+                echo "<td class='note-author-avatar' data-current-author='None' />";
+            }
+
+            if ($hasSubsetNotes) {
+                if ($subsetNote) {
+                    echo <<<HTML
+                        <td>
+                            <div class="font-mono subset-note-display block" style="word-break: break-word;">$subsetMemNote</div>
+                            <button class='btn keep-subset-btn inline' type='button' onclick='keepSubsetNote($rowIndex)'>Keep Subset Note</button>
+                        </td>
+                    HTML;
+
+                    $subsetUserName = $users[$subsetNote->user_id] ?? '[Unknown User]';
+                    echo "<td class='subnote-author-avatar'><span class='subset-note-author'>";
+                    echo userAvatar($subsetUserName, label: false, iconSize: 24);
+                    echo "</span></td>";
+                } else {
+                    echo "<td></td><td></td>";
+                }
+            }
+
+            if ($canEditNote) {
+                $editClass = $subsetNote ? 'hidden' : 'inline';
+                echo "<td>";
+                echo "<button class='btn edit-btn $editClass' type='button' onclick='beginEditMode($rowIndex)'>Edit</button>";
+                echo "<button class='btn cancel-btn hidden' type='button' onclick='cancelEditMode($rowIndex)'>Cancel</button>";
+                echo "</td>";
+            } elseif ($isEditable) {
+                echo "<td></td>";
+            }
+
+            echo "</tr>";
+
+            $rowIndex++;
+        }
+
+        echo "</tbody></table>";
+
+        if ($codeNoteCount > $perPage) {
+            echo "<div>";
+            RenderPaginator($codeNoteCount, $perPage, $offset, "/codenotes.php?g=$gameID&o=");
+            echo "</div>";
+        }
     }
     ?>
 </x-app-layout>

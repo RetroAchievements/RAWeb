@@ -211,9 +211,15 @@ $ . ~/.bashrc
 $ cp .env.example .env
 $ sudo apt install npm
 $ sudo npm install -g pnpm
-$ sudo add-apt-repository ppa:ondrej/php
+$ sudo apt-get update
+$ sudo apt-get -y install lsb-release ca-certificates curl
+$ sudo curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+$ sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+$ sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+$ sudo apt-get update
 $ sudo apt dist-upgrade -y
-$ sudo apt install php8.4 php8.4-curl php8.4-dom php8.4-gmp php8.4-intl php8.4-zip php8.4-sqlite3 php8.4-mbstring php8.4-mysql php8.4-gd
+$ sudo apt install php8.5 php8.5-curl php8.5-dom php8.5-gmp php8.5-intl php8.5-zip php8.5-sqlite3 php8.5-mbstring php8.5-mysql php8.5-gd
+$ sudo update-alternatives --set php /usr/bin/php8.5
 $ curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 $ curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php

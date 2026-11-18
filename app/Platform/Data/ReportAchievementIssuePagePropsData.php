@@ -6,6 +6,7 @@ namespace App\Platform\Data;
 
 use App\Community\Enums\TicketType;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\TicketCreationBlockReason;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -18,6 +19,8 @@ class ReportAchievementIssuePagePropsData extends Data
         public TicketType $ticketType,
         public ?string $extra,
         public UserPermissionsData $can,
+        public ?TicketCreationBlockReason $ticketBlockReason = null,
+        public bool $hasCasualUnlockFromRestrictedClient = false,
     ) {
     }
 }

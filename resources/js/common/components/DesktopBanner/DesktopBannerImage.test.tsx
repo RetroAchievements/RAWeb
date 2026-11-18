@@ -108,6 +108,8 @@ describe('Component: DesktopBannerImage', () => {
 
   it('initially renders the picture with opacity-0', () => {
     // ARRANGE
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(false);
+
     const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
@@ -119,6 +121,8 @@ describe('Component: DesktopBannerImage', () => {
 
   it('given the image loads, transitions the picture to opacity-100', () => {
     // ARRANGE
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(false);
+
     const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
     });
@@ -139,10 +143,7 @@ describe('Component: DesktopBannerImage', () => {
 
   it('given the img element is already complete when ref is attached, sets loaded state immediately', () => {
     // ARRANGE
-    Object.defineProperty(HTMLImageElement.prototype, 'complete', {
-      configurable: true,
-      get: () => true,
-    });
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
 
     const { container } = render(<DesktopBannerImage banner={createPageBanner()} />, {
       pageProps: { game: createGame() },
@@ -151,8 +152,6 @@ describe('Component: DesktopBannerImage', () => {
     // ASSERT
     const picture = container.querySelector('picture');
     expect(picture).toHaveClass('opacity-100');
-
-    delete (HTMLImageElement.prototype as any).complete;
   });
 
   it('given desktopMdWebp is null, does not set a src attribute on the fallback img', () => {

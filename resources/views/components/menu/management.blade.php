@@ -68,11 +68,6 @@ $visibleTools = collect($tools)->filter(fn($tool) => $user?->can($tool['abilitie
                 @if ($user->can('manage', User::class) || $user->Permissions === Permissions::Moderator)
                     <x-dropdown-item :href="url('viewforum.php?f=0')">Forum Verification</x-dropdown-item>
                 @endif
-
-                @if ($user->can('tool') || $user->Permissions === Permissions::Moderator)
-                    <div class="dropdown-header">Admin</div>
-                    <x-dropdown-item :href="url('admin.php')">Admin Tools</x-dropdown-item>
-                @endif
             @endif
         </div>
     </div>

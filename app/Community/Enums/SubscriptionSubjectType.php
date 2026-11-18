@@ -16,8 +16,25 @@ enum SubscriptionSubjectType: string
     case Leaderboard = "Leaderboard";
     case GameTickets = "GameTickets";
     case GameAchievements = "GameAchievements";
-    case AchievementTicket = "AchievementTicket";
+    case Ticket = "AchievementTicket";
     case GameScreenshotDecision = "GameScreenshotDecision";
+    case AchievementSetRelease = "AchievementSetRelease";
+
+    /**
+     * The order the daily digest gives to subject types. The first type present in a
+     * digest names the subject line, and the email body lists that type's items first.
+     *
+     * @return SubscriptionSubjectType[]
+     */
+    public static function digestHeadlinePriority(): array
+    {
+        return [
+            self::AchievementSetRelease,
+            self::GameScreenshotDecision,
+            self::ForumTopic,
+            self::Ticket,
+        ];
+    }
 
     public static function fromCommentableType(CommentableType $commentableType): ?SubscriptionSubjectType
     {
@@ -26,7 +43,7 @@ enum SubscriptionSubjectType: string
             CommentableType::Achievement => SubscriptionSubjectType::Achievement,
             CommentableType::Leaderboard => SubscriptionSubjectType::Leaderboard,
             CommentableType::User => SubscriptionSubjectType::UserWall,
-            CommentableType::AchievementTicket => SubscriptionSubjectType::AchievementTicket,
+            CommentableType::Ticket => SubscriptionSubjectType::Ticket,
             default => null,
         };
     }

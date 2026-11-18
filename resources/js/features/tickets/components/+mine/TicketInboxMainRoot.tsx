@@ -1,0 +1,75 @@
+import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
+
+import { usePageProps } from '@/common/hooks/usePageProps';
+import type { TranslatedString } from '@/types/i18next';
+
+import { TicketInboxSection } from '../TicketInboxSection';
+
+type SectionKind = App.Platform.Enums.TicketInboxSectionKind;
+
+export const TicketInboxMainRoot: FC = () => {
+  const { attentionCount, sections, user } = usePageProps<App.Platform.Data.TicketInboxPageProps>();
+  const { t } = useTranslation();
+
+  const displayName = user.displayName;
+
+  const headingLabelMap: Record<SectionKind, TranslatedString> = {
+    toResolve: t('Waiting on you'),
+    awaitingYourFeedback: t('Waiting on your feedback'),
+    awaitingReporter: t('Waiting on the reporter'),
+    subscribedByYou: t('Subscribed to by you'),
+    reportedByYou: t('Reported by you'),
+    resolvedByYou: t('Resolved by you'),
+  };
+
+  const counterpartyColumnIds: Record<SectionKind, 'developer' | 'reporter'> = {
+    toResolve: 'reporter',
+    awaitingYourFeedback: 'developer',
+    awaitingReporter: 'reporter',
+    subscribedByYou: 'developer',
+    reportedByYou: 'developer',
+    resolvedByYou: 'reporter',
+  };
+
+  const viewAllHrefs: Record<SectionKind, string> = {
+    toResolve: route('developer.tickets', { user: displayName, 'filter[status]': 'open' }),
+    awaitingYourFeedback: route('reporter.tickets', { user: displayName }),
+    awaitingReporter: route('developer.tickets', {
+      user: displayName,
+      'filter[status]': 'request',
+    }),
+    subscribedByYou: route('tickets.subscribed', { 'filter[status]': 'open' }),
+    reportedByYou: route('user.tickets.created', {
+      user: displayName,
+      'filter[status]': 'all',
+    }),
+    resolvedByYou: route('developer.tickets.resolved', { user: displayName }),
+  };
+
+  return (
+    <div className="flex flex-col gap-8">
+      <p className="text-neutral-200 light:text-neutral-900">
+        {attentionCount
+          ? t('{{val, number}} tickets need your attention.', {
+              count: attentionCount,
+              val: attentionCount,
+            })
+          : t("You're all caught up.")}
+      </p>
+
+      <div className="flex flex-col gap-8">
+        {sections.map((section) => (
+          <TicketInboxSection
+            key={section.kind}
+            counterpartyColumnId={counterpartyColumnIds[section.kind]}
+            section={section}
+            t_heading={headingLabelMap[section.kind]}
+            viewAllHref={viewAllHrefs[section.kind]}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};

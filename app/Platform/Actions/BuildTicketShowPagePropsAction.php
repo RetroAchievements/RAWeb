@@ -1,0 +1,231 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Actions;
+
+use App\Community\Data\CommentData;
+use App\Community\Enums\TicketAction;
+use App\Data\UserData;
+use App\Data\UserPermissionsData;
+use App\Models\Achievement;
+use App\Models\Leaderboard;
+use App\Models\Role;
+use App\Models\Ticket;
+use App\Models\TicketComment;
+use App\Models\User;
+use App\Platform\Actions\Concerns\LoadsTicketListEntryRelations;
+use App\Platform\Data\AchievementData;
+use App\Platform\Data\LeaderboardData;
+use App\Platform\Data\LeaderboardEntryData;
+use App\Platform\Data\TicketRelatedEntryData;
+use App\Platform\Data\TicketReporterUnlockData;
+use App\Platform\Data\TicketShowPagePropsData;
+use App\Platform\Services\TicketViewService;
+use Illuminate\Database\Eloquent\Collection;
+use Spatie\LaravelData\Lazy;
+
+class BuildTicketShowPagePropsAction
+{
+    use LoadsTicketListEntryRelations;
+
+    public function __construct(
+        private readonly BuildPlayerGameActivityDataAction $buildPlayerActivityData,
+        private readonly GetTicketAutoCloseScheduleAction $getTicketAutoCloseScheduleAction,
+        private readonly GetTicketClaimStatusAction $getTicketClaimStatusAction,
+    ) {
+    }
+
+    public function execute(Ticket $ticket, User $user): TicketShowPagePropsData
+    {
+        $ticketViewService = new TicketViewService();
+        $ticketViewService->load($ticket);
+
+        $ticketable = $ticket->getTicketableModel();
+
+        $reporterLeaderboardEntry = null;
+        $leaderboardEntryCount = null;
+
+        $reporterEntry = $ticketViewService->reporterLeaderboardEntry;
+        if ($ticketable instanceof Leaderboard && $reporterEntry) {
+            $reporterLeaderboardEntry = LeaderboardEntryData::fromLeaderboardEntry(
+                $reporterEntry,
+                $ticketable->format,
+                rank: $ticketable->getRank($reporterEntry->score),
+            )->include('formattedScore', 'rank');
+
+            $leaderboardEntryCount = $ticketable->entries()->count();
+        }
+
+        // NOTE: Ticket comments from banned users are always visible, intentionally.
+        $ticket->load(['discussionComments.user' => fn ($query) => $query->withTrashed()]);
+        $loadedComments = $ticket->discussionComments;
+
+        $singleTicketCollection = new Collection([$ticket]);
+        $ticketEntry = $this->resolveTicketListEntries(
+            $singleTicketCollection,
+            $this->resolveTicketSignalsForViewer($singleTicketCollection, $user),
+        )[0];
+
+        $canViewReporterHistory = $user->can('viewHistory', Ticket::class);
+        $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
+
+        $propsData = new TicketShowPagePropsData(
+            ticket: $ticketEntry,
+
+            achievement: $ticketable instanceof Achievement
+                ? AchievementData::fromAchievement($ticketable)->include('points', 'isPromoted', 'developer.isGone')
+                : null,
+
+            leaderboard: $ticketable instanceof Leaderboard
+                ? LeaderboardData::fromLeaderboard($ticketable)->include('format', 'rankAsc', 'state', 'developer.isGone')
+                : null,
+
+            ticketableDescription: $ticketable->description,
+
+            maintainer: $this->buildMaintainerData($ticketable),
+
+            isViewerReporter: $user->is($ticket->reporter),
+
+            shouldOfferManualUnlock: $user->is($ticket->reporter) && $ticket->canReporterRequestManualUnlock(),
+
+            can: UserPermissionsData::fromUser($user, triggerable: $ticketable, ticket: $ticket)->include(
+                'claimTicket',
+                'createTicketComments',
+                'manuallyAwardAchievements',
+                'releaseTicketClaim',
+                'viewAchievementLogic'
+            ),
+
+            relatedTickets: array_map(
+                fn (Ticket $relatedTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                    $relatedTicket,
+                    $ticketable->getTicketableTitle(),
+                )->include('reporter'),
+                $ticketViewService->relatedTickets,
+            ),
+
+            reporterGameTickets: $this->buildSameReporterTicketProps($ticketViewService, $ticket, $user),
+
+            otherReporterGameTickets: Lazy::inertia(fn (): array => array_map(
+                fn (Ticket $relatedGameTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                    $relatedGameTicket,
+                    $relatedGameTicket->getTicketableModel()->getTicketableTitle(),
+                )->include('reporter'),
+                $ticketViewService->collectOtherReporterGameTickets($ticket),
+            )),
+
+            reporterUnlock: $this->buildReporterUnlock($ticketViewService, $canViewReporterHistory),
+
+            unlocksSinceReported: $ticketable instanceof Achievement && $ticket->state->isOpen()
+                ? $ticketViewService->unlocksSinceReported
+                : null,
+            logicChangedAfterReportAt: $ticketViewService->logicChangedAfterReportAt,
+
+            reportedTriggerVersion: $ticketViewService->reportedTriggerVersion,
+            currentTriggerVersion: $ticketViewService->currentTriggerVersion,
+            reporterLeaderboardEntry: $reporterLeaderboardEntry,
+            leaderboardEntryCount: $leaderboardEntryCount,
+
+            reportBody: $ticket->body !== '' ? $ticket->body : null,
+
+            comments: array_map(
+                fn (TicketComment $comment): CommentData => CommentData::fromComment($comment),
+                $loadedComments->all(),
+            ),
+
+            changelog: (new BuildTicketChangelogAction())->execute($ticket),
+            allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
+
+            hasReporterHistoryAccess: $hasReporterHistoryAccess,
+            reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
+            autoCloseAt: $this->getTicketAutoCloseScheduleAction->execute($ticket)?->closeAt,
+            claimExpiresAt: $this->getTicketClaimStatusAction->execute($ticket)->expiresAt,
+        );
+
+        return $propsData;
+    }
+
+    private function buildMaintainerData(Achievement|Leaderboard $ticketable): ?UserData
+    {
+        // Leaderboards don't support maintainers yet.
+        if (!$ticketable instanceof Achievement) {
+            return null;
+        }
+
+        $currentMaintainer = $ticketable->getMaintainerAt(now());
+        if (!$currentMaintainer || $currentMaintainer->is($ticketable->developer)) {
+            return null;
+        }
+
+        return UserData::fromUser($currentMaintainer)->include('isGone');
+    }
+
+    private function deferReporterActivity(Ticket $ticket, Achievement|Leaderboard $ticketable): Lazy
+    {
+        return Lazy::inertiaDeferred(fn () => $this->buildPlayerActivityData->execute(
+            $ticket->reporter,
+            $ticketable->getTicketableGame(),
+            ticket: $ticket,
+        ));
+    }
+
+    /**
+     * @return TicketAction[]
+     */
+    private function collectAllowedTicketActions(Ticket $ticket, User $user): array
+    {
+        $allowedActions = array_values(array_filter(
+            TicketAction::cases(),
+            fn (TicketAction $ticketAction): bool => $user->can('updateState', [$ticket, $ticketAction]),
+        ));
+
+        // Reporters shouldn't be able to ad-hoc reopen tickets.
+        if (!$user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            return array_values(array_filter(
+                $allowedActions,
+                fn (TicketAction $ticketAction): bool => $ticketAction !== TicketAction::Reopen,
+            ));
+        }
+
+        return $allowedActions;
+    }
+
+    /**
+     * @return TicketRelatedEntryData[]
+     */
+    private function buildSameReporterTicketProps(TicketViewService $viewService, Ticket $ticket, User $viewer): array
+    {
+        if (
+            $ticket->reporter?->isBanned()
+            && !$viewer->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
+        ) {
+            return [];
+        }
+
+        return array_map(
+            fn (Ticket $sameReporterTicket): TicketRelatedEntryData => TicketRelatedEntryData::fromTicket(
+                $sameReporterTicket,
+                $sameReporterTicket->getTicketableModel()->getTicketableTitle(),
+            ),
+            $viewService->reporterGameTickets,
+        );
+    }
+
+    /**
+     * Only roles allowed to see player history receive it in page props.
+     */
+    private function buildReporterUnlock(TicketViewService $ticketViewService, bool $canViewReporterHistory): ?TicketReporterUnlockData
+    {
+        $unlock = $ticketViewService->existingUnlock;
+        if (!$unlock || !$canViewReporterHistory) {
+            return null;
+        }
+
+        return new TicketReporterUnlockData(
+            unlockedAt: $unlock->unlocked_effective_at,
+            isHardcore: $unlock->unlocked_hardcore_at !== null,
+            unlocker: $unlock->unlocker ? UserData::fromUser($unlock->unlocker) : null,
+        );
+    }
+}

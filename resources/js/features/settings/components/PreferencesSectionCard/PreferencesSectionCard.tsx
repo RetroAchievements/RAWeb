@@ -45,6 +45,15 @@ export const PreferencesSectionCard: FC<PreferencesSectionCardProps> = ({
         />
 
         <PreferencesSwitchField
+          t_label={t('Show evergreen event achievement indicators')}
+          t_infoText={t(
+            'Achievements in time-limited events are always marked on game pages. Turn this on to also mark achievements in evergreen events, which never expire.',
+          )}
+          fieldName={StringifiedUserPreference.Game_ShowEvergreenEventIndicators}
+          control={form.control}
+        />
+
+        <PreferencesSwitchField
           t_label={t('Only people I follow can message me or post on my wall')}
           fieldName={StringifiedUserPreference.User_OnlyContactFromFollowing}
           control={form.control}

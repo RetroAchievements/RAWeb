@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 import { render, screen } from '@/test';
-import { createAchievement } from '@/test/factories';
+import { createAchievement, createGame, createSystem } from '@/test/factories';
 
 import { ReportIssueMainRoot } from './ReportIssueMainRoot';
 import { testId } from './UnlockStatusLabel';
@@ -63,7 +63,8 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTicket: true },
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
       },
     });
 
@@ -147,7 +148,8 @@ describe('Component: ReportIssueMainRoot', () => {
       pageProps: {
         achievement,
         hasSession: false,
-        can: { createTicket: true },
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
       },
     });
 
@@ -211,7 +213,151 @@ describe('Component: ReportIssueMainRoot', () => {
       screen.getByText(/unlocked this achievement without meeting the requirements/i),
     ).toBeVisible();
 
-    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
+  });
+
+  it('given the ticket type is `DidNotTrigger`, shows the correct ordered options under their headings', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: undefined,
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    const headings = screen.getAllByRole('heading', { level: 2 });
+    expect(headings.map((heading) => heading.textContent)).toEqual([
+      'I earned this achievement, but it is missing from my profile',
+      'The achievement has a bug',
+      'Something else is wrong with the achievement',
+    ]);
+
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
+    expect(
+      screen.getByText(/you need proof: a screenshot of the achievement popup/i),
+    ).toBeVisible();
+
+    expect(screen.getByText(/it does not add the achievement to your profile/i)).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Create Ticket' }).length).toEqual(2);
+
+    expect(screen.getByRole('link', { name: 'Message QATeam' })).toBeVisible();
+  });
+
+  it('given the user has only a casual unlock and the ticket type is `DidNotTrigger`, says the hardcore unlock is missing', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByRole('heading', {
+        name: 'I earned this achievement in hardcore mode, but my profile shows only the casual unlock',
+      }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('heading', {
+        name: 'I earned this achievement, but it is missing from my profile',
+      }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
+  });
+
+  it('given the casual unlock came from a client that does not allow hardcore, explains why and hides the unlock request', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        hasCasualUnlockFromRestrictedClient: true,
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/we cannot change it to hardcore/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Read about emulator support' })).toHaveAttribute(
+      'href',
+      'https://docs.retroachievements.org/general/emulator-support-and-issues.html',
+    );
+    expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
+  });
+
+  it('given every unlock is casual from a client that does not allow hardcore, shows the notice', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'triggered_at_wrong_time',
+        hasCasualUnlockFromRestrictedClient: true,
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.getByRole('heading', {
+        name: 'I earned this achievement in hardcore mode, but my profile shows only the casual unlock',
+      }),
+    ).toBeVisible();
+    expect(screen.getByText(/we cannot change it to hardcore/i)).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
+  });
+
+  it('given the user already unlocked the achievement, does not show the missing unlock heading', () => {
+    // ARRANGE
+    const achievement = createAchievement({
+      unlockedAt: new Date().toISOString(),
+      unlockedHardcoreAt: undefined,
+    });
+
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement,
+        hasSession: true,
+        ticketType: 'triggered_at_wrong_time',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(
+      screen.queryByRole('heading', {
+        name: 'I earned this achievement, but it is missing from my profile',
+      }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Request Manual Unlock' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'The achievement has a bug' })).toBeVisible();
   });
 
   it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime`, shows the correct issue report links', () => {
@@ -325,7 +471,7 @@ describe('Component: ReportIssueMainRoot', () => {
       screen.queryByText(/unlocked this achievement without meeting the requirements/i),
     ).not.toBeInTheDocument();
 
-    expect(screen.getByText(/achievement triggered, but the unlock didn't appear/i)).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Request Manual Unlock' })).toBeVisible();
   });
 
   it('given the back-end determines the ticket type should be of `TriggeredAtWrongTime` but the user does not have permission to create tickets, does not show a single Create Ticket link', () => {
@@ -352,5 +498,74 @@ describe('Component: ReportIssueMainRoot', () => {
     ).not.toBeInTheDocument();
 
     expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
+  });
+
+  it('given there is no block reason, does not show a notice', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasSession: true,
+        ticketType: 'did_not_trigger',
+        can: { createTicket: true },
+      },
+    });
+
+    // ASSERT
+    expect(screen.queryByText(/no record of a play session/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/create ticket/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('given there is no play session, shows the reason with a link to the emulator docs and hides the ticket buttons', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement(),
+        hasSession: false,
+        ticketType: 'did_not_trigger',
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/play the game with a supported emulator/i)).toBeVisible();
+
+    expect(
+      screen.queryByRole('heading', {
+        name: 'I earned this achievement, but it is missing from my profile',
+      }),
+    ).not.toBeInTheDocument();
+
+    const link = screen.getByRole('link', { name: 'Read about emulator support' });
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute(
+      'href',
+      'https://docs.retroachievements.org/general/emulator-support-and-issues.html',
+    );
+
+    expect(screen.queryAllByText(/create ticket/i).length).toEqual(0);
+  });
+
+  it('given there is no play session for a Standalone game, tells the player to log in and hides the emulator docs link', () => {
+    // ARRANGE
+    render<App.Platform.Data.ReportAchievementIssuePageProps>(<ReportIssueMainRoot />, {
+      pageProps: {
+        achievement: createAchievement({
+          game: createGame({ system: createSystem({ id: 102, name: 'Standalone' }) }),
+        }),
+        hasSession: false,
+        ticketType: 'did_not_trigger',
+        ticketBlockReason: 'no_play_session',
+        can: { createTicket: false },
+      },
+    });
+
+    // ASSERT
+    expect(screen.getByText(/play the game while logged in to your account/i)).toBeVisible();
+    expect(screen.queryByText(/emulator/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Read about emulator support' }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -34,7 +34,7 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
         private ?string $payload = null,
     ) {
         // If this is a ticket comment, fetch the ticket data in constructor.
-        if ($this->commentableType === CommentableType::AchievementTicket) {
+        if ($this->commentableType === CommentableType::Ticket) {
             $ticket = Ticket::with(['ticketable.game.system'])->find($this->activityId);
             if ($ticket && $ticket->ticketable) {
                 $ticketable = $ticket->getTicketableModel();
@@ -91,7 +91,7 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
                 : "{$this->articleTitle}'s user wall",
             CommentableType::Leaderboard => "the leaderboard wall for {$this->articleTitle}",
             CommentableType::Forum => "the forum thread \"{$this->articleTitle}\"",
-            CommentableType::AchievementTicket => $this->isThreadInvolved
+            CommentableType::Ticket => $this->isThreadInvolved
                 ? "a ticket you're subscribed to"
                 : "the ticket you reported",
             default => $this->isThreadInvolved ? "a thread you've commented in" : "your latest activity",
@@ -106,7 +106,7 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
             CommentableType::User => "New User Wall Comment from {$this->activityCommenterDisplayName}",
             CommentableType::Leaderboard => "New Leaderboard Comment from {$this->activityCommenterDisplayName}",
             CommentableType::Forum => "New Forum Comment from {$this->activityCommenterDisplayName}",
-            CommentableType::AchievementTicket => "New Ticket Comment from {$this->activityCommenterDisplayName}",
+            CommentableType::Ticket => "New Ticket Comment from {$this->activityCommenterDisplayName}",
             default => "New Activity Comment from {$this->activityCommenterDisplayName}",
         };
     }
@@ -184,7 +184,7 @@ class CommunityActivityNotification extends Notification implements ShouldQueue
                 $categoryText = 'Unsubscribe from all forum reply emails';
                 break;
 
-            case CommentableType::AchievementTicket:
+            case CommentableType::Ticket:
                 $categoryUrl = $unsubscribeService->generateCategoryUrl(
                     $notifiable,
                     UserPreference::EmailOn_TicketActivity

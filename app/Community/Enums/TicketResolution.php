@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Community\Enums;
+
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
+enum TicketResolution: string
+{
+    case Fixed = 'fixed';
+    case MistakenReport = 'mistaken_report';
+    case NotEnoughInformation = 'not_enough_information';
+    case NoReplyFromReporter = 'no_reply_from_reporter';
+    case WrongRom = 'wrong_rom';
+    case NetworkProblems = 'network_problems';
+    case UnableToReproduce = 'unable_to_reproduce';
+    case UnableToDebug = 'unable_to_debug';
+    case AlreadyFixed = 'already_fixed';
+    case EmulatorProblem = 'emulator_problem';
+    case CoveredByAnotherTicket = 'covered_by_another_ticket';
+    case Demoted = 'demoted';
+    case Other = 'other';
+
+    /**
+     * The state a ticket moves to when it finishes with this resolution.
+     */
+    public function finishedState(): TicketState
+    {
+        return $this === self::Fixed ? TicketState::Resolved : TicketState::Closed;
+    }
+
+    /**
+     * The reason text that closing comments contain in their 'Reason: "..."' string.
+     */
+    public function closeReasonText(): ?string
+    {
+        return match ($this) {
+            self::Fixed => null,
+            self::MistakenReport => 'Mistaken report',
+            self::NotEnoughInformation => 'Not enough information',
+            self::NoReplyFromReporter => 'No reply from reporter',
+            self::WrongRom => 'Wrong ROM',
+            self::NetworkProblems => 'Network problems',
+            self::UnableToReproduce => 'Unable to reproduce',
+            self::UnableToDebug => 'Unable to debug due to no toolkit support',
+            self::AlreadyFixed => 'Already fixed',
+            self::EmulatorProblem => 'Emulator or core problem',
+            self::CoveredByAnotherTicket => 'Covered by another ticket',
+            self::Demoted => 'Demoted',
+            self::Other => 'See the comments',
+        };
+    }
+
+    /**
+     * Reverses closeReasonText() for the reason in a stored closing comment.
+     */
+    public static function fromCloseReasonText(string $reasonText): ?self
+    {
+        $reasonText = trim($reasonText);
+
+        foreach (self::cases() as $resolution) {
+            if ($resolution->closeReasonText() === $reasonText) {
+                return $resolution;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds the Server comment written when a ticket closes.
+     */
+    public function closeCommentBody(string $closerName): string
+    {
+        return "Ticket closed by {$closerName}. Reason: \"{$this->closeReasonText()}\".";
+    }
+}

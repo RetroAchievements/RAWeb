@@ -6,6 +6,8 @@ interface CommentListContextValue {
   commentableId: number;
   commentableType: App.Community.Enums.CommentableType;
 
+  /** Extra controls shown next to the comment Submit button. */
+  inputActionsSlot?: ReactNode;
   onDeleteSuccess?: () => void;
   onSubmitSuccess?: () => void;
   targetUserDisplayName?: string;

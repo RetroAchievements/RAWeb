@@ -14,6 +14,7 @@ import {
 import type { ClaimActionType } from '@/features/games/hooks/useClaimActions';
 import { useClaimDialogState } from '@/features/games/hooks/useClaimDialogState';
 import type { CreateClaimDialogVariant } from '@/features/games/models';
+import { TranslationKey } from '@/types/i18next';
 
 interface ClaimDialogDescriptionsProps {
   action: ClaimActionType;
@@ -36,7 +37,7 @@ export const ClaimDialogDescriptions: FC<ClaimDialogDescriptionsProps> = ({ acti
     newSet: 'This will create a primary claim for <1>{{gameTitle}}</1>.',
     revision: 'This will create a revision claim for <1>{{gameTitle}}</1>.',
     collaboration: 'This will create a collaboration claim for <1>{{gameTitle}}</1>.',
-  } as const satisfies Record<CreateClaimDialogVariant, Parameters<typeof t>[0]>;
+  } as const satisfies Record<CreateClaimDialogVariant, TranslationKey>;
 
   switch (action) {
     case 'create': {

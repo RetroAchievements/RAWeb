@@ -7,14 +7,19 @@ import { PlayableSidebarButton } from '@/common/components/PlayableSidebarButton
 import { PlayableSidebarButtonsSection } from '@/common/components/PlayableSidebarButtonsSection';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
+import { ScheduleCompletedClaimDialog } from '@/features/games/components/ScheduleCompletedClaimDialog';
 
 interface SidebarManagementSectionProps {
   game: App.Platform.Data.Game;
 }
 
 export const SidebarManagementSection: FC<SidebarManagementSectionProps> = ({ game }) => {
-  const { backingGame, can } = usePageProps<App.Platform.Data.GameShowPageProps>();
+  const { achievementSetClaims, backingGame, can } =
+    usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
+
+  const schedulableClaims =
+    achievementSetClaims?.filter((claim) => claim.canMarkReleaseScheduled) ?? [];
 
   const isViewingSubset = game.id !== backingGame.id;
 
@@ -93,6 +98,20 @@ export const SidebarManagementSection: FC<SidebarManagementSectionProps> = ({ ga
           </PlayableSidebarButton>
         ) : null}
       </div>
+
+      {schedulableClaims.length > 0 ? (
+        <ScheduleCompletedClaimDialog
+          claims={schedulableClaims}
+          trigger={
+            <PlayableSidebarButton
+              IconComponent={LuFlagTriangleRight}
+              showSubsetIndicator={game.id !== backingGame.id}
+            >
+              {t('Schedule Completed Claim')}
+            </PlayableSidebarButton>
+          }
+        />
+      ) : null}
     </PlayableSidebarButtonsSection>
   );
 };

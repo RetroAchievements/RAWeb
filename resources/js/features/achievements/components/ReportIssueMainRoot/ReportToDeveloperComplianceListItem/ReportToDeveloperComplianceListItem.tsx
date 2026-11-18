@@ -13,9 +13,9 @@ import {
   BaseAlertDialogTrigger,
 } from '@/common/components/+vendor/BaseAlertDialog';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
+import { buildStructuredMessage } from '@/common/utils/buildStructuredMessage';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 
-import { buildStructuredMessage } from '../buildStructuredMessage';
 import { ReportIssueOptionItem } from '../ReportIssueOptionItem';
 
 interface ReportToDeveloperComplianceListItemProps {

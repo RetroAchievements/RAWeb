@@ -2,10 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Community\Enums\CommentableType;
+use App\Community\Enums\SubscriptionSubjectType;
+use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Community\Services\SubscriptionService;
 use App\Enums\ClientSupportLevel;
+use App\Enums\UserPreference;
 use App\Models\Achievement;
+use App\Models\Comment;
 use App\Models\Emulator;
 use App\Models\EmulatorCoreRestriction;
 use App\Models\EmulatorUserAgent;
@@ -13,11 +20,16 @@ use App\Models\Game;
 use App\Models\GameHash;
 use App\Models\PlayerGame;
 use App\Models\PlayerSession;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\Ticket\TicketClaimChangedNotification;
+use App\Notifications\Ticket\TicketStatusUpdatedNotification;
 use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -123,7 +135,7 @@ it('given a valid submission, it creates the ticket', function () {
     $response->assertOk();
 
     $this->assertDatabaseHas('tickets', [
-        'ticketable_author_id' => $developer->id,
+        'assignee_id' => $developer->id,
         'ticketable_id' => $achievement->id,
         'reporter_id' => $user->id,
         'type' => TicketType::TriggeredAtWrongTime,
@@ -134,6 +146,43 @@ it('given a valid submission, it creates the ticket', function () {
         'game_hash_id' => $gameHash->id,
         'body' => 'Test description', // emulator data is not captured when an emulator record is found
     ]);
+});
+
+it('given a Standalone game, creates the ticket even though there is no associated emulator or hash', function () {
+    // Arrange
+    $system = System::factory()->create(['id' => System::Standalones, 'name' => 'Standalone', 'active' => true]);
+    $game = Game::factory()->create(['title' => 'Cattopia', 'system_id' => $system->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+
+    /** @var User $user */
+    $user = User::factory()->create([
+        'email_verified_at' => Carbon::parse('2013-01-01'),
+        'created_at' => Carbon::now()->subWeeks(2),
+    ]);
+    $this->actingAs($user);
+
+    PlayerGame::factory()->create(['user_id' => $user->id, 'game_id' => $game->id]);
+
+    // Act
+    $response = $this->postJson(route('api.ticket.store'), [
+        'ticketableModel' => 'achievement',
+        'ticketableId' => $achievement->id,
+        'mode' => 'hardcore',
+        'issue' => TicketType::DidNotTrigger->value,
+        'description' => 'The achievement did not unlock after the first journey.',
+        'emulator' => null,
+        'emulatorVersion' => null,
+        'gameHashId' => null,
+    ]);
+
+    // Assert
+    $response->assertOk();
+
+    $ticket = Ticket::find($response->json('ticketId'));
+    expect($ticket->state)->toEqual(TicketState::Open);
+    expect($ticket->emulator_id)->toBeNull();
+    expect($ticket->game_hash_id)->toBeNull();
+    expect($ticket->body)->toEqual('The achievement did not unlock after the first journey.');
 });
 
 it('given rich presence and an emulator with no record, it formats the ticket note', function () {
@@ -464,4 +513,1047 @@ it('given a subset achievement, a session only on the parent game, and an emulat
         'reporter_id' => $user->id,
         'state' => TicketState::Quarantined,
     ]);
+});
+
+/**
+ * @return array{developer: User, game: Game, tickets: Ticket[]}
+ */
+function createTicketIndexFixture(int $ticketCount = 3): array
+{
+    $developer = User::factory()->create();
+    $reporter = User::factory()->create();
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+
+    $tickets = [];
+    for ($i = 0; $i < $ticketCount; $i++) {
+        $tickets[] = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'assignee_id' => $developer->id,
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2024-01-01')->addHours($i),
+        ]);
+    }
+
+    return ['developer' => $developer, 'game' => $game, 'tickets' => $tickets];
+}
+
+describe('index', function () {
+    it('given a guest, they are unauthorized', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture();
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertUnauthorized();
+    });
+
+    it('given the scope is game, tickets associated with other games are excluded', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+
+        $otherDeveloper = User::factory()->create();
+        $otherGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create([
+            'game_id' => $otherGame->id,
+            'user_id' => $otherDeveloper->id,
+        ]);
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create([
+            'assignee_id' => $otherDeveloper->id,
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertJsonPath('paginatedTickets.total', 3);
+    });
+
+    it('given scope game and a game id, the JSON has paginated tickets, every state count, and the facet counts', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('paginatedTickets.total', 3);
+        $response->assertJsonPath('paginatedTickets.perPage', 50);
+        $response->assertJsonCount(3, 'paginatedTickets.items');
+        $response->assertJsonStructure([
+            'paginatedTickets' => ['currentPage', 'lastPage', 'perPage', 'total', 'unfilteredTotal', 'items', 'links'],
+            'stateCounts' => ['unresolved', 'request', 'resolved', 'closed', 'quarantined', 'all'],
+        ]);
+        $response->assertJsonPath('stateCounts.unresolved', 3);
+        $response->assertJsonPath('stateCounts.closed', 0);
+        $response->assertJsonPath('stateCounts.all', 3);
+
+        $response->assertJsonStructure(['facetCounts' => ['type', 'mode', 'emulator']]);
+        $response->assertJsonPath('facetCounts.mode.all', 3);
+        $response->assertJsonMissingPath('facetCounts.developer');
+
+        $ids = collect($response->json('paginatedTickets.items'))->pluck('id')->all();
+        $expectedIds = collect($fixture['tickets'])->sortByDesc('created_at')->pluck('id')->values()->all();
+        expect($ids)->toEqual($expectedIds);
+    });
+
+    it('given the scope is unset, the global list is returned', function () {
+        // ARRANGE
+        createTicketIndexFixture(2);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index'));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('paginatedTickets.total', 2);
+    });
+
+    it('given the scoped user is banned, a standard user cannot filter to narrow the list to their tickets', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+        $fixture['developer']->update(['banned_at' => Carbon::now()]);
+
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', [
+            'scope' => 'assignedTo',
+            'user' => $fixture['developer']->id,
+        ]));
+
+        // ASSERT
+        $response->assertNotFound();
+    });
+
+    it('given the scoped user is banned, a developer can still narrow the list to their tickets', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+
+        $fixture = createTicketIndexFixture(3);
+        $fixture['developer']->update(['banned_at' => Carbon::now()]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        $this->actingAs($viewer);
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', [
+            'scope' => 'assignedTo',
+            'user' => $fixture['developer']->id,
+        ]));
+
+        // ASSERT
+        $response->assertOk();
+    });
+
+    it('given the user is a developer, exposes signal data', function () {
+        // ARRANGE
+        $this->seed(RolesTableSeeder::class);
+        $fixture = createTicketIndexFixture(1);
+        PlayerSession::factory()->count(5)->create([
+            'user_id' => fn () => User::factory()->create()->id,
+            'game_id' => $fixture['game']->id,
+            'rich_presence_updated_at' => Carbon::parse('2023-12-25'),
+        ]);
+
+        $viewer = User::factory()->create();
+        $viewer->assignRole(Role::DEVELOPER);
+        $this->actingAs($viewer);
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('paginatedTickets.items.0.signals.kinds', ['no-recent-unlocks']);
+    });
+
+    it('given the user has no developer role, does not expose signal data', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(1);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'game', 'game' => $fixture['game']->id]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonCount(1, 'paginatedTickets.items');
+        $response->assertJsonMissingPath('paginatedTickets.items.0.signals');
+    });
+});
+
+describe('updateState', function () {
+    beforeEach(function () {
+        $this->seed(RolesTableSeeder::class);
+    });
+
+    it('given a user the policy rejects, responds forbidden and does not mutate the ticket', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $stranger = User::factory()->create();
+        $this->actingAs($stranger);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Open);
+        expect($ticket->resolver_id)->toBeNull();
+        expect($ticket->resolution)->toBeNull();
+    });
+
+    it('given a developer resolves an open ticket, records the state, resolver, and resolution and posts the Server comment', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create(['display_name' => 'Scott']);
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Fixed in the latest revision.',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Resolved->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJson(['message' => __('legacy.success.update')]);
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Resolved);
+        expect($ticket->resolver_id)->toEqual($developer->id);
+        expect($ticket->resolution)->toEqual(TicketResolution::Fixed);
+        expect($ticket->resolved_at)->not->toBeNull();
+
+        $comment = Comment::where('commentable_type', CommentableType::Ticket)
+            ->where('commentable_id', $ticket->id)
+            ->where('user_id', '!=', $developer->id)
+            ->sole();
+        expect($comment->body)->toEqual('Ticket resolved as fixed by Scott.');
+    });
+
+    it('given a reporter closes their own ticket, does not send them an email notification', function () {
+        // ARRANGE
+        Notification::fake();
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        expect($ticket->refresh()->state)->toEqual(TicketState::Closed);
+        Notification::assertNotSentTo($reporter, TicketStatusUpdatedNotification::class);
+    });
+
+    it('given a reporter is muted, allows them to close their own ticket', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['muted_until' => Carbon::now()->addWeek()]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+        expect($ticket->refresh()->state)->toEqual(TicketState::Closed);
+    });
+
+    it('given a muted reporter tries to reopen their ticket, responds forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['muted_until' => Carbon::now()->addWeek()]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+        expect($ticket->refresh()->state)->toEqual(TicketState::Request);
+    });
+
+    it('given a developer closes a ticket and includes a note, the note is posted ahead of the automated Server comment', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create(['display_name' => 'Scott']);
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedOther->value,
+            'note' => 'This is being replaced by a revision.',
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Closed);
+        expect($ticket->resolution)->toEqual(TicketResolution::Other);
+
+        $comments = Comment::where('commentable_type', CommentableType::Ticket)
+            ->where('commentable_id', $ticket->id)
+            ->orderBy('id')
+            ->pluck('body')
+            ->all();
+        expect($comments)->toEqual([
+            'This is being replaced by a revision.',
+            'Ticket closed by Scott. Reason: "See the comments".',
+        ]);
+    });
+
+    it('given a developer closes a ticket and includes a note, the reporter receives a status email', function () {
+        // ARRANGE
+        Notification::fake();
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::WrongRom->value,
+            'note' => 'Please use the No-Intro ROM linked on the game page.',
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        Notification::assertSentTo($reporter, TicketStatusUpdatedNotification::class);
+    });
+
+    it('given a developer approves a quarantined ticket, reopens it and notes the approval', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->quarantined()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create(['display_name' => 'Scott']);
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
+
+        $comment = Comment::where('commentable_type', CommentableType::Ticket)
+            ->where('commentable_id', $ticket->id)
+            ->sole();
+        expect($comment->body)->toEqual('Ticket approved by Scott.');
+    });
+
+    it('given a developer reopens a resolved ticket, wipes the resolver and resolution', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $previousResolver = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'resolver_id' => $previousResolver->id,
+            'resolution' => TicketResolution::Fixed,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Reopen->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Open);
+        expect($ticket->resolver_id)->toBeNull();
+        expect($ticket->resolution)->toBeNull();
+        expect($ticket->resolved_at)->toBeNull();
+    });
+
+    it('given a reporter marks their own open ticket as mistaken, closes it', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::ClosedMistaken->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Closed);
+        expect($ticket->resolution)->toEqual(TicketResolution::MistakenReport);
+    });
+
+    it('given a reporter tries to resolve their own ticket, responds forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $reporter = User::factory()->create();
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        $this->actingAs($reporter);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Resolved->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
+    });
+
+    it('given an unknown action string, responds unprocessable', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => 'closed-eternally',
+        ]);
+
+        // ASSERT
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['action']);
+    });
+
+    it('given a developer who tries an action the ticket state does not allow, responds forbidden and leaves the ticket alone', function (TicketState $state, TicketAction $action) {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->create([
+            'reporter_id' => User::factory()->create()->id,
+            'state' => $state,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => $action->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->state)->toEqual($state);
+        expect($achievement->refresh()->is_promoted)->toBeTrue();
+    })->with([
+        'reopen an open ticket' => [TicketState::Open, TicketAction::Reopen],
+        'resolve a quarantined ticket' => [TicketState::Quarantined, TicketAction::Resolved],
+        'demote a resolved ticket' => [TicketState::Resolved, TicketAction::Demoted],
+    ]);
+
+    it('given a developer requests more information on a ticket with no comments, the ticket moves to Request', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => User::factory()->create()->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Request);
+    });
+
+    it('given a developer who closes as unable to debug on a ticket whose emulator can debug triggers, responds forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $emulator = Emulator::factory()->create(['can_debug_triggers' => true]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'emulator_id' => $emulator->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::UnableToDebug->value,
+        ]);
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->state)->toEqual(TicketState::Open);
+    });
+
+    it('given a developer who is not the assignee asks for information, the ticket gets auto-assigned to them', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Which level were you on?',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Request);
+        expect($ticket->assignee_id)->toEqual($developer->id);
+        expect($ticket->auditLog()->where('event', Ticket::CLAIMED_EVENT)->where('causer_id', $developer->id)->count())->toEqual(1);
+    });
+
+    it('given the commenter had unsubscribed from the ticket, requesting information subscribes them again', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $formerDeveloper = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $formerDeveloper->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $formerDeveloper->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Which level were you on?',
+        ]);
+
+        $subscriptionService = new SubscriptionService();
+        $subscriptionService->updateSubscription($developer, SubscriptionSubjectType::Ticket, $ticket->id, false);
+        expect($subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id))->toBeFalse();
+
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id))->toBeTrue();
+    });
+
+    it('given an idle developer maintains the achievement, requesting information notifies them that the ticket was claimed', function () {
+        // ARRANGE
+        Notification::fake();
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create(['preferences_bitfield' => 1 << UserPreference::EmailOn_TicketActivity]);
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now(),
+        ]);
+
+        $this->travel(14)->days();
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Which level were you on?',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($developer->id);
+        Notification::assertSentTo($maintainer, TicketClaimChangedNotification::class);
+    });
+
+    it('given the assignee is a developer who commented an hour ago, another dev asking for information does not auto-reassign the ticket', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now()->subDays(30),
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $maintainer->id,
+            'body' => 'Looking into this now.',
+            'created_at' => now()->subHour(),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Which level were you on?',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Request);
+        expect($ticket->assignee_id)->toEqual($maintainer->id);
+    });
+
+    it('given the assignee wrote the latest comment, another dev asking for information does not auto-reassign the ticket', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+        ]);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $maintainer->id,
+            'body' => 'Which emulator core were you using?',
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::Request->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->state)->toEqual(TicketState::Request);
+        expect($ticket->assignee_id)->toEqual($maintainer->id);
+    });
+});
+
+describe('claim', function () {
+    beforeEach(function () {
+        $this->seed(RolesTableSeeder::class);
+    });
+
+    it('given the assignee is no longer a dev anymore, any dev is free to claim the ticket', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $formerDeveloper = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $formerDeveloper->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $formerDeveloper->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertNoContent();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($developer->id);
+        expect($ticket->auditLog()->where('event', Ticket::CLAIMED_EVENT)->where('causer_id', $developer->id)->count())->toEqual(1);
+    });
+
+    it('given a dev claims a ticket they have never commented on, they are still subscribed to its emails', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $formerDeveloper = User::factory()->create();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $formerDeveloper->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $formerDeveloper->id,
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        $subscriptionService = new SubscriptionService();
+        expect($subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id))->toBeFalse();
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertNoContent();
+
+        expect($subscriptionService->isSubscribed($developer, SubscriptionSubjectType::Ticket, $ticket->id))->toBeTrue();
+    });
+
+    it('given the assignee has been idle for 14 days, another dev may claim the ticket', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now(),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+
+        $this->travel(14)->days();
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertNoContent();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($developer->id);
+    });
+
+    it('given the ticket is waiting on something from the reporter, the idle clock is paused', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->request()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now()->subDays(30),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($maintainer->id);
+    });
+
+    it('given a dev claimed, closed, reopened, and then released a ticket, they may claim it again right away', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now()->subDays(30),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        $this->postJson(route('api.ticket.claim.store', $ticket))->assertNoContent();
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'Fixed in the latest logic.',
+        ]);
+        $this->patchJson(route('api.ticket.state.update', $ticket), ['action' => TicketAction::Resolved->value])->assertOk();
+        $this->patchJson(route('api.ticket.state.update', $ticket), ['action' => TicketAction::Reopen->value])->assertOk();
+        $this->deleteJson(route('api.ticket.claim.destroy', $ticket))->assertNoContent();
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertNoContent();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($developer->id);
+    });
+
+    it('given a developer assignee whose ticket was just reopened, another dev may not claim it yet', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $maintainer->id,
+            'created_at' => now()->subDays(30),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        $this->actingAs($developer);
+
+        $this->patchJson(route('api.ticket.state.update', $ticket), ['action' => TicketAction::Reopen->value])->assertOk();
+
+        // ACT
+        $response = $this->postJson(route('api.ticket.claim.store', $ticket));
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($maintainer->id);
+    });
+});
+
+describe('releaseClaim', function () {
+    beforeEach(function () {
+        $this->seed(RolesTableSeeder::class);
+    });
+
+    it('given the claimant releases their claim, the ticket is reassigned to the maintainer', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+
+        $claimant = User::factory()->create();
+        $claimant->assignRole(Role::DEVELOPER);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $claimant->id,
+        ]);
+        $this->actingAs($claimant);
+
+        // ACT
+        $response = $this->deleteJson(route('api.ticket.claim.destroy', $ticket));
+
+        // ASSERT
+        $response->assertNoContent();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($maintainer->id);
+        expect($ticket->auditLog()->where('event', Ticket::CLAIM_RELEASED_EVENT)->where('causer_id', $claimant->id)->count())->toEqual(1);
+    });
+
+    it('given a dev who is not the claimant, the server returns forbidden', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $game = Game::factory()->create(['system_id' => $system->id]);
+        $maintainer = User::factory()->create();
+        $maintainer->assignRole(Role::DEVELOPER);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $maintainer->id]);
+
+        $claimant = User::factory()->create();
+        $claimant->assignRole(Role::DEVELOPER);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => User::factory()->create()->id,
+            'assignee_id' => $claimant->id,
+        ]);
+
+        $otherDeveloper = User::factory()->create();
+        $otherDeveloper->assignRole(Role::DEVELOPER);
+        $this->actingAs($otherDeveloper);
+
+        // ACT
+        $response = $this->deleteJson(route('api.ticket.claim.destroy', $ticket));
+
+        // ASSERT
+        $response->assertForbidden();
+
+        expect($ticket->refresh()->assignee_id)->toEqual($claimant->id);
+    });
 });

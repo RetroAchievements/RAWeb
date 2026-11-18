@@ -2,6 +2,7 @@
 
 use App\Community\Enums\TicketState;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
@@ -16,6 +17,8 @@ $devUser = User::whereName($dev)->first();
 if (!$devUser) {
     abort(404);
 }
+
+Gate::authorize('view', $devUser);
 $dev = $devUser->display_name; // get case-corrected username
 
 $userArchInfo = getUserAchievementInformation($devUser);

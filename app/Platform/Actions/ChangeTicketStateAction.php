@@ -1,0 +1,134 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Actions;
+
+use App\Community\Enums\CommentableType;
+use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketState;
+use App\Enums\UserPreference;
+use App\Models\Comment;
+use App\Models\Role;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Notifications\Ticket\TicketStatusUpdatedNotification;
+use App\Platform\Services\UserTicketCountService;
+use Illuminate\Database\Eloquent\Collection;
+use Spatie\Activitylog\Facades\CauserResolver;
+
+class ChangeTicketStateAction
+{
+    public function __construct(
+        private readonly UserTicketCountService $userTicketCountService,
+        private readonly GetTicketClaimStatusAction $getTicketClaimStatusAction,
+        private readonly ClaimTicketAction $claimTicketAction,
+    ) {
+    }
+
+    public function execute(Ticket $ticket, TicketAction $action, User $actor): void
+    {
+        $previousState = $ticket->state;
+        $newState = $action->targetState();
+
+        // If a full dev asks the reporter a question, they become the ticket's assignee, unless
+        // the author/maintainer has already commented on the ticket.
+        $shouldAssignToCommenter =
+            $action === TicketAction::Request
+            && $actor->hasRole(Role::DEVELOPER)
+            && $ticket->assignee_id !== $actor->id
+            && $ticket->discussionComments->last()?->user_id === $actor->id
+            && $this->getTicketClaimStatusAction->execute($ticket)->isClaimable;
+
+        if ($shouldAssignToCommenter) {
+            $this->claimTicketAction->execute($ticket, $actor);
+        }
+
+        if ($newState->isResolved() && !$previousState->isResolved()) {
+            $ticket->resolved_signal_verdict = (new BuildTicketSignalsAction())->execute(new Collection([$ticket]))[$ticket->id]?->verdict;
+        }
+
+        $ticket->state = $newState;
+
+        CauserResolver::setCauser($actor);
+
+        if ($newState->isResolved()) {
+            $ticket->resolved_at = now();
+            $ticket->resolver_id = $actor->id;
+            $ticket->resolution = $action->resolution();
+        } elseif ($previousState->isResolved()) {
+            // Clear any resolver info when reopening a previously resolved ticket.
+            $ticket->resolved_at = null;
+            $ticket->resolver_id = null;
+            $ticket->resolution = null;
+            $ticket->resolved_signal_verdict = null;
+        }
+
+        $ticket->save();
+
+        (new RefreshTicketSignalVerdictsAction())->execute(new Collection([$ticket]));
+
+        if ($action === TicketAction::Demoted && $ticket->ticketable) {
+            $ticket->getTicketableModel()->demoteForTicket($actor);
+        }
+
+        $comment = $this->buildServerComment($ticket, $action, $previousState, $actor);
+
+        // add the system comment without generating an email. subscribers get an email below.
+        $serverUser = User::whereName('Server')->first();
+        if ($serverUser) {
+            Comment::create([
+                'commentable_type' => CommentableType::Ticket,
+                'commentable_id' => $ticket->id,
+                'body' => $comment,
+                'user_id' => $serverUser->id,
+            ]);
+        }
+
+        if ($ticket->assignee_id) {
+            $this->userTicketCountService->clearForUserId($ticket->assignee_id);
+        }
+
+        if ($ticket->reporter) {
+            $this->userTicketCountService->clearForUserId($ticket->reporter->id);
+
+            // Only send email if the reporter has email notifications enabled for ticket activity.
+            // Also: don't tell reporters about any change they made themselves.
+            if (
+                $actor->id !== $ticket->reporter_id
+                && BitSet($ticket->reporter->preferences_bitfield, UserPreference::EmailOn_TicketActivity)
+            ) {
+                $ticket->reporter->notify(
+                    new TicketStatusUpdatedNotification($ticket, $actor, $newState->label(), $comment)
+                );
+            }
+        }
+    }
+
+    private function buildServerComment(Ticket $ticket, TicketAction $action, TicketState $previousState, User $actor): string
+    {
+        $actorName = $actor->display_name;
+
+        return match ($action) {
+            TicketAction::Resolved => "Ticket resolved as fixed by {$actorName}.",
+            TicketAction::Request => "Ticket reassigned to reporter by {$actorName}.",
+            TicketAction::Reopen => match ($previousState) {
+                TicketState::Request => 'Ticket reassigned to ' . ($ticket->assignee->display_name ?? 'the developer') . " by {$actorName}.",
+                TicketState::Quarantined => "Ticket approved by {$actorName}.",
+                default => "Ticket reopened by {$actorName}.",
+            },
+            TicketAction::ClosedMistaken,
+            TicketAction::Demoted,
+            TicketAction::NotEnoughInfo,
+            TicketAction::NoReplyFromReporter,
+            TicketAction::WrongRom,
+            TicketAction::Network,
+            TicketAction::UnableToReproduce,
+            TicketAction::UnableToDebug,
+            TicketAction::AlreadyFixed,
+            TicketAction::EmulatorProblem,
+            TicketAction::CoveredByAnotherTicket,
+            TicketAction::ClosedOther => $action->resolution()->closeCommentBody($actorName),
+        };
+    }
+}

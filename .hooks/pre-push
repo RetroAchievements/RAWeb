@@ -44,7 +44,7 @@ if [ "$is_php_changed" = true ]; then
     vendor/bin/pint --test
     
     printf "\n⏳ composer analyse\n"
-    vendor/bin/phpstan analyse --memory-limit 768M
+    vendor/bin/phpstan analyse --memory-limit 1G
     
     # Check the OS. Windows does not support the --parallel flag.
     if [ "$(uname)" = "Linux" ] || [ "$(uname)" = "Darwin" ]; then

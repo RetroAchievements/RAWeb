@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Community\Enums\TicketState;
 use App\Filament\Extensions\Resources\Resource;
 use App\Filament\Resources\AchievementResource\Pages;
 use App\Filament\Resources\AchievementResource\RelationManagers\AuthorshipCreditsRelationManager;
@@ -634,23 +635,16 @@ class AchievementResource extends Resource
             'is_active' => true,
         ]);
 
-        // Collect distinct prior assignees so we can bust their cached open-ticket counts.
-        // The bulk update below bypasses Eloquent events, so TicketObserver cannot catch it.
-        $priorAssigneeIds = $record->tickets()
-            ->open()
-            ->pluck('ticketable_author_id')
-            ->filter()
-            ->unique();
-
-        // Reassign any open tickets for this achievement to the new maintainer.
+        $formerMaintainerId = $record->activeMaintainer->user_id ?? $record->user_id;
         $record->tickets()
-            ->open()
+            ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Quarantined])
+            ->where(fn ($ticketQuery) => $ticketQuery->where('assignee_id', $formerMaintainerId)->orWhereNull('assignee_id'))
             ->update([
-                'ticketable_author_id' => $newMaintainerId,
+                'assignee_id' => $newMaintainerId,
             ]);
 
-        $userIdsToBust = $priorAssigneeIds->push((int) $newMaintainerId)->unique();
-        app(UserTicketCountService::class)->clearForUserIds($userIdsToBust);
+        // Manually bust the cache due to Eloquent not firing events for bulk updates.
+        app(UserTicketCountService::class)->clearForUserIds([$formerMaintainerId, (int) $newMaintainerId]);
 
         activity()
             ->performedOn($record)

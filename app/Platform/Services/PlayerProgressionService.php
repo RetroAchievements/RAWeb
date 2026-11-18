@@ -149,7 +149,7 @@ class PlayerProgressionService
         }
 
         // [C] Add in console names
-        $systems = System::whereIn('id', $usedConsoleIds)->get();
+        $systems = System::whereIn('id', $usedConsoleIds)->toBase()->get();
         foreach ($filteredAndJoined as &$game) {
             $system = $systems->where('id', $game['ConsoleID'])->first();
             if ($system) {

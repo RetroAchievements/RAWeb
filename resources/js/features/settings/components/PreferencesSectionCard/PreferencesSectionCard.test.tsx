@@ -64,7 +64,7 @@ describe('Component: PreferencesSectionCard', () => {
     render(<PreferencesSectionCard currentPreferencesBitfield={127} />);
 
     // ACT
-    await user.hover(screen.getAllByRole('button')[0]);
+    await user.hover(screen.getAllByRole('button')[1]);
 
     // ASSERT
     expect(
@@ -104,5 +104,24 @@ describe('Component: PreferencesSectionCard', () => {
 
     // ASSERT
     expect(screen.getByRole('switch', { name: /enable beta features/i })).not.toBeChecked();
+  });
+
+  it('shows the evergreen event indicators toggle as checked or unchecked based on the preference bit', () => {
+    // ARRANGE
+    const { unmount } = render(
+      <PreferencesSectionCard currentPreferencesBitfield={1 << 21} />, // Game_ShowEvergreenEventIndicators
+    );
+
+    // ASSERT
+    expect(
+      screen.getByRole('switch', { name: /show evergreen event achievement indicators/i }),
+    ).toBeChecked();
+
+    unmount();
+    render(<PreferencesSectionCard currentPreferencesBitfield={0} />);
+
+    expect(
+      screen.getByRole('switch', { name: /show evergreen event achievement indicators/i }),
+    ).not.toBeChecked();
   });
 });

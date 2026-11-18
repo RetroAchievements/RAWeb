@@ -1,5 +1,9 @@
 <?php
 
+use App\Platform\Actions\GetGlobalRankingDataAction;
+use App\Platform\Enums\GlobalRankingMode;
+use App\Platform\Enums\GlobalRankingSortField;
+use App\Platform\Enums\GlobalRankingWindow;
 use App\Platform\Enums\UnlockMode;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +18,6 @@ $offset = max($offset, 0);
 $sort = requestInputSanitized('s', 5, 'integer');
 $type = requestInputSanitized('t', 2, 'integer');
 $friends = requestInputSanitized('f', 0, 'integer');
-$untracked = requestInputSanitized('u', 0, 'integer');
 $date = requestInputSanitized('d', date("Y-m-d"));
 $dateUnix = strtotime("$date");
 
@@ -44,20 +47,54 @@ $lbUsers = match ($friends) {
     default => "",
 };
 
+$rankingWindow = match ($type) {
+    1 => GlobalRankingWindow::Weekly,
+    2 => GlobalRankingWindow::AllTime,
+    default => GlobalRankingWindow::Daily,
+};
+
+$rankingDescending = $sort < 10;
+$rankingSortId = $rankingDescending ? $sort : $sort - 10;
+if ($rankingSortId === 7 || ($rankingWindow === GlobalRankingWindow::AllTime && in_array($rankingSortId, [8, 9], true))) {
+    $rankingSortId = 5;
+    $rankingDescending = true;
+}
+
+$rankingMode = in_array($rankingSortId, [2, 3, 8], true)
+    ? GlobalRankingMode::Casual
+    : GlobalRankingMode::Hardcore;
+$rankingSortField = match ($rankingSortId) {
+    3, 4 => GlobalRankingSortField::AchievementsUnlocked,
+    6 => GlobalRankingSortField::WeightedPoints,
+    8, 9 => GlobalRankingSortField::AwardsCount,
+    default => GlobalRankingSortField::Points,
+};
+
+$getGlobalRankingData = new GetGlobalRankingDataAction();
+
 if ($friends == 1) {
     // We do a maxCount + 1 so that if we get maxCount + 1 rows returned we know
     // there are more row to get and we can add a "Next X" link for page traversal
-    $data = getGlobalRankingData($type, $sort, $date, null, $user, $untracked, 0, getFriendCount($userModel) + 1, 0);
+    $data = $getGlobalRankingData->execute(
+        isDescending: $rankingDescending,
+        followedByUser: $userModel,
+        limit: getFriendCount($userModel) + 1,
+        mode: $rankingMode,
+        sortBy: $rankingSortField,
+        window: $rankingWindow,
+    );
 } else {
-    $data = getGlobalRankingData($type, $sort, $date, null, null, $untracked, $offset, $maxCount + 1, 0);
+    $data = $getGlobalRankingData->execute(
+        isDescending: $rankingDescending,
+        limit: $maxCount + 1,
+        mode: $rankingMode,
+        offset: $offset,
+        sortBy: $rankingSortField,
+        window: $rankingWindow,
+    );
 }
 
-$unlockMode = match ($sort % 10) {
-    2 => UnlockMode::Casual, // Points
-    3 => UnlockMode::Casual, // Achievements
-    8 => UnlockMode::Casual, // Awards
-    default => UnlockMode::Hardcore,
-};
+$unlockMode = $rankingMode === GlobalRankingMode::Casual ? UnlockMode::Casual : UnlockMode::Hardcore;
 ?>
 <x-app-layout pageTitle="{{ $lbUsers }} Ranking - {{ $lbType }}">
     <?php
@@ -214,12 +251,11 @@ $unlockMode = match ($sort % 10) {
 
     // Determine which field to use for the rank comparison.
     // This ensures ties are properly handled.
-    $rankField = match ($sort % 10) {
-        2, 5 => 'Points',
-        6 => 'RetroPoints',
-        3, 4 => 'AchievementCount',
-        7 => 'RetroRatio',
-        default => 'Points',
+    $rankField = match ($rankingSortField) {
+        GlobalRankingSortField::Points => 'points',
+        GlobalRankingSortField::WeightedPoints => 'weightedPoints',
+        GlobalRankingSortField::AchievementsUnlocked => 'achievementsUnlocked',
+        GlobalRankingSortField::AwardsCount => 'awardsCount',
     };
     $rankValue = null;
 
@@ -231,21 +267,21 @@ $unlockMode = match ($sort % 10) {
             $findUserRank = true;
         }
 
-        if ($dataPoint['RankNumber'] !== null) {
-            $rank = $dataPoint['RankNumber'];
+        if ($dataPoint['rankNumber'] !== null) {
+            $rank = $dataPoint['rankNumber'];
         } elseif ($dataPoint[$rankField] != $rankValue) {
             $rank = $rowRank;
             $rankValue = $dataPoint[$rankField];
         }
 
         if ($rowRank < $offset + 1 || $findUserRank) {
-            if ($dataPoint['User'] == $user) {
+            if ($dataPoint['username'] == $user) {
                 $userRank = $rank;
             }
             $rowRank++;
         } else {
             // Outline the currently logged in user in the table
-            if ($dataPoint['User'] == $user) {
+            if ($dataPoint['username'] == $user) {
                 $userListed = true;
                 echo "<tr style='outline: thin solid'>";
             } else {
@@ -258,35 +294,34 @@ $unlockMode = match ($sort % 10) {
             }
             echo "<td>";
             echo userAvatar([
-                'username' => $dataPoint['User'],
-                'display_name' => $dataPoint['DisplayName'],
-                'deleted_at' => $dataPoint['DeletedAt'] ?? null,
+                'username' => $dataPoint['username'],
+                'display_name' => $dataPoint['displayName'],
             ], iconClass: 'mr-1');
             echo "</td>";
 
             // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
             if ($type == 0) {
-                echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['DisplayName'] . "'>" . localized_number($dataPoint['AchievementCount']) . "</a></td>";
+                echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $dataPoint['displayName'] . "'>" . localized_number($dataPoint['achievementsUnlocked']) . "</a></td>";
             } else {
-                echo "<td class='text-right'>" . localized_number($dataPoint['AchievementCount'] ?? 0) . "</td>";
+                echo "<td class='text-right'>" . localized_number($dataPoint['achievementsUnlocked'] ?? 0) . "</td>";
             }
 
             if ($unlockMode == UnlockMode::Hardcore) {
-                echo "<td class='text-right'>" . localized_number($dataPoint['Points']);
+                echo "<td class='text-right'>" . localized_number($dataPoint['points']);
                 ?>
-                <x-points-weighted-container>({{ localized_number($dataPoint['RetroPoints']) }})</x-points-weighted-container>
+                <x-points-weighted-container>({{ localized_number($dataPoint['weightedPoints']) }})</x-points-weighted-container>
                 <?php
                 echo "</td>";
-                if ($dataPoint['Points'] == 0) {
+                if ($dataPoint['points'] == 0) {
                     echo "<td class='text-right'>0.00</td>";
                 } else {
-                    echo "<td class='text-right'>" . $dataPoint['RetroRatio'] . "</td>";
+                    echo "<td class='text-right'>" . $dataPoint['retroRatio'] . "</td>";
                 }
             } else {
-                echo "<td class='text-right'>" . localized_number($dataPoint['Points']) . "</td>";
+                echo "<td class='text-right'>" . localized_number($dataPoint['points']) . "</td>";
             }
 
-            echo "<td class='text-right'>" . localized_number($dataPoint['TotalAwards'] ?? 0) . "</td></tr>";
+            echo "<td class='text-right'>" . localized_number($dataPoint['awardsCount'] ?? 0) . "</td></tr>";
 
             $rowRank++;
             $userCount++;
@@ -294,51 +329,55 @@ $unlockMode = match ($sort % 10) {
     }
 
     // Display the user if they are not in the list
-    if ($user !== null) {
-        if (!$userListed) {
-            // Get and display the information for the logged in user if applicable
-            $userData = getGlobalRankingData($type, $sort, $date, $user, null, $untracked, 0, 1);
-            if (!empty($userData)) {
-                // Add dummy row to separate the user from the rest of the table
-                echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
-                echo "<tr style='outline: thin solid'>";
+    if ($userModel !== null && !$userListed) {
+        // Get and display the information for the logged in user if applicable
+        $userData = $getGlobalRankingData->execute(
+            isDescending: $rankingDescending,
+            limit: 1,
+            mode: $rankingMode,
+            sortBy: $rankingSortField,
+            user: $userModel,
+            window: $rankingWindow,
+        );
+        if (!empty($userData)) {
+            // Add dummy row to separate the user from the rest of the table
+            echo "<tr class='do-not-highlight'><td colspan='7'>&nbsp;</td></tr>";
+            echo "<tr style='outline: thin solid'>";
 
-                if ($sort < 10 && $sort % 10 != 1) {
-                    $rank = $userData[0]['RankNumber'] ?? ($friends == 1 ? $userRank : null);
-                    echo "<td>" . ($rank !== null ? localized_number($rank) : '') . "</td>";
-                }
-                echo "<td>";
-                echo userAvatar([
-                    'username' => $userData[0]['User'],
-                    'display_name' => $userData[0]['DisplayName'],
-                    'deleted_at' => $userData[0]['DeletedAt'] ?? null,
-                ], iconClass: 'mr-1');
-                echo "</td>";
-
-                // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
-                if ($type == 0) {
-                    echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['DisplayName'] . "'>" . $userData[0]['AchievementCount'] . "</a></td>";
-                } else {
-                    echo "<td class='text-right'>" . localized_number($userData[0]['AchievementCount']) . "</a></td>";
-                }
-
-                if ($unlockMode == UnlockMode::Hardcore) {
-                    echo "<td class='text-right'>" . localized_number($userData[0]['Points']);
-                    ?>
-                    <x-points-weighted-container>({{ localized_number($userData[0]['RetroPoints']) }})</x-points-weighted-container>
-                    <?php
-                    echo "</td>";
-                    if ($userData[0]['Points'] == 0) {
-                        echo "<td class='text-right'>0.00</td>";
-                    } else {
-                        echo "<td class='text-right'>" . $userData[0]['RetroRatio'] . "</td>";
-                    }
-                } else {
-                    echo "<td class='text-right'>" . localized_number($userData[0]['Points']) . "</td>";
-                }
-
-                echo "<td class='text-right'>" . localized_number($userData[0]['TotalAwards'] ?? 0) . "</td></tr>";
+            if ($sort < 10 && $sort % 10 != 1) {
+                $rank = $userData[0]['rankNumber'] ?? ($friends == 1 ? $userRank : null);
+                echo "<td>" . ($rank !== null ? localized_number($rank) : '') . "</td>";
             }
+            echo "<td>";
+            echo userAvatar([
+                'username' => $userData[0]['username'],
+                'display_name' => $userData[0]['displayName'],
+            ], iconClass: 'mr-1');
+            echo "</td>";
+
+            // If viewing the daily leaderboard then link the total achievements obtained to the users history page for the day
+            if ($type == 0) {
+                echo "<td class='text-right'><a href='historyexamine.php?d=$dateUnix&u=" . $userData[0]['displayName'] . "'>" . $userData[0]['achievementsUnlocked'] . "</a></td>";
+            } else {
+                echo "<td class='text-right'>" . localized_number($userData[0]['achievementsUnlocked']) . "</a></td>";
+            }
+
+            if ($unlockMode == UnlockMode::Hardcore) {
+                echo "<td class='text-right'>" . localized_number($userData[0]['points']);
+                ?>
+                <x-points-weighted-container>({{ localized_number($userData[0]['weightedPoints']) }})</x-points-weighted-container>
+                <?php
+                echo "</td>";
+                if ($userData[0]['points'] == 0) {
+                    echo "<td class='text-right'>0.00</td>";
+                } else {
+                    echo "<td class='text-right'>" . $userData[0]['retroRatio'] . "</td>";
+                }
+            } else {
+                echo "<td class='text-right'>" . localized_number($userData[0]['points']) . "</td>";
+            }
+
+            echo "<td class='text-right'>" . localized_number($userData[0]['awardsCount'] ?? 0) . "</td></tr>";
         }
     }
     echo "</tbody></table>";

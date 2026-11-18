@@ -26,7 +26,10 @@ function buildDeleteRoute({
       comment: id,
     }),
 
-    'trigger.ticket.comment': 'TODO',
+    'trigger.ticket.comment': route('api.ticket.comment.destroy', {
+      ticket: commentableId,
+      comment: id,
+    }),
 
     'forum-topic-comment': 'TODO',
 

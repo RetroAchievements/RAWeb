@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketState;
+use App\Exceptions\BannedUserException;
 use App\Models\Achievement;
 use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Actions\GetTicketClaimStatusAction;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -26,11 +30,20 @@ class TicketPolicy
         ]);
     }
 
-    public function viewAny(?User $user): bool
+    public function viewAny(?User $user, ?User $ticketsOwner = null): bool
     {
         // Guests cannot view tickets.
         if (!$user) {
             return false;
+        }
+
+        // Banned account subpages are hidden from the public. Tickets are the
+        // exception, and only for people whose job it is to clean them up.
+        if (
+            $ticketsOwner?->isBanned()
+            && !$user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])
+        ) {
+            throw new BannedUserException();
         }
 
         return true;
@@ -46,20 +59,22 @@ class TicketPolicy
         return true;
     }
 
-    // Gives additional roles ability to view achievement logic on tickets and management page
-    public function viewLogic(User $user): bool
+    /**
+     * Everyone who can see the reporter's session history on a ticket.
+     */
+    public function viewHistory(User $user): bool
     {
-        return $user->hasAnyRole([
+        return $this->manage($user) || $user->hasAnyRole([
+            Role::CHEAT_INVESTIGATOR,
             Role::MANUAL_UNLOCKER,
         ]);
     }
 
-    // Gives additional roles ability to view player history on tickets, does not include compare unlocks view
-    public function viewHistory(User $user): bool
+    public function viewTriageSignals(User $user): bool
     {
         return $user->hasAnyRole([
-            Role::CHEAT_INVESTIGATOR,
-            Role::MANUAL_UNLOCKER,
+            Role::DEVELOPER,
+            Role::DEVELOPER_JUNIOR,
         ]);
     }
 
@@ -137,11 +152,84 @@ class TicketPolicy
         return $user->hasPlayedGame($leaderboard->game);
     }
 
-    public function updateState(User $user): bool
+    public function updateState(User $user, Ticket $ticket, TicketAction $action): bool
     {
-        return $user->hasAnyRole([
-            Role::DEVELOPER,
-            Role::TICKET_MANAGER,
-        ]);
+        // An update must actually change the ticket state.
+        if ($action->targetState() === $ticket->state) {
+            return false;
+        }
+
+        // This can't be manually set - it relies on a timeout/cooldown occurring from a scheduled job.
+        if ($action === TicketAction::NoReplyFromReporter) {
+            return false;
+        }
+
+        // Muted users can't participate in a ticket beyond closing their own mistaken reports.
+        if ($user->isMuted() && $action !== TicketAction::ClosedMistaken) {
+            return false;
+        }
+
+        // Tickets cannot be reassigned to deleted users.
+        if ($action === TicketAction::Request && (!$ticket->reporter || $ticket->reporter->trashed())) {
+            return false;
+        }
+
+        if ($user->hasAnyRole([Role::DEVELOPER, Role::MODERATOR, Role::ADMINISTRATOR])) {
+            return match ($action) {
+                TicketAction::Reopen => true,
+                TicketAction::Request => $ticket->state === TicketState::Open,
+
+                TicketAction::Resolved,
+                TicketAction::Demoted => $ticket->state->isOpen(),
+
+                TicketAction::UnableToDebug => !$ticket->state->isResolved() && !$ticket->emulator?->can_debug_triggers,
+
+                TicketAction::ClosedMistaken,
+                TicketAction::NotEnoughInfo,
+                TicketAction::WrongRom,
+                TicketAction::Network,
+                TicketAction::UnableToReproduce,
+                TicketAction::AlreadyFixed,
+                TicketAction::EmulatorProblem,
+                TicketAction::CoveredByAnotherTicket,
+                TicketAction::ClosedOther => !$ticket->state->isResolved(),
+            };
+        }
+
+        if ($user->id !== $ticket->reporter_id) {
+            return false;
+        }
+
+        return match ($action) {
+            TicketAction::ClosedMistaken => in_array(
+                $ticket->state,
+                [TicketState::Open, TicketState::Request, TicketState::Quarantined],
+                true,
+            ),
+            TicketAction::Reopen => $ticket->is_waiting_on_reporter,
+            default => false,
+        };
+    }
+
+    public function claim(User $user, Ticket $ticket): bool
+    {
+        if (!$user->hasRole(Role::DEVELOPER) || $user->isMuted()) {
+            return false;
+        }
+
+        if (!$ticket->state->isOpen() || $ticket->assignee_id === $user->id) {
+            return false;
+        }
+
+        // Devs still working on tickets won't have them claimed away from underneath them.
+        return (new GetTicketClaimStatusAction())->execute($ticket)->isClaimable;
+    }
+
+    public function releaseClaim(User $user, Ticket $ticket): bool
+    {
+        return
+            $ticket->assignee_id === $user->id
+            && $ticket->state->isOpen()
+            && $ticket->isClaimed();
     }
 }

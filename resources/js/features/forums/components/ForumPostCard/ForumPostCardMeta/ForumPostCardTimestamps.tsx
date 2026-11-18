@@ -43,12 +43,12 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
   // after a post is made, because it's usually to fix something like a
   // spelling mistake or typo.
   const hasReceivedSignificantEdit =
-    comment.updatedAt &&
-    comment.createdAt &&
-    dayjs.utc(comment.updatedAt).diff(dayjs.utc(comment.createdAt), 'minute') >= 2;
+    !!comment.editedAt &&
+    !!comment.createdAt &&
+    dayjs.utc(comment.editedAt).diff(dayjs.utc(comment.createdAt), 'minute') >= 2;
 
   const createdLabel = formatTime(comment.createdAt);
-  const editedLabel = hasReceivedSignificantEdit ? formatTime(comment.updatedAt) : null;
+  const editedLabel = hasReceivedSignificantEdit ? formatTime(comment.editedAt) : null;
 
   const shouldShowCreatedTooltip =
     !auth?.user.preferences.prefersAbsoluteDates &&
@@ -57,7 +57,7 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
   const shouldShowEditedTooltip =
     editedLabel &&
     !auth?.user.preferences.prefersAbsoluteDates &&
-    dayjs.utc(comment.updatedAt!).isAfter(dayjs.utc().subtract(24, 'hour'));
+    dayjs.utc(comment.editedAt!).isAfter(dayjs.utc().subtract(24, 'hour'));
 
   return (
     <p className="smalltext leading-3.5! light:text-neutral-700">
@@ -90,7 +90,7 @@ export const ForumPostCardTimestamps: FC<ForumPostCardTimestampsProps> = ({ comm
                 </BaseTooltipTrigger>
 
                 <BaseTooltipContent className="text-xs not-italic" asChild>
-                  <span>{formatDate(comment.updatedAt!, 'lll')}</span>
+                  <span>{formatDate(comment.editedAt!, 'lll')}</span>
                 </BaseTooltipContent>
               </BaseTooltip>
             ) : (

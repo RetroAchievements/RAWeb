@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Community\Actions\BuildActivePlayersAction;
 use App\Community\Actions\BuildThinRecentForumPostsDataAction;
 use App\Community\Actions\FetchGameActivityDataAction;
+use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Community\Enums\AwardType;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Enums\GameActivitySnapshotType;
@@ -69,6 +70,7 @@ class HomeController extends Controller
         $permissions = $user ? (int) $user->getAttribute('Permissions') : Permissions::Unregistered;
         $recentForumPosts = $buildThinRecentForumPostsData->execute(
             permissions: $permissions,
+            maskedAuthorIds: (new GetMaskedForumAuthorIdsAction())->execute($user),
         );
 
         $userCurrentGameData = $buildUserCurrentGameData->execute($user);

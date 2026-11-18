@@ -57,6 +57,7 @@ class BuildDeveloperFeedDataAction
         $recentUnlocks = $this->getRecentUnlocks(
             $allAchievementIds,
             shouldUseDateRange: $targetUser->yield_unlocks <= 20_000,
+            allowPartialResults: $targetUser->yield_unlocks >= 1_000_000,
         );
 
         $recentPlayerBadges = $this->getRecentPlayerBadges($authoredGameIds->toArray());
@@ -80,27 +81,17 @@ class BuildDeveloperFeedDataAction
 
     private function countAwardsForGames(array $gameIds): int
     {
-        // This query counts unique mastery/beaten awards per user/game, taking only
-        // the highest tier (AwardDataExtra) when multiple per user exist. Using a
-        // window function instead of a self-join improves performance from 130-180ms
-        // down to ~40ms.
-
         if (empty($gameIds)) {
             return 0;
         }
 
-        return DB::table(DB::raw('(
-            SELECT *,
-                ROW_NUMBER() OVER (
-                    PARTITION BY award_key, award_type, user_id
-                    ORDER BY award_tier DESC
-                ) as rn
-            FROM user_awards
-            WHERE award_key IN (' . implode(',', $gameIds) . ')
-                AND award_type IN (\'' . AwardType::Mastery->value . '\', \'' . AwardType::GameBeaten->value . '\')
-        ) ranked'))
-            ->where('rn', 1)
-            ->count();
+        $awards = DB::table('user_awards')
+            ->select(['award_key', 'award_type', 'user_id'])
+            ->whereIn('award_key', $gameIds)
+            ->whereIn('award_type', [AwardType::Mastery->value, AwardType::GameBeaten->value])
+            ->distinct();
+
+        return DB::query()->fromSub($awards, 'awards')->count();
     }
 
     private function countLeaderboardEntries(User $user): int
@@ -109,7 +100,6 @@ class BuildDeveloperFeedDataAction
         // optimize the execution plan with this specific query. With a subquery, MySQL
         // will try to materialize the results first, while with a JOIN it can choose the
         // most efficient way to combine the tables. This reduces query time by ~10x.
-
         return DB::table('leaderboard_entries')
             ->join('leaderboards', 'leaderboards.id', '=', 'leaderboard_entries.leaderboard_id')
             ->where('leaderboards.author_id', $user->id)
@@ -120,20 +110,60 @@ class BuildDeveloperFeedDataAction
      * @param Collection<int, int> $achievementIds
      * @return FeedRecentUnlockData[]
      */
-    private function getRecentUnlocks(Collection $achievementIds, bool $shouldUseDateRange = false): array
-    {
-        $query = PlayerAchievement::with(['achievement', 'achievement.game', 'achievement.game.system', 'user'])
+    private function getRecentUnlocks(
+        Collection $achievementIds,
+        bool $shouldUseDateRange = false,
+        bool $allowPartialResults = false,
+    ): array {
+        $query = PlayerAchievement::query()
             ->whereIn('achievement_id', $achievementIds)
-            ->orderByDesc('unlocked_at');
+            ->orderByDesc('unlocked_at')
+            ->orderByDesc('id')
+            ->take(200);
 
         if ($shouldUseDateRange) {
             $thirtyDaysAgo = Carbon::now()->subDays(30)->startOfDay();
             $query->where('unlocked_at', '>=', $thirtyDaysAgo);
         }
 
-        return $query
-            ->take(200)
-            ->get()
+        $unlocks = null;
+        if (!$shouldUseDateRange && $achievementIds->isNotEmpty()) {
+            foreach ($allowPartialResults ? [100_000, 1_000_000] : [100_000] as $scanLimit) {
+                $cutoffUnlock = DB::table('player_achievements')
+                    ->select(['id', 'unlocked_at'])
+                    ->orderByDesc('unlocked_at')
+                    ->orderByDesc('id')
+                    ->offset($scanLimit - 1)
+                    ->first();
+
+                $recentQuery = (clone $query)->forceIndex('player_achievements_unlocked_at_index');
+                if ($cutoffUnlock !== null) {
+                    $recentQuery->where(function ($query) use ($cutoffUnlock) {
+                        if ($cutoffUnlock->unlocked_at === null) {
+                            $query->whereNotNull('unlocked_at');
+                        } else {
+                            $query->where('unlocked_at', '>', $cutoffUnlock->unlocked_at);
+                        }
+
+                        $query->orWhere(fn ($query) => $query
+                            ->where('unlocked_at', $cutoffUnlock->unlocked_at)
+                            ->where('id', '>=', $cutoffUnlock->id));
+                    });
+                }
+
+                $unlocks = $recentQuery->get();
+                if ($unlocks->count() === 200 || $cutoffUnlock === null) {
+                    break;
+                }
+            }
+        }
+
+        if ($unlocks === null || (!$allowPartialResults && $unlocks->count() < 200)) {
+            $unlocks = $query->get();
+        }
+
+        return $unlocks
+            ->load(['achievement', 'achievement.game', 'achievement.game.system', 'user'])
             ->reject(fn ($unlock) => $unlock->user === null || $unlock->user->unranked_at !== null)
             ->map(fn ($unlock) => new FeedRecentUnlockData(
                 achievement: AchievementData::fromAchievement($unlock->achievement)->include('points'),
@@ -190,15 +220,21 @@ class BuildDeveloperFeedDataAction
      */
     private function getRecentLeaderboardEntries(User $targetUser): array
     {
+        $leaderboardIds = DB::table('leaderboards')
+            ->where('author_id', $targetUser->id)
+            ->whereNull('deleted_at')
+            ->pluck('id');
+
+        $recentEntries = LeaderboardEntry::select('id')
+            ->whereIn('leaderboard_id', $leaderboardIds)
+            ->where('updated_at', '>=', now()->subDays(30))
+            ->orderByDesc('updated_at')
+            ->take(200);
+
         return LeaderboardEntry::select('leaderboard_entries.*')
             ->with(['leaderboard.game.system', 'user'])
-            ->join('leaderboards as ld', 'ld.id', '=', 'leaderboard_entries.leaderboard_id')
-            ->where(DB::raw('ld.author_id'), $targetUser->id)
-            ->whereNull('ld.deleted_at')
-            ->whereNull('leaderboard_entries.deleted_at')
-            ->where(DB::raw('leaderboard_entries.updated_at'), '>=', now()->subDays(30))
-            ->orderBy('leaderboard_entries.updated_at', 'desc')
-            ->take(200)
+            ->joinSub($recentEntries, 'recent_entries', 'recent_entries.id', '=', 'leaderboard_entries.id')
+            ->orderByDesc('leaderboard_entries.updated_at')
             ->get()
             ->reject(fn ($entry) => $entry->user === null || $entry->user->unranked_at !== null)
             ->map(fn ($entry) => new RecentLeaderboardEntryData(

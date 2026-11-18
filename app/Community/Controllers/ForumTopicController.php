@@ -6,6 +6,7 @@ namespace App\Community\Controllers;
 
 use App\Community\Actions\BuildAggregateRecentForumPostsDataAction;
 use App\Community\Actions\BuildShowForumTopicPagePropsAction;
+use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Community\Data\RecentPostsPagePropsData;
 use App\Community\Requests\ForumTopicRequest;
 use App\Community\Requests\ShowForumTopicRequest;
@@ -101,6 +102,7 @@ class ForumTopicController extends Controller
             limit: 25,
             paginationPath: $request->url(),
             paginationQuery: $request->query(),
+            maskedAuthorIds: (new GetMaskedForumAuthorIdsAction())->execute($user),
         );
 
         $props = new RecentPostsPagePropsData($paginatedTopics);

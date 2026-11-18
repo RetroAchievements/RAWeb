@@ -118,12 +118,10 @@ describe('Component: ForumPostCardTimestamps', () => {
     vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
 
     const createdAt = dayjs.utc().subtract(2, 'days').toISOString();
-    const updatedAt = dayjs.utc(createdAt).add(1, 'day').toISOString(); // !!
+    const editedAt = dayjs.utc(createdAt).add(1, 'day').toISOString(); // !!
 
     render(
-      <ForumPostCardTimestamps
-        comment={createForumTopicComment({ id: 1, createdAt, updatedAt })}
-      />,
+      <ForumPostCardTimestamps comment={createForumTopicComment({ id: 1, createdAt, editedAt })} />,
       { pageProps: { auth: { user: createAuthenticatedUser() } } },
     );
 
@@ -134,16 +132,64 @@ describe('Component: ForumPostCardTimestamps', () => {
     expect(screen.getByText(/Oct 24, 2023/i)).toBeVisible();
   });
 
+  it('given a comment was edited within the last 24 hours, shows absolute edit time in a tooltip', async () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const createdAt = dayjs.utc().subtract(3, 'days').toISOString();
+    const editedAt = dayjs.utc().subtract(2, 'hours').toISOString(); // !!
+
+    render(
+      <ForumPostCardTimestamps comment={createForumTopicComment({ id: 1, createdAt, editedAt })} />,
+      {
+        pageProps: {
+          auth: {
+            user: createAuthenticatedUser({
+              preferences: createAuthenticatedUserPreferences({
+                prefersAbsoluteDates: false,
+                shouldAlwaysBypassContentWarnings: false,
+              }),
+            }),
+          },
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.hover(screen.getByText(/2 hours ago/i));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Oct 24, 2023 10:00 PM');
+    });
+  });
+
   it('given a comment was not edited at least 2 minutes after the create date, shows both creation and edit times', () => {
     // ARRANGE
     vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
 
     const createdAt = dayjs.utc().subtract(2, 'days').toISOString();
-    const updatedAt = dayjs.utc(createdAt).add(1, 'second').toISOString(); // !!
+    const editedAt = dayjs.utc(createdAt).add(1, 'second').toISOString(); // !!
+
+    render(
+      <ForumPostCardTimestamps comment={createForumTopicComment({ id: 1, createdAt, editedAt })} />,
+      { pageProps: { auth: { user: createAuthenticatedUser() } } },
+    );
+
+    // ASSERT
+    expect(screen.queryByText(/edited/i)).not.toBeInTheDocument();
+  });
+
+  it('given a comment was never edited but was written to long after creation, does not show an edit label', () => {
+    // ARRANGE
+    vi.setSystemTime(dayjs.utc('2023-10-25').toDate());
+
+    const createdAt = dayjs.utc().subtract(5, 'days').toISOString();
+    const updatedAt = dayjs.utc(createdAt).add(3, 'days').toISOString(); // !!
 
     render(
       <ForumPostCardTimestamps
-        comment={createForumTopicComment({ id: 1, createdAt, updatedAt })}
+        comment={createForumTopicComment({ id: 1, createdAt, updatedAt, editedAt: null })}
       />,
       { pageProps: { auth: { user: createAuthenticatedUser() } } },
     );

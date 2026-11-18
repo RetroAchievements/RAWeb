@@ -13,10 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class GameCommentApiController extends Controller
 {
-    public function index(): void
-    {
-    }
-
     public function store(StoreCommentRequest $request, Game $game): JsonResponse
     {
         $this->authorize('create', [GameComment::class, $game]);
@@ -29,14 +25,6 @@ class GameCommentApiController extends Controller
         addArticleComment($user->username, $data->commentableType, $data->commentableId, $data->body);
 
         return response()->json(['success' => true]);
-    }
-
-    public function show(): void
-    {
-    }
-
-    public function update(): void
-    {
     }
 
     public function destroy(Game $game, GameComment $comment): JsonResponse

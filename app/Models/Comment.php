@@ -93,14 +93,8 @@ class Comment extends BaseModel
             return false;
         }
 
-        // Don't index certain management comment types.
-        $excludedTypes = [
-            CommentableType::UserModeration,
-            CommentableType::GameHash,
-            CommentableType::SetClaim,
-            CommentableType::GameModification,
-        ];
-        if (in_array($this->commentable_type, $excludedTypes, true)) {
+        // Don't index non-public comment types.
+        if (!$this->commentable_type->isPublicComment()) {
             return false;
         }
 
@@ -150,7 +144,7 @@ class Comment extends BaseModel
             return route('comment.show', ['comment' => $this->id]);
         }
 
-        if ($this->commentable_type === CommentableType::AchievementTicket) {
+        if ($this->commentable_type === CommentableType::Ticket) {
             return route('ticket.show', ['ticket' => $this->commentable_id]) . "#comment_{$this->id}";
         }
 

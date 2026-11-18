@@ -17,7 +17,10 @@ class UserApiController extends Controller
         $this->authorize('manage', User::class);
 
         $sourceUser = $request->user();
-        $targetUser = User::whereName($request->input('displayName'))->first();
+        $targetUser = User::whereName($request->input('displayName'))->withTrashed()->first();
+        if (!$targetUser) {
+            abort(404);
+        }
 
         setAccountForumPostAuth(
             $sourceUser,

@@ -5,6 +5,7 @@ import {
   createAchievementSet,
   createGame,
   createGameAchievementSet,
+  createPlayerAchievementSet,
   createZiggyProps,
 } from '@/test/factories';
 
@@ -145,6 +146,41 @@ describe('Component: GameAchievementSetProgress', () => {
     // ASSERT
     expect(screen.queryByText(/mastered/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/beaten/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('No playtime recorded.')).toBeVisible();
+  });
+
+  it('does show mastered and beaten indicators when the achievement set has no promoted achievements but the user has completion history', () => {
+    // ARRANGE
+    const gameAchievementSet = createGameAchievementSet({
+      achievementSet: createAchievementSet({ id: 123 }),
+    });
+
+    render(
+      <GameAchievementSetProgress
+        achievements={[]}
+        gameAchievementSet={gameAchievementSet}
+      />,
+      {
+        pageProps: {
+          auth: { user: createAuthenticatedUser() },
+          game: createGame({ id: 1 }),
+          backingGame: createGame({ id: 1 }),
+          isViewingPublishedAchievements: true,
+          ziggy: createZiggyProps(),
+          playerAchievementSets: {
+            123: createPlayerAchievementSet({
+              completedAt: '2024-05-15T14:30:00.000000Z', // !!
+              completedHardcoreAt: '2024-05-15T14:30:00.000000Z', // !!
+              timeTaken: 7200, // !!
+              timeTakenHardcore: null,
+            }),
+          },
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByText(/beaten/i)).toBeVisible();
     expect(screen.getByLabelText('No playtime recorded.')).toBeVisible();
   });
 });

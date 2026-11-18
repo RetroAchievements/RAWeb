@@ -5,6 +5,7 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 
 import { AppProviders } from './common/components/AppProviders';
 import type { AppGlobalProps } from './common/models';
+import { configureZod } from './common/utils/configureZod';
 import { loadDayjsLocale } from './common/utils/l10n/loadDayjsLocale';
 import { restoreDeferredPropsOnPageShow } from './common/utils/restoreDeferredPropsOnPageShow';
 import i18n from './i18n-client';
@@ -15,6 +16,8 @@ import { Ziggy } from './ziggy';
 globalThis.Ziggy = Ziggy;
 
 window.addEventListener('pageshow', restoreDeferredPropsOnPageShow);
+
+configureZod();
 
 const appName = import.meta.env.APP_NAME || 'RetroAchievements';
 type PageModule = { default: ResolvedComponent };

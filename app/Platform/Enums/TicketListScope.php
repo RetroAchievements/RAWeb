@@ -1,0 +1,175 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Enums;
+
+use App\Community\Enums\TicketState;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Platform\Requests\TicketListRequest;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+/**
+ * Drives filtering the ticket list/page by a specific criteria.
+ */
+#[TypeScript]
+enum TicketListScope: string
+{
+    case All = 'all';
+    case Game = 'game';
+    case Achievement = 'achievement';
+    case AssignedTo = 'assignedTo';
+    case ReportedBy = 'reportedBy';
+    case SubscribedBy = 'subscribedBy';
+    case AwaitingReporter = 'awaitingReporter';
+    case ResolvedBy = 'resolvedBy';
+
+    public function resolveTarget(TicketListRequest $request): Game|Achievement|User|null
+    {
+        return match ($this) {
+            self::All => null,
+            self::Game => Game::findOrFail((int) $request->input('game')),
+            self::Achievement => Achievement::findOrFail((int) $request->input('achievement')),
+            self::AssignedTo => User::withTrashed()->findOrFail((int) $request->input('user')),
+            self::ReportedBy, self::AwaitingReporter, self::ResolvedBy => User::findOrFail((int) $request->input('user')),
+            self::SubscribedBy => $request->user(), // subscriptions are private - this list only ever shows the user's own stuff
+        };
+    }
+
+    /**
+     * @return Builder<Ticket>
+     */
+    public function baseQuery(Game|Achievement|User|null $target): Builder
+    {
+        return match ($this) {
+            self::All => Ticket::query(),
+            self::Game => Ticket::forGame($target),
+            self::Achievement => Ticket::forAchievement($target),
+            self::AssignedTo => Ticket::forAssignee($target),
+            self::ReportedBy => Ticket::query()
+                ->where('reporter_id', $target->id),
+            self::SubscribedBy => Ticket::onGamesSubscribedToBy($target)
+                ->notAssignedTo($target),
+            self::AwaitingReporter => Ticket::query()
+                ->where('reporter_id', $target->id),
+            self::ResolvedBy => Ticket::query()
+                ->where('resolver_id', $target->id)
+                ->whereIn('state', [TicketState::Resolved, TicketState::Closed]),
+        };
+    }
+
+    /**
+     * The filters usable by a given scope.
+     *
+     * @return TicketListFilterKind[]
+     */
+    public function filterKinds(): array
+    {
+        return match ($this) {
+            self::All, self::SubscribedBy => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::DeveloperType,
+                TicketListFilterKind::Resolution,
+                TicketListFilterKind::Signal,
+                TicketListFilterKind::System,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+            ],
+            self::Game => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::DeveloperType,
+                TicketListFilterKind::Resolution,
+                TicketListFilterKind::Signal,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+            ],
+            self::Achievement => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::Resolution,
+                TicketListFilterKind::Signal,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+            ],
+            self::AssignedTo, self::ReportedBy => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::Resolution,
+                TicketListFilterKind::Signal,
+                TicketListFilterKind::System,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+            ],
+            self::AwaitingReporter => [],
+            self::ResolvedBy => [
+                TicketListFilterKind::Type,
+                TicketListFilterKind::Mode,
+                TicketListFilterKind::PublishedStatus,
+                TicketListFilterKind::Developer,
+                TicketListFilterKind::Reporter,
+                TicketListFilterKind::Resolution,
+                TicketListFilterKind::System,
+                TicketListFilterKind::Emulator,
+                TicketListFilterKind::Core,
+            ],
+        };
+    }
+
+    public function hasStatusFilter(): bool
+    {
+        return match ($this) {
+            self::AwaitingReporter, self::ResolvedBy => false,
+            default => true,
+        };
+    }
+
+    public function defaultStatusFilter(): TicketListStatusFilter
+    {
+        return match ($this) {
+            self::ResolvedBy => TicketListStatusFilter::All,
+
+            self::AwaitingReporter => TicketListStatusFilter::Request,
+            default => TicketListStatusFilter::Unresolved,
+        };
+    }
+
+    public function defaultSortParam(): string
+    {
+        return match ($this) {
+            self::ResolvedBy => '-' . TicketListSortField::ResolvedAt->value,
+            default => '-' . TicketListSortField::CreatedAt->value,
+        };
+    }
+
+    public function systemId(Game|Achievement|User|null $target): ?int
+    {
+        return match ($this) {
+            self::Game => $target->system_id,
+            self::Achievement => $target->game->system_id,
+            default => null,
+        };
+    }
+
+    public function persistenceCookieName(): string
+    {
+        return 'datatable_view_preference_tickets_' . $this->value;
+    }
+
+    public function comparisonUser(?Model $target): ?User
+    {
+        return match ($this) {
+            self::ResolvedBy => $target instanceof User ? $target : null,
+            default => null,
+        };
+    }
+}

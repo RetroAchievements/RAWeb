@@ -1,0 +1,79 @@
+import type { VisibilityState } from '@tanstack/react-table';
+import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { InertiaLink } from '@/common/components/InertiaLink';
+import { useFormatNumber } from '@/common/hooks/useFormatNumber';
+import { usePageProps } from '@/common/hooks/usePageProps';
+import type { TranslatedString } from '@/types/i18next';
+
+import { useTicketListColumnDefinitions } from '../../hooks/useTicketListColumnDefinitions';
+import type { TicketListColumnId } from '../../models';
+import { TICKET_LIST_COLUMN_IDS } from '../../utils/ticketListColumnIds';
+import { TicketListTable } from '../TicketListTable';
+
+interface TicketInboxSectionProps {
+  counterpartyColumnId: Extract<TicketListColumnId, 'developer' | 'reporter'>;
+  section: App.Platform.Data.TicketInboxSection;
+  t_heading: TranslatedString;
+
+  viewAllHref?: string;
+}
+
+export const TicketInboxSection: FC<TicketInboxSectionProps> = ({
+  counterpartyColumnId,
+  section,
+  t_heading,
+  viewAllHref,
+}) => {
+  const { can, sectionLimit } = usePageProps<App.Platform.Data.TicketInboxPageProps>();
+  const { t } = useTranslation();
+  const { formatNumber } = useFormatNumber();
+
+  const columnDefinitions = useTicketListColumnDefinitions();
+
+  if (!section.count) {
+    return null;
+  }
+
+  const visibleColumnIds = new Set<string>(['id', 'ticketable', counterpartyColumnId, 'age']);
+  if (section.kind === 'resolvedByYou') {
+    visibleColumnIds.add('resolvedAt');
+  }
+
+  const columnVisibility: VisibilityState = Object.fromEntries(
+    TICKET_LIST_COLUMN_IDS.map((columnId) => [columnId, visibleColumnIds.has(columnId)]),
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="text-h4 border-b-0">
+          {t_heading}
+
+          <span className="ml-2 text-neutral-400 light:text-neutral-600">
+            {formatNumber(section.count)}
+          </span>
+        </h2>
+
+        {viewAllHref && section.count > sectionLimit ? (
+          <InertiaLink href={viewAllHref} className="text-link">
+            {t('View all')}
+          </InertiaLink>
+        ) : null}
+      </div>
+
+      <TicketListTable
+        columnDefinitions={columnDefinitions}
+        columnVisibility={columnVisibility}
+        hasVerdictSlot={!!can.viewTriageSignals}
+        paginatedTickets={{
+          items: section.tickets,
+          currentPage: 1,
+          lastPage: 1,
+          total: section.count,
+        }}
+      />
+    </div>
+  );
+};

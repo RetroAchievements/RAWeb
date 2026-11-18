@@ -495,6 +495,10 @@ class PlayerAchievementSetsTest extends TestCase
         $this->assertNotNull($attributes['completedHardcoreAt']);
         $this->assertNotNull($attributes['lastUnlockAt']);
         $this->assertNotNull($attributes['lastUnlockHardcoreAt']);
+
+        $this->assertIsFloat($attributes['completionPercentage']);
+        $this->assertIsFloat($attributes['completionPercentageHardcore']);
+
         $this->assertEquals(0.75, $attributes['completionPercentage']);
         $this->assertEquals(0.60, $attributes['completionPercentageHardcore']);
     }

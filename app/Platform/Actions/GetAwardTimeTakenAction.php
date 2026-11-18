@@ -26,6 +26,7 @@ class GetAwardTimeTakenAction
                     ->whereIn('achievement_set_id', array_keys($coreAchievementSetIds))
                     ->where('user_id', $userId)
                     ->select(['achievement_set_id', 'time_taken', 'time_taken_hardcore'])
+                    ->toBase()
                     ->get();
                 foreach ($playerAchievementSets as $playerAchievementSet) {
                     $gameId = $coreAchievementSetIds[$playerAchievementSet->achievement_set_id];
@@ -39,6 +40,7 @@ class GetAwardTimeTakenAction
                 ->whereIn('game_id', $gameIds)
                 ->where('user_id', $userId)
                 ->select(['game_id', 'time_to_beat', 'time_to_beat_hardcore'])
+                ->toBase()
                 ->get();
             foreach ($playerGames as $playerGame) {
                 $result[$playerGame->game_id] = ($awardKind === 'beaten-hardcore') ?

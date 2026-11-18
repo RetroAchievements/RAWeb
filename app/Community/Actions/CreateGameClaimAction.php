@@ -48,7 +48,9 @@ class CreateGameClaimAction
 
             $claimType = ClaimType::Collaboration;
             $setType = $primaryClaim->set_type;
-            $special = $primaryClaim->special_type;
+            $special = $primaryClaim->special_type === ClaimSpecial::FreeRollout
+                ? ClaimSpecial::FreeRollout
+                : ClaimSpecial::None;
         }
 
         if ($game->achievements_published > 0) {
@@ -107,7 +109,7 @@ class CreateGameClaimAction
             return;
         }
 
-        $ticketCount = Ticket::forAssignee($currentUser)->awaitingDeveloper()->count();
+        $ticketCount = Ticket::forMaintainer($currentUser)->awaitingDeveloper()->count();
         if ($ticketCount < 2) { // two or more suggests the developer may be ignoring tickets
             return;
         }

@@ -1,0 +1,132 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Enums;
+
+use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
+use App\Community\Enums\TicketType;
+use App\Models\Emulator;
+use App\Models\System;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
+enum TicketListFilterKind: string
+{
+    case Type = 'type';
+    case Mode = 'mode';
+    case PublishedStatus = 'publishedStatus';
+    case DeveloperType = 'developerType';
+    case Developer = 'developer';
+    case Reporter = 'reporter';
+    case Resolution = 'resolution';
+    case Signal = 'signal';
+    case System = 'system';
+    case Emulator = 'emulator';
+    case Core = 'core';
+
+    /**
+     * These are listed in display order.
+     *
+     * @return string[]
+     */
+    public function values(?int $systemId = null): array
+    {
+        return match ($this) {
+            self::Type => [
+                '0',
+                (string) TicketType::TriggeredAtWrongTime->toLegacyInteger(),
+                (string) TicketType::DidNotTrigger->toLegacyInteger(),
+            ],
+            self::PublishedStatus => ['all', 'published', 'unpublished'],
+            self::Mode => ['all', 'hardcore', 'softcore', 'unspecified'],
+            self::DeveloperType => ['all', 'active', 'junior', 'inactive'],
+            self::Developer, self::Reporter => ['all', 'self', 'others'],
+            self::Resolution => ['all', ...array_map(fn (TicketResolution $resolution): string => $resolution->value, TicketResolution::cases())],
+            self::Signal => ['all', ...array_map(fn (TicketSignalVerdict $signalVerdict): string => $signalVerdict->value, TicketSignalVerdict::cases()), 'none'],
+            self::Emulator => ['all', ...self::emulatorNames($systemId), 'unknown'],
+            self::Core => [''],
+            self::System => ['all', ...array_map('strval', array_keys(self::systemNamesById()))],
+        };
+    }
+
+    public function appliesToStatus(TicketListStatusFilter $status): bool
+    {
+        return match ($this) {
+            self::Resolution => $status === TicketListStatusFilter::All || $status === TicketListStatusFilter::Closed,
+            default => true,
+        };
+    }
+
+    public function noFilterValue(): int|string
+    {
+        return match ($this) {
+            self::Type => 0,
+            self::Core => '',
+            default => 'all',
+        };
+    }
+
+    public function isFreeText(): bool
+    {
+        return $this === self::Core;
+    }
+
+    public function isExemptFromFacetRowLimit(): bool
+    {
+        return $this === self::Resolution;
+    }
+
+    /**
+     * @return array<int, string|\Illuminate\Validation\Rules\In>
+     */
+    public function validationRules(): array
+    {
+        return match ($this) {
+            self::Type => ['sometimes', 'integer', Rule::in($this->values())],
+            self::Emulator => ['sometimes', 'string'],
+
+            // We intentionally don't set something like min:3 here.
+            // Some core names only have two characters (ie: "gw", "81"). Searching for
+            // a short term is as computationally expensive as a longer one.
+            self::Core => ['sometimes', 'nullable', 'string', 'max:96'],
+
+            self::System => ['sometimes', 'string', 'regex:/^(all|\d+)$/'],
+            default => ['sometimes', 'string', Rule::in($this->values())],
+        };
+    }
+
+    /**
+     * @return array<array-key, string> map of option values to display labels
+     */
+    public function valueLabels(): array
+    {
+        return match ($this) {
+            self::System => self::systemNamesById(),
+            default => [],
+        };
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function systemNamesById(): array
+    {
+        return System::gameSystems()->active()->orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function emulatorNames(?int $systemId): array
+    {
+        $emulators = $systemId
+            ? Emulator::forSystem($systemId)
+            : Emulator::whereIn('id', DB::table('system_emulators')->distinct()->pluck('emulator_id')->all());
+
+        return $emulators->orderBy('name')->pluck('name')->all();
+    }
+}

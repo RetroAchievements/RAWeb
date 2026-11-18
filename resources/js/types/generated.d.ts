@@ -214,7 +214,11 @@ export type ModerationActionType = 'mute' | 'unmute' | 'ban' | 'unban' | 'unrank
 export type ModerationReportableType = 'Comment' | 'DirectMessage' | 'ForumTopicComment' | 'UserProfile';
 export type NewsCategory = 'achievement-set' | 'community' | 'events' | 'guide' | 'media' | 'site-release-notes' | 'technical';
 export type RankType = 'hardcore' | 'casual' | 'retro_points';
-export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision';
+export type SubscriptionSubjectType = 'ForumTopic' | 'UserWall' | 'GameWall' | 'Achievement' | 'Leaderboard' | 'GameTickets' | 'GameAchievements' | 'AchievementTicket' | 'GameScreenshotDecision' | 'AchievementSetRelease';
+export type TicketAction = 'closed-mistaken' | 'resolved' | 'demoted' | 'not-enough-info' | 'no-reply-from-reporter' | 'wrong-rom' | 'network' | 'unable-to-reproduce' | 'unable-to-debug' | 'already-fixed' | 'emulator-problem' | 'covered-by-another-ticket' | 'closed-other' | 'request' | 'reopen';
+export type TicketResolution = 'fixed' | 'mistaken_report' | 'not_enough_information' | 'no_reply_from_reporter' | 'wrong_rom' | 'network_problems' | 'unable_to_reproduce' | 'unable_to_debug' | 'already_fixed' | 'emulator_problem' | 'covered_by_another_ticket' | 'demoted' | 'other';
+export type TicketSignal = 'many-recent-unlocks' | 'earned-with-same-logic' | 'earned-after-report' | 'earned-after-logic-change' | 'no-recent-unlocks';
+export type TicketSignalVerdict = 'probably-not-defect' | 'probably-defect';
 export type TicketState = 'closed' | 'open' | 'resolved' | 'request' | 'quarantined';
 export type TicketType = 'did_not_cancel' | 'did_not_start' | 'did_not_submit' | 'did_not_trigger' | 'submitted_wrong_value' | 'triggered_at_wrong_time';
 export type TrendingReason = 'new-set' | 'revised-set' | 'gaining-traction' | 'renewed-interest' | 'many-more-players' | 'more-players';
@@ -286,8 +290,10 @@ id: number;
 body: string;
 createdAt: string;
 updatedAt: string | null;
+editedAt: string | null;
 user: App.Data.User | null;
 isAuthorized: boolean;
+isFromBlockedUser: boolean;
 forumTopicId: number | null;
 forumTopic?: App.Data.ForumTopic | null;
 sentBy?: App.Data.User | null;
@@ -341,6 +347,7 @@ revoked: boolean;
 createdAt: string;
 updatedAt: string;
 confidential: boolean;
+owner?: App.Data.User | null;
 };
 export type OAuthRequest = {
 clientId: string;
@@ -403,6 +410,7 @@ isEmailVerified?: boolean;
 isGone?: boolean;
 isMuted?: boolean;
 isNew?: boolean;
+isTeamAccount?: boolean;
 isUserWallActive?: boolean | null;
 lastActivityAt?: string | null;
 legacyPermissions?: number | null;
@@ -422,6 +430,7 @@ roles?: App.Models.UserRole[];
 };
 export type UserPermissions = {
 authorizeForumTopicComments?: boolean;
+claimTicket?: boolean;
 createAchievementComments?: boolean;
 createAchievementSetClaims?: boolean;
 createForumTopicComments?: boolean;
@@ -432,6 +441,7 @@ createMessageThreads?: boolean;
 createModerationReports?: boolean;
 createOAuthClients?: boolean;
 createTicket?: boolean;
+createTicketComments?: boolean;
 createUserBetaFeedbackSubmission?: boolean;
 createUsernameChangeRequest?: boolean;
 deleteForumTopic?: boolean;
@@ -447,7 +457,9 @@ manageGameHashes?: boolean;
 manageGames?: boolean;
 manageGameSets?: boolean;
 manipulateApiKeys?: boolean;
+manuallyAwardAchievements?: boolean;
 quickEditAchievement?: boolean;
+releaseTicketClaim?: boolean;
 resetEntireAccount?: boolean;
 reviewAchievementSetClaims?: boolean;
 updateAchievementDescription?: boolean;
@@ -465,17 +477,18 @@ viewAchievementLogic?: boolean;
 viewAnyAchievementSetClaim?: boolean;
 viewAnyOAuthClients?: boolean;
 viewDeveloperInterest?: boolean;
+viewTriageSignals?: boolean;
 };
 }
 declare namespace App.Enums {
 export type ClientSupportLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type GameHashCompatibility = 'compatible' | 'incompatible' | 'untested' | 'patch-required';
 export type OAuthScope = 'data:read' | 'follows:read' | 'game-lists:read';
-export type PlayerGameActivityEventType = 'unlock' | 'rich-presence' | 'reset' | 'custom';
+export type PlayerGameActivityEventType = 'custom' | 'reset' | 'rich-presence' | 'ticket-created' | 'unlock';
 export type PlayerGameActivitySessionType = 'player-session' | 'reconstructed' | 'manual-unlock' | 'ticket-created' | 'reset';
 export type SetClaimChangeAction = 'create' | 'extend' | 'drop' | 'update';
 export type UserOS = 'Android' | 'iOS' | 'Linux' | 'macOS' | 'Windows';
-export type UserPreference = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+export type UserPreference = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21;
 }
 declare namespace App.Http.Data {
 export type AchievementOfTheWeekProps = {
@@ -520,7 +533,7 @@ initialPage: number;
 };
 }
 declare namespace App.Models {
-export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'architect' | 'engineer' | 'team-account' | 'community-manager' | 'developer-retired' | 'supporter';
+export type UserRole = 'root' | 'administrator' | 'release-manager' | 'game-hash-manager' | 'dev-compliance' | 'quality-assurance' | 'code-reviewer' | 'developer' | 'developer-junior' | 'artist' | 'writer' | 'game-editor' | 'play-tester' | 'moderator' | 'forum-manager' | 'ticket-manager' | 'manual-unlocker' | 'news-manager' | 'event-manager' | 'playtest-manager' | 'set-designer' | 'media-editor' | 'cheat-investigator' | 'founder' | 'engineer' | 'team-account' | 'community-manager' | 'supporter';
 }
 declare namespace App.Platform.Data {
 export type AchievementChangelogEntry = {
@@ -579,6 +592,7 @@ minutesLeft?: number;
 isCompletable?: boolean;
 isDroppable?: boolean;
 isExtendable?: boolean;
+canMarkReleaseScheduled?: boolean;
 };
 export type AchievementSet = {
 id: number;
@@ -624,6 +638,13 @@ eventAchievement: App.Platform.Data.EventAchievement | null;
 isEventGame: boolean;
 areAllAchievementsOnePoint: boolean;
 };
+export type ActiveEventAchievement = {
+achievementId: number;
+eventId: number;
+eventTitle: string;
+activeUntil: string | null;
+userUnlocked: boolean;
+};
 export type AggregateAchievementSetCredits = {
 achievementsAuthors: Array<App.Platform.Data.UserCredits>;
 achievementsMaintainers: Array<App.Platform.Data.UserCredits>;
@@ -653,6 +674,7 @@ selectedGameHashId: number | null;
 emulatorVersion: string | null;
 emulatorCore: string | null;
 selectedMode: number | null;
+didLogicChangeSinceLastPlayed: boolean;
 };
 export type DeveloperInterestPageProps = {
 game: App.Platform.Data.Game;
@@ -787,8 +809,9 @@ export type GameHash = {
 id: number;
 md5: string;
 name: string | null;
-labels: Array<App.Platform.Data.GameHashLabel>;
-patchUrl: string | null;
+labels?: Array<App.Platform.Data.GameHashLabel>;
+patchUrl?: string | null;
+source?: string | null;
 isMultiDisc?: boolean;
 };
 export type GameHashLabel = {
@@ -826,9 +849,6 @@ targetUser: App.Data.User | null;
 userRequestInfo: App.Platform.Data.UserSetRequestInfo | null;
 };
 export type GamePageClaimData = {
-doesPrimaryClaimExist: boolean;
-maxClaimCount: number;
-numClaimsRemaining: number | null;
 numUnresolvedTickets: number;
 userClaim: App.Platform.Data.AchievementSetClaim | null;
 isSoleAuthor: boolean;
@@ -937,7 +957,8 @@ banner: App.Platform.Data.PageBanner | null;
 targetAchievementSetId: number | null;
 targetAchievementSetPlayersTotal: number | null;
 targetAchievementSetPlayersHardcore: number | null;
-userGameAchievementSetPreferences: Array<App.Platform.Data.UserGameAchievementSetPreference>;
+userGameAchievementSetPreferences: Record<number, App.Platform.Data.UserGameAchievementSetPreference>;
+activeEventAchievements?: Array<App.Platform.Data.ActiveEventAchievement>;
 screenshotUploadStatuses?: { [key: string]: App.Platform.Data.ScreenshotUploadTypeStatus };
 screenshotUploadConsistency?: App.Platform.Data.ScreenshotUploadConsistency | null;
 screenshotUploadPendingCount?: number;
@@ -996,6 +1017,7 @@ topEntry?: App.Platform.Data.LeaderboardEntry | null;
 userEntry?: App.Platform.Data.LeaderboardEntry | null;
 rankAsc?: boolean | null;
 state?: App.Platform.Enums.LeaderboardState | null;
+developer?: App.Data.User | null;
 };
 export type LeaderboardEntry = {
 id: number;
@@ -1133,6 +1155,8 @@ hasSession: boolean;
 ticketType: App.Community.Enums.TicketType;
 extra: string | null;
 can: App.Data.UserPermissions;
+ticketBlockReason: App.Platform.Enums.TicketCreationBlockReason | null;
+hasCasualUnlockFromRestrictedClient: boolean;
 };
 export type ScreenshotUploadConsistency = {
 existingResolutions: Array<{ width: number; height: number }>;
@@ -1169,11 +1193,143 @@ persistenceCookieName: string;
 persistedViewPreferences: Record<string, any> | null;
 defaultDesktopPageSize: number;
 };
+export type TicketChangelogEntry = {
+type: App.Platform.Enums.TicketChangelogEntryType;
+createdAt: string;
+user: App.Data.User | null;
+resolution: App.Community.Enums.TicketResolution | null;
+};
 export type Ticket = {
 id: number;
 ticketableType: App.Platform.Enums.TicketableType;
 state?: App.Community.Enums.TicketState;
 ticketable?: App.Platform.Data.Achievement | App.Platform.Data.Leaderboard | App.Platform.Data.Game;
+};
+export type TicketInboxPageProps = {
+sections: Array<App.Platform.Data.TicketInboxSection>;
+attentionCount: number;
+sectionLimit: number;
+user: App.Data.User;
+can: App.Data.UserPermissions;
+};
+export type TicketInboxSection = {
+kind: App.Platform.Enums.TicketInboxSectionKind;
+count: number;
+tickets: Array<App.Platform.Data.TicketListEntry>;
+};
+export type TicketListEntry = {
+id: number;
+state: App.Community.Enums.TicketState;
+type: App.Community.Enums.TicketType;
+hardcore: boolean | null;
+createdAt: string;
+resolvedAt: string | null;
+resolution: App.Community.Enums.TicketResolution | null;
+ticketableType: App.Platform.Enums.TicketableType;
+ticketableId: number;
+ticketableTitle: string;
+ticketableBadgeUrl: string | null;
+game: App.Platform.Data.Game;
+assignee: App.Data.User | null;
+isClaimed: boolean;
+reporter: App.Data.User | null;
+resolver: App.Data.User | null;
+emulator: App.Platform.Data.Emulator | null;
+emulatorVersion: string | null;
+emulatorCore: string | null;
+gameHash: App.Platform.Data.GameHash | null;
+signals?: App.Platform.Data.TicketSignals | null;
+};
+export type TicketListFilter = {
+kind: App.Platform.Enums.TicketListFilterKind;
+values: string[];
+valueLabels: Record<string, string>;
+isFreeText: boolean;
+};
+export type TicketListPageProps = {
+scope: App.Platform.Enums.TicketListScope;
+paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
+stateCounts: App.Platform.Data.TicketListStateCounts;
+availableFilters: Array<App.Platform.Data.TicketListFilter>;
+facetCounts: Record<string, Record<string, number>>;
+defaultStatusFilter: App.Platform.Enums.TicketListStatusFilter;
+defaultSortParam: App.Platform.Enums.TicketListSortField | `-${App.Platform.Enums.TicketListSortField}`;
+hasStatusFilter: boolean;
+persistenceCookieName: string;
+can: App.Data.UserPermissions;
+persistedViewPreferences: Record<string, any> | null;
+game: App.Platform.Data.Game | null;
+achievement: App.Platform.Data.Achievement | null;
+user: App.Data.User | null;
+};
+export type TicketListStateCounts = {
+unresolved: number;
+open: number;
+request: number;
+resolved: number;
+closed: number;
+quarantined: number;
+all: number;
+};
+export type TicketNoLongerAProblemPageProps = {
+ticketableTitle: string;
+gameTitle: string;
+canClose: boolean;
+closeUrl: string;
+};
+export type TicketRelatedEntry = {
+id: number;
+state: App.Community.Enums.TicketState;
+resolution: App.Community.Enums.TicketResolution | null;
+createdAt: string;
+ticketableTitle: string;
+reporter?: App.Data.User | null;
+};
+export type TicketReporterUnlock = {
+unlockedAt: string;
+isHardcore: boolean;
+unlocker: App.Data.User | null;
+};
+export type TicketShowPageProps = {
+ticket: App.Platform.Data.TicketListEntry;
+achievement: App.Platform.Data.Achievement | null;
+leaderboard: App.Platform.Data.Leaderboard | null;
+ticketableDescription: string;
+maintainer: App.Data.User | null;
+isViewerReporter: boolean;
+shouldOfferManualUnlock: boolean;
+can: App.Data.UserPermissions;
+relatedTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+reporterGameTickets: Array<App.Platform.Data.TicketRelatedEntry>;
+otherReporterGameTickets?: Array<App.Platform.Data.TicketRelatedEntry>;
+reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
+unlocksSinceReported: number | null;
+logicChangedAfterReportAt: string | null;
+reportedTriggerVersion: number | null;
+currentTriggerVersion: number | null;
+reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
+leaderboardEntryCount: number | null;
+reportBody: string | null;
+comments: Array<App.Community.Data.Comment>;
+changelog: Array<App.Platform.Data.TicketChangelogEntry>;
+allowedTicketActions: Array<App.Community.Enums.TicketAction>;
+hasReporterHistoryAccess: boolean;
+autoCloseAt: string | null;
+claimExpiresAt: string | null;
+reporterActivity?: App.Platform.Data.PlayerGameActivity | null;
+};
+export type TicketSignalAccuracy = {
+ticketCount: number;
+correctCount: number;
+};
+export type TicketSignals = {
+verdict: App.Community.Enums.TicketSignalVerdict;
+kinds: Array<App.Community.Enums.TicketSignal>;
+unlockCount: number;
+windowStartedAt: string;
+hasRecentLogicChange: boolean;
+reporterEarnedAt: string | null;
+accuracy: App.Platform.Data.TicketSignalAccuracy | null;
 };
 export type UserCredits = {
 displayName: string;
@@ -1200,9 +1356,8 @@ export type AchievementPageTab = 'changelog' | 'comments' | 'tips' | 'unlocks';
 export type AchievementSetAuthorTask = 'artwork' | 'banner' | 'testing';
 export type AchievementSetType = 'core' | 'bonus' | 'challenge' | 'specialty' | 'exclusive' | 'will_be_bonus' | 'will_be_specialty' | 'will_be_challenge';
 export type EventState = 'active' | 'concluded' | 'evergreen';
-export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
-export type UnlockMode = 0 | 1;
 export type GameBadgeAttribution = 'live' | 'backfill_audit_log' | 'backfill_comment_heuristic' | 'backfill_current_canonical' | 'backfill_forum_comment';
+export type GameBannerPreference = 'compact' | 'normal' | 'expanded';
 export type GameListProgressFilterValue = 'unstarted' | 'unfinished' | 'gte_beaten_softcore' | 'gte_beaten_hardcore' | 'eq_beaten_softcore' | 'eq_beaten_hardcore' | 'gte_completed' | 'eq_completed' | 'eq_mastered' | 'revised' | 'neq_mastered';
 export type GameListSetTypeFilterValue = 'all' | 'only-games' | 'only-subsets';
 export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActiveOrInReviewClaims' | 'lastUpdated' | 'masteryRatio' | 'medianTimeToBeatHardcore' | 'medianTimeToMasterHardcore' | 'numRequests' | 'numUnresolvedTickets' | 'numVisibleLeaderboards' | 'playersTotal' | 'pointsTotal' | 'progress' | 'releasedAt' | 'retroRatio' | 'system' | 'title';
@@ -1213,8 +1368,10 @@ export type GameScreenshotRejectionReason = 'wrong_game' | 'poor_quality' | 'dup
 export type GameScreenshotStatus = 'approved' | 'pending' | 'rejected' | 'replaced';
 export type GameSetRolePermission = 'view' | 'update';
 export type GameSetType = 'hub' | 'similar-games';
+export type UnlockMode = 0 | 1;
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';
 export type GlobalRankingMode = 'hardcore' | 'casual';
+export type GlobalRankingSortField = 'points' | 'points_weighted' | 'achievements_unlocked' | 'awards_count';
 export type GlobalRankingWindow = 'daily' | 'weekly' | 'alltime';
 export type LeaderboardState = 'active' | 'disabled' | 'unpromoted';
 export type PlatformExecutionEnvironment = 'desktop' | 'mobile' | 'console' | 'single_board' | 'original_hardware' | 'embedded' | 'web';
@@ -1224,6 +1381,13 @@ export type PlayerStatRankingKind = 'retail_beaten' | 'homebrew_beaten' | 'hacks
 export type ReleasedAtGranularity = 'day' | 'month' | 'year';
 export type ScreenshotReviewDecision = 'primary' | 'primary_keep_gallery' | 'gallery' | 'reject';
 export type ScreenshotType = 'title' | 'ingame' | 'completion';
+export type TicketChangelogEntryType = 'resolved' | 'closed' | 'requested' | 'returned' | 'approved' | 'reopened' | 'reminded' | 'claimed' | 'claim-released' | 'claim-expired';
+export type TicketCreationBlockReason = 'no_play_session';
+export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'subscribedByYou' | 'reportedByYou' | 'resolvedByYou';
+export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'resolution' | 'signal' | 'system' | 'emulator' | 'core';
+export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'subscribedBy' | 'awaitingReporter' | 'resolvedBy';
+export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
+export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';
 export type TicketableType = 'achievement' | 'leaderboard' | 'game.rich-presence';
 export type TriggerableType = 'achievement' | 'leaderboard' | 'game';
 }

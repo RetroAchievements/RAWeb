@@ -2,13 +2,15 @@
 
 // TODO migrate to controller & view
 
+use App\Community\Actions\GetMaskedForumAuthorIdsAction;
 use App\Enums\Permissions;
 
 $requestedCategoryID = requestInputSanitized('c', null, 'integer');
 
 authenticateFromCookie($user, $permissions, $userDetails);
 
-$forumList = getForumList($requestedCategoryID);
+$maskedAuthorIds = (new GetMaskedForumAuthorIdsAction())->execute(Auth::user());
+$forumList = getForumList($requestedCategoryID, maskedAuthorIds: $maskedAuthorIds);
 
 $numUnofficialLinks = 0;
 if ($permissions >= Permissions::Moderator) {

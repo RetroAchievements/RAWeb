@@ -383,30 +383,6 @@ class TriggerViewerService
     }
 
     /**
-     * Determines the appropriate address format string based on address sizes.
-     * Returns '0x%08x' for 32-bit addresses, '0x%06x' otherwise.
-     *
-     * @param array<int, array<string, mixed>> $groups The decoded groups
-     */
-    public function getAddressFormat(array $groups): string
-    {
-        foreach ($groups as $group) {
-            foreach ($group['Conditions'] ?? [] as $condition) {
-                $sourceAddr = $condition['SourceAddress'] ?? '';
-                $targetAddr = $condition['TargetAddress'] ?? '';
-
-                // 32-bit addresses are "0x" + 8 hex digits = 10 characters.
-                if ((str_starts_with($sourceAddr, '0x') && strlen($sourceAddr) === 10)
-                    || (str_starts_with($targetAddr, '0x') && strlen($targetAddr) === 10)) {
-                    return '0x%08x';
-                }
-            }
-        }
-
-        return '0x%06x';
-    }
-
-    /**
      * Strips brackets from an alias string, but preserves [Pointer] markers.
      */
     private function stripBrackets(string $alias): string

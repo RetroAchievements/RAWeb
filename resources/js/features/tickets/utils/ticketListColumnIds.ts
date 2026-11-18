@@ -1,0 +1,16 @@
+export const TICKET_LIST_COLUMN_IDS = [
+  'id',
+  'ticketable',
+  'type',
+  'mode',
+  'developer',
+  'reporter',
+  'resolver',
+  'resolution',
+  'emulator',
+  'version',
+  'core',
+  'hash',
+  'age',
+  'resolvedAt',
+] as const;

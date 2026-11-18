@@ -74,10 +74,14 @@ class ForumTopicCommentApiController extends Controller
 
         $comment->body = $newPayload;
 
-        // If this post is being edited by someone other than
-        // the author, track who made the edit.
-        if (!$requestingUser->is($comment->user)) {
-            $comment->edited_by_id = $requestingUser->id;
+        if ($comment->isDirty('body')) {
+            $comment->edited_at = now();
+
+            // If this post is being edited by someone other than
+            // the author, track who made the edit.
+            if (!$requestingUser->is($comment->user)) {
+                $comment->edited_by_id = $requestingUser->id;
+            }
         }
 
         $comment->save();

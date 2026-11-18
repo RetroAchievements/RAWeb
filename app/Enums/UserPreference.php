@@ -50,4 +50,6 @@ abstract class UserPreference
     public const User_EnableBetaFeatures = 19;
 
     public const EmailOff_DailyDigest = 20;
+
+    public const Game_ShowEvergreenEventIndicators = 21;
 }

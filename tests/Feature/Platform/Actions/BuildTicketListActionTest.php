@@ -1,0 +1,397 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
+use App\Community\Enums\TicketState;
+use App\Models\Achievement;
+use App\Models\Emulator;
+use App\Models\Game;
+use App\Models\Role;
+use App\Models\System;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Platform\Actions\BuildTicketListAction;
+use App\Platform\Data\TicketListEntryData;
+use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListScope;
+use App\Platform\Enums\TicketListSortField;
+use App\Platform\Requests\TicketListRequest;
+use Carbon\Carbon;
+use Database\Seeders\RolesTableSeeder;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+
+uses(LazilyRefreshDatabase::class);
+
+/**
+ * @return array{developer: User, reporter: User, resolver: User, game: Game, achievement: Achievement, otherAchievement: Achievement, tickets: Ticket[]}
+ */
+function createTicketListFixture(int $ticketCount = 12): array
+{
+    $developer = User::factory()->create();
+    $reporter = User::factory()->create();
+    $resolver = User::factory()->create();
+
+    $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+    $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+    $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+
+    $states = [
+        TicketState::Open,
+        TicketState::Request,
+        TicketState::Quarantined,
+        TicketState::Resolved,
+        TicketState::Closed,
+    ];
+
+    $tickets = [];
+    for ($i = 0; $i < $ticketCount; $i++) {
+        $state = $states[$i % count($states)];
+        $isTerminal = in_array($state, [TicketState::Resolved, TicketState::Closed], true);
+
+        $tickets[] = Ticket::factory()
+            ->forAchievement($i % 2 === 0 ? $achievement : $otherAchievement)
+            ->create([
+                'assignee_id' => $developer->id,
+                'reporter_id' => $reporter->id,
+                'resolver_id' => $isTerminal ? $resolver->id : null,
+                'state' => $state,
+                'created_at' => Carbon::parse('2024-01-01 00:00:00')->addHours($i),
+                'resolved_at' => $isTerminal ? Carbon::parse('2024-06-01 00:00:00')->addHours($i) : null,
+            ]);
+    }
+
+    return [
+        'developer' => $developer,
+        'reporter' => $reporter,
+        'resolver' => $resolver,
+        'game' => $game,
+        'achievement' => $achievement,
+        'otherAchievement' => $otherAchievement,
+        'tickets' => $tickets,
+    ];
+}
+
+/**
+ * @return int[]
+ */
+function entryIds(array $result): array
+{
+    return array_map(fn (TicketListEntryData $entry) => $entry->id, $result['paginatedTickets']->items);
+}
+
+describe('scope default values', function () {
+    it('excludes tickets for deleted ticketables from rows and counts', function () {
+        // ARRANGE
+        $fixture = createTicketListFixture(2);
+        $fixture['otherAchievement']->delete();
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/internal-api/tickets', 'GET', [
+                'filter' => ['emulator' => 'unknown'],
+            ]),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect(entryIds($result))->toEqual([$fixture['tickets'][0]->id]);
+        expect($result['paginatedTickets']->total)->toEqual(1);
+        expect($result['paginatedTickets']->unfilteredTotal)->toEqual(1);
+        expect($result['stateCounts']->unresolved)->toEqual(1);
+        expect($result['stateCounts']->request)->toEqual(0);
+        expect($result['stateCounts']->all)->toEqual(1);
+        expect($result['facetCounts']['type']['0'])->toEqual(1);
+    });
+
+    it('given scope is set to game and there is no query string, only the open and request tickets are returned for the game, sorted by newest tickets first', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $reporter = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $otherGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $otherGame->id, 'user_id' => $developer->id]);
+        $attributes = ['assignee_id' => $developer->id, 'reporter_id' => $reporter->id];
+
+        $oldest = Ticket::factory()->forAchievement($achievement)->open()->create([
+            ...$attributes,
+            'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        ]);
+        $middle = Ticket::factory()->forAchievement($achievement)->request()->create([
+            ...$attributes,
+            'created_at' => Carbon::parse('2024-01-02 00:00:00'),
+        ]);
+        $newest = Ticket::factory()->forAchievement($achievement)->open()->create([
+            ...$attributes,
+            'created_at' => Carbon::parse('2024-01-03 00:00:00'),
+        ]);
+
+        Ticket::factory()->forAchievement($achievement)->resolved()->create($attributes);
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create($attributes);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::Game,
+            $game,
+            TicketListRequest::create('/internal-api/tickets', 'GET'),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect(entryIds($result))->toEqual([$newest->id, $middle->id, $oldest->id]);
+        expect($result['paginatedTickets']->total)->toEqual(3);
+        expect($result['paginatedTickets']->unfilteredTotal)->toEqual(4);
+    });
+
+    it('given scope is set to assignedTo and there is no query string, only the open tickets assigned to that specific developer are returned', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $otherDeveloper = User::factory()->create();
+        $reporter = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $ownAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $otherDeveloper->id]);
+
+        $assigned = Ticket::factory()->forAchievement($ownAchievement)->open()->create([
+            'assignee_id' => $developer->id,
+            'reporter_id' => $reporter->id,
+        ]);
+
+        Ticket::factory()->forAchievement($ownAchievement)->closed()->create([
+            'assignee_id' => $developer->id,
+            'reporter_id' => $reporter->id,
+        ]);
+
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create([
+            'assignee_id' => $otherDeveloper->id,
+            'reporter_id' => $developer->id,
+        ]);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::AssignedTo,
+            $developer,
+            TicketListRequest::create('/internal-api/tickets', 'GET'),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect(entryIds($result))->toEqual([$assigned->id]);
+    });
+
+    it('given scope is set to resolvedBy and there is no query string, only the tickets resolved by the user or are closed are returned', function () {
+        // ARRANGE
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $reporter = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $user->id]);
+        $attributes = ['assignee_id' => $user->id, 'reporter_id' => $reporter->id];
+
+        $resolved = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            ...$attributes,
+            'resolver_id' => $user->id,
+            'created_at' => Carbon::parse('2024-01-02 00:00:00'),
+        ]);
+        $closed = Ticket::factory()->forAchievement($achievement)->closed()->create([
+            ...$attributes,
+            'resolver_id' => $user->id,
+            'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        ]);
+
+        Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            ...$attributes,
+            'resolver_id' => $otherUser->id,
+        ]);
+        Ticket::factory()->forAchievement($achievement)->open()->create($attributes);
+
+        Ticket::factory()->forAchievement($achievement)->open()->create([
+            ...$attributes,
+            'resolver_id' => $user->id,
+        ]);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::ResolvedBy,
+            $user,
+            TicketListRequest::create('/internal-api/tickets', 'GET'),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect(entryIds($result))->toEqual([$resolved->id, $closed->id]);
+        expect($result['stateCounts']->request)->toBeInt();
+    });
+});
+
+describe('available filters', function () {
+    it('given each scope, only its filter kinds are exposed', function (TicketListScope $scope, array $expectedKinds) {
+        // ARRANGE
+        $action = new BuildTicketListAction();
+
+        // ACT
+        $filters = $action->getAvailableFilters($scope, viewer: null);
+
+        // ASSERT
+        expect(array_map(fn ($filter) => $filter->kind, $filters))->toEqual($expectedKinds);
+
+        foreach ($filters as $filter) {
+            expect($filter->isFreeText)->toEqual($filter->kind === TicketListFilterKind::Core);
+        }
+
+        $emulatorFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::Emulator);
+        if ($emulatorFilter !== null) {
+            expect($emulatorFilter->values[0])->toEqual('all');
+            expect(end($emulatorFilter->values))->toEqual('unknown');
+        }
+    })->with([
+        'all' => [TicketListScope::All, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'game' => [TicketListScope::Game, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::DeveloperType, TicketListFilterKind::Resolution, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'achievement' => [TicketListScope::Achievement, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::Resolution, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'assignedTo' => [TicketListScope::AssignedTo, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'reportedBy' => [TicketListScope::ReportedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+        'awaitingReporter' => [TicketListScope::AwaitingReporter, []],
+        'resolvedBy' => [TicketListScope::ResolvedBy, [TicketListFilterKind::Type, TicketListFilterKind::Mode, TicketListFilterKind::PublishedStatus, TicketListFilterKind::Developer, TicketListFilterKind::Reporter, TicketListFilterKind::Resolution, TicketListFilterKind::System, TicketListFilterKind::Emulator, TicketListFilterKind::Core]],
+    ]);
+
+    it('given active and inactive systems, lists active systems by name with labels for their IDs', function () {
+        // ARRANGE
+        $zebraSystem = System::factory()->create(['name' => 'Zebra System', 'active' => true]);
+        $alphaSystem = System::factory()->create(['name' => 'Alpha System', 'active' => true]);
+        System::factory()->create(['name' => 'Retired System', 'active' => false]);
+
+        // ACT
+        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::All, viewer: null);
+
+        // ASSERT
+        $systemFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::System);
+
+        expect($systemFilter->values)->toEqual(['all', (string) $alphaSystem->id, (string) $zebraSystem->id]);
+        expect((array) $systemFilter->valueLabels)->toEqual([
+            $alphaSystem->id => 'Alpha System',
+            $zebraSystem->id => 'Zebra System',
+        ]);
+    });
+
+    it('given a system id, then the emulator options are limited to that system', function () {
+        // ARRANGE
+        $system = System::factory()->create();
+        $otherSystem = System::factory()->create();
+        $emulator = Emulator::factory()->create(['name' => 'Bizhawk']);
+        $otherEmulator = Emulator::factory()->create(['name' => 'PCSX2']);
+        $emulator->systems()->attach($system->id);
+        $otherEmulator->systems()->attach($otherSystem->id);
+
+        // ACT
+        $filters = (new BuildTicketListAction())->getAvailableFilters(TicketListScope::Game, viewer: null, systemId: $system->id);
+
+        // ASSERT
+        $emulatorFilter = collect($filters)->firstWhere('kind', TicketListFilterKind::Emulator);
+        expect($emulatorFilter->values)->toEqual(['all', 'Bizhawk', 'unknown']);
+    });
+});
+
+it('prefers the URL sort over the persisted sort', function () {
+    // ACT
+    $request = TicketListRequest::create('/tickets', 'GET', ['sort' => '-resolvedAt'], [
+        'datatable_view_preference_tickets_all' => json_encode(['sortParam' => 'state']),
+    ]);
+
+    // ASSERT
+    expect($request->getSort())->toEqual([
+        'field' => TicketListSortField::ResolvedAt,
+        'direction' => 'desc',
+    ]);
+});
+
+it('the generated sort column is consistent with the enum sort order', function () {
+    // ARRANGE
+    $fixture = createTicketListFixture();
+    foreach (TicketState::cases() as $state) {
+        Ticket::factory()->forAchievement($fixture['achievement'])->create(['state' => $state]);
+    }
+
+    $ranksByState = Ticket::query()->pluck('state_sort_order', 'state');
+
+    // ASSERT
+    foreach (TicketState::cases() as $state) {
+        expect((int) $ranksByState[$state->value])->toEqual($state->sortOrder());
+    }
+});
+
+it('given a closed ticket with a resolution, includes the resolution value in props', function () {
+    // ARRANGE
+    $fixture = createTicketListFixture(0);
+    $ticket = Ticket::factory()->forAchievement($fixture['achievement'])->closed()->create([
+        'resolution' => TicketResolution::UnableToReproduce,
+    ]);
+
+    // ACT
+    $result = (new BuildTicketListAction())->execute(
+        TicketListScope::All,
+        null,
+        TicketListRequest::create('/tickets', 'GET', ['filter' => ['status' => 'closed']]),
+        viewer: null,
+    );
+
+    // ASSERT
+    expect(entryIds($result))->toEqual([$ticket->id]);
+    expect($result['paginatedTickets']->items[0]->resolution)->toEqual(TicketResolution::UnableToReproduce);
+});
+
+it('given a viewer who can see signal verdicts, the signal filter is available and usable', function () {
+    // ARRANGE
+    $this->seed(RolesTableSeeder::class);
+    $viewer = User::factory()->create();
+    $viewer->assignRole(Role::DEVELOPER);
+    $fixture = createTicketListFixture(0);
+    $flaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create([
+        'current_signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+    ]);
+    Ticket::factory()->forAchievement($fixture['achievement'])->open()->create();
+    $action = new BuildTicketListAction();
+
+    // ACT
+    $result = $action->execute(
+        TicketListScope::All,
+        null,
+        TicketListRequest::create('/tickets', 'GET', ['filter' => ['signal' => 'probably-not-defect']]),
+        viewer: $viewer,
+    );
+    $filters = $action->getAvailableFilters(TicketListScope::All, $viewer);
+
+    // ASSERT
+    expect(entryIds($result))->toEqual([$flaggedTicket->id]);
+    expect($result['facetCounts']['signal'])->toEqual(['all' => 2, 'probably-not-defect' => 1, 'none' => 1]);
+    expect(collect($filters)->pluck('kind'))->toContain(TicketListFilterKind::Signal);
+});
+
+it('given a viewer who cannot see signal verdicts, the signal filter is not available or usable', function () {
+    // ARRANGE
+    $viewer = User::factory()->create();
+    $fixture = createTicketListFixture(0);
+    $flaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create([
+        'current_signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+    ]);
+    $unflaggedTicket = Ticket::factory()->forAchievement($fixture['achievement'])->open()->create();
+    $action = new BuildTicketListAction();
+
+    // ACT
+    $result = $action->execute(
+        TicketListScope::All,
+        null,
+        TicketListRequest::create('/tickets', 'GET', ['filter' => ['signal' => 'probably-not-defect']]),
+        viewer: $viewer,
+    );
+    $filters = $action->getAvailableFilters(TicketListScope::All, $viewer);
+
+    // ASSERT
+    expect(entryIds($result))->toEqualCanonicalizing([$flaggedTicket->id, $unflaggedTicket->id]);
+    expect($result['stateCounts']->unresolved)->toEqual(2);
+    expect($result['facetCounts'])->not->toHaveKey('signal');
+    expect(collect($filters)->pluck('kind'))->not->toContain(TicketListFilterKind::Signal);
+});

@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsTo;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Relations\HasManyThrough;
@@ -20,6 +19,7 @@ use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Filters\WhereIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class PlayerGameSchema extends Schema
 {
@@ -73,14 +73,34 @@ class PlayerGameSchema extends Schema
             DateTime::make('beatenHardcoreAt', 'beaten_hardcore_at')->readOnly(),
 
             // Time tracking.
-            Number::make('playtimeTotalSeconds', 'playtime_total')->readOnly(),
-            Number::make('timeToBeatSeconds', 'time_to_beat')->readOnly(),
-            Number::make('timeToBeatHardcoreSeconds', 'time_to_beat_hardcore')->readOnly(),
+            Integer::make('playtimeTotalSeconds', 'playtime_total')->readOnly(),
+            Integer::make('timeToBeatSeconds', 'time_to_beat')->readOnly(),
+            Integer::make('timeToBeatHardcoreSeconds', 'time_to_beat_hardcore')->readOnly(),
 
             // Relationships.
             BelongsToMany::make('achievementSets')->type('achievement-sets')->readOnly(),
             BelongsTo::make('game')->readOnly(),
             HasManyThrough::make('playerAchievementSets')->type('player-achievement-sets'),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'lastPlayedAt' => true,
+            'firstUnlockAt' => true,
+            'lastUnlockAt' => true,
+            'lastUnlockHardcoreAt' => true,
+            'beatenAt' => true,
+            'beatenHardcoreAt' => true,
+            'playtimeTotalSeconds' => true,
+            'timeToBeatSeconds' => true,
+            'timeToBeatHardcoreSeconds' => true,
         ];
     }
 

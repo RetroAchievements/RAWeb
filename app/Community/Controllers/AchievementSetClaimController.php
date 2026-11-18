@@ -7,6 +7,7 @@ namespace App\Community\Controllers;
 use App\Community\Actions\CreateGameClaimAction;
 use App\Community\Actions\DropGameClaimAction;
 use App\Community\Actions\UpdateGameClaimAction;
+use App\Community\Enums\ClaimSpecial;
 use App\Community\Enums\ClaimStatus;
 use App\Community\Requests\UpdateGameClaimRequest;
 use App\Http\Controller;
@@ -83,5 +84,14 @@ class AchievementSetClaimController extends Controller
         $action->execute($claim, $currentUser);
 
         return back()->with('success', $this->resourceActionSuccessMessage('claim', 'drop'));
+    }
+
+    public function markReleaseScheduled(AchievementSetClaim $claim, UpdateGameClaimAction $action): RedirectResponse
+    {
+        $this->authorize('markReleaseScheduled', $claim);
+
+        $action->execute($claim, ['special' => ClaimSpecial::ScheduledRelease->value]);
+
+        return back()->with('success', $this->resourceActionSuccessMessage('claim', 'update'));
     }
 }

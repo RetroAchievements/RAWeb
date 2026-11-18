@@ -118,7 +118,7 @@ class UserProfileMeta extends Component
         // Open tickets
         $openTickets = null;
         if ($user->yield_unlocks) {
-            $openTickets = array_sum(app(UserTicketCountService::class)->countOpenForDev($user));
+            $openTickets = app(UserTicketCountService::class)->countOpenForMaintainer($user);
         }
         $openTicketsStat = [
             'label' => 'Open tickets',

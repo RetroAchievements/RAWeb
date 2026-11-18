@@ -23,6 +23,8 @@ class AchievementSetClaim extends BaseModel
     public const MAX_CLAIMS_JUNIOR_DEVELOPER = 1;
     public const MAX_CLAIMS_DEVELOPER = 4;
 
+    public const COLLABORATION_SLOT_CUTOFF = '2026-09-24 00:00:00';
+
     protected $table = 'achievement_set_claims';
 
     protected $fillable = [
@@ -213,6 +215,23 @@ class AchievementSetClaim extends BaseModel
     public function scopeActiveOrInReview(Builder $query): Builder
     {
         return $query->whereIn('status', [ClaimStatus::Active, ClaimStatus::InReview]);
+    }
+
+    /**
+     * "Slot" in this case refers to how many claim slots the given
+     * Developer / Junior Developer has available to them.
+     *
+     * @param Builder<AchievementSetClaim> $query
+     * @return Builder<AchievementSetClaim>
+     */
+    public function scopeConsumesSlot(Builder $query): Builder
+    {
+        return $query->activeOrInReview()
+            ->where('special_type', ClaimSpecial::None)
+            ->where(function (Builder $query) {
+                $query->where('claim_type', ClaimType::Primary)
+                    ->orWhere('created_at', '>=', self::COLLABORATION_SLOT_CUTOFF);
+            });
     }
 
     // == helpers

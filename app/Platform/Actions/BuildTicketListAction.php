@@ -1,0 +1,180 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Actions;
+
+use App\Community\Enums\TicketState;
+use App\Data\PaginatedData;
+use App\Models\Achievement;
+use App\Models\Game;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Platform\Actions\Concerns\LoadsTicketListEntryRelations;
+use App\Platform\Data\TicketListFilterData;
+use App\Platform\Data\TicketListStateCountsData;
+use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListScope;
+use App\Platform\Enums\TicketListSortField;
+use App\Platform\Enums\TicketListStatusFilter;
+use App\Platform\Requests\TicketListRequest;
+use App\Platform\Services\TicketListService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+class BuildTicketListAction
+{
+    use LoadsTicketListEntryRelations;
+
+    private const PER_PAGE = 50;
+
+    /**
+     * @return array{paginatedTickets: PaginatedData, stateCounts: TicketListStateCountsData, facetCounts: array<string, array<string, int>>}
+     */
+    public function execute(
+        TicketListScope $scope,
+        Game|Achievement|User|null $target,
+        TicketListRequest $request,
+        ?User $viewer,
+    ): array {
+        $service = new TicketListService();
+
+        $filterOptions = $service->getFilterOptions($request, $scope->defaultStatusFilter());
+        $comparisonUser = $scope->comparisonUser($target);
+
+        $visibleFilterKinds = $this->getVisibleFilterKinds($scope, $viewer);
+        if (!in_array(TicketListFilterKind::Signal, $visibleFilterKinds, true)) {
+            $filterOptions[TicketListFilterKind::Signal->value] = TicketListFilterKind::Signal->noFilterValue();
+        }
+
+        $scopedTickets = $scope->baseQuery($target);
+        $renderableTickets = (clone $scopedTickets)->withLiveTicketable();
+
+        $stateCounts = $service->getStateCounts($filterOptions, clone $scopedTickets, $comparisonUser);
+
+        $total = TicketListStatusFilter::from($filterOptions['status'])->filteredTotal($stateCounts);
+
+        $facetCounts = $service->getFacetCounts(
+            $filterOptions,
+            clone $scopedTickets,
+            $visibleFilterKinds,
+            $comparisonUser,
+            $total,
+        );
+        $lastPage = max(1, (int) ceil($total / self::PER_PAGE));
+        $page = $request->getPage();
+
+        if ($page > $lastPage) {
+            $page = 1;
+        }
+
+        $query = $service->applyFilters(clone $renderableTickets, $filterOptions, $comparisonUser);
+        $sort = $request->getSort();
+
+        // If the result set is small, filter it first instead of scanning creation dates for a full page.
+        // This makes several queries ~20x faster.
+        if ($total <= self::PER_PAGE && $sort['field'] === TicketListSortField::CreatedAt) {
+            $query->ignoreIndex('tickets_created_at_index');
+        }
+
+        $this->applySort($query, $sort, TicketListStatusFilter::from($filterOptions['status']));
+        $this->applyTicketListEntryEagerLoads($query);
+
+        $pageTickets = $query->forPage($page, self::PER_PAGE)->get();
+
+        $paginator = new LengthAwarePaginator(
+            items: $this->resolveTicketListEntries($pageTickets, $this->resolveTicketSignalsForViewer($pageTickets, $viewer)),
+            total: $total,
+            perPage: self::PER_PAGE,
+            currentPage: $page,
+            options: ['path' => $request->url(), 'query' => $request->query()],
+        );
+
+        $unfilteredTotal = $service->hasNonStatusFilters($filterOptions)
+            ? (clone $scopedTickets)->count()
+            : $stateCounts['all'];
+
+        $paginatedTickets = PaginatedData::fromLengthAwarePaginator(
+            $paginator,
+            unfilteredTotal: $unfilteredTotal,
+        );
+
+        return [
+            'paginatedTickets' => $paginatedTickets,
+            'stateCounts' => TicketListStateCountsData::fromCounts($stateCounts),
+            'facetCounts' => $facetCounts,
+        ];
+    }
+
+    /**
+     * @return TicketListFilterData[]
+     */
+    public function getAvailableFilters(TicketListScope $scope, ?User $viewer, ?int $systemId = null): array
+    {
+        return array_map(
+            fn (TicketListFilterKind $kind): TicketListFilterData => $this->buildFilterData($kind, $systemId),
+            $this->getVisibleFilterKinds($scope, $viewer),
+        );
+    }
+
+    /**
+     * @return TicketListFilterKind[]
+     */
+    private function getVisibleFilterKinds(TicketListScope $scope, ?User $viewer): array
+    {
+        if ($viewer?->can('viewTriageSignals', Ticket::class)) {
+            return $scope->filterKinds();
+        }
+
+        return array_values(array_filter(
+            $scope->filterKinds(),
+            fn (TicketListFilterKind $filterKind): bool => $filterKind !== TicketListFilterKind::Signal,
+        ));
+    }
+
+    private function buildFilterData(TicketListFilterKind $kind, ?int $systemId): TicketListFilterData
+    {
+        $valueLabels = $kind->valueLabels();
+        $values = $kind === TicketListFilterKind::System
+            ? ['all', ...array_map('strval', array_keys($valueLabels))]
+            : $kind->values($systemId);
+
+        return new TicketListFilterData(
+            kind: $kind,
+            values: $values,
+            valueLabels: (object) $valueLabels,
+            isFreeText: $kind->isFreeText(),
+        );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @param array{field: TicketListSortField, direction: 'asc'|'desc'} $sort
+     */
+    private function applySort(Builder $query, array $sort, TicketListStatusFilter $status): void
+    {
+        switch ($sort['field']) {
+            case TicketListSortField::State:
+                $states = $status->states(); // avoid scanning unrelated statuses
+                if ($states !== null) {
+                    $query->whereIn('state_sort_order', array_map(fn (TicketState $state) => $state->sortOrder(), $states));
+                }
+                $query->orderBy('state_sort_order', $sort['direction']);
+                $query->orderByDesc('created_at');
+                break;
+
+            case TicketListSortField::ResolvedAt:
+                $query->orderByRaw('resolved_at IS NULL');
+                $query->orderBy('resolved_at', $sort['direction']);
+                $query->orderByDesc('created_at');
+                break;
+
+            case TicketListSortField::CreatedAt:
+            default:
+                $query->orderBy('created_at', $sort['direction']);
+                break;
+        }
+
+        $query->orderByDesc('id');
+    }
+}

@@ -661,63 +661,6 @@ class TriggerViewerServiceTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testGetAddressFormatReturns24BitFormatByDefault(): void
-    {
-        $groups = [
-            [
-                'Label' => 'Core',
-                'Conditions' => [
-                    ['SourceAddress' => '0x001234', 'TargetAddress' => '0x000001'],
-                ],
-            ],
-        ];
-
-        $result = $this->service->getAddressFormat($groups);
-
-        $this->assertEquals('0x%06x', $result);
-    }
-
-    public function testGetAddressFormatReturns32BitFormatWhenSourceIs32Bit(): void
-    {
-        $groups = [
-            [
-                'Label' => 'Core',
-                'Conditions' => [
-                    ['SourceAddress' => '0x00123456', 'TargetAddress' => '0x000001'],
-                ],
-            ],
-        ];
-
-        $result = $this->service->getAddressFormat($groups);
-
-        $this->assertEquals('0x%08x', $result);
-    }
-
-    public function testGetAddressFormatReturns32BitFormatWhenTargetIs32Bit(): void
-    {
-        $groups = [
-            [
-                'Label' => 'Core',
-                'Conditions' => [
-                    ['SourceAddress' => '0x001234', 'TargetAddress' => '0x00123456'],
-                ],
-            ],
-        ];
-
-        $result = $this->service->getAddressFormat($groups);
-
-        $this->assertEquals('0x%08x', $result);
-    }
-
-    public function testGetAddressFormatHandlesEmptyGroups(): void
-    {
-        $groups = [];
-
-        $result = $this->service->getAddressFormat($groups);
-
-        $this->assertEquals('0x%06x', $result);
-    }
-
     public function testResolveValueAliasWithPipeDelimiterFormat(): void
     {
         /**

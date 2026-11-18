@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Platform\Data;
+
+use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketState;
+use App\Community\Enums\TicketType;
+use App\Data\UserData;
+use App\Models\Ticket;
+use App\Platform\Enums\TicketableType;
+use Carbon\Carbon;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript('TicketListEntry')]
+class TicketListEntryData extends Data
+{
+    public function __construct(
+        public int $id,
+        public TicketState $state,
+        public TicketType $type,
+        public ?bool $hardcore,
+        public Carbon $createdAt,
+        public ?Carbon $resolvedAt,
+        public ?TicketResolution $resolution,
+        public TicketableType $ticketableType,
+        public int $ticketableId,
+        public string $ticketableTitle,
+        public ?string $ticketableBadgeUrl,
+        public GameData $game,
+        public ?UserData $assignee,
+        public bool $isClaimed,
+        public ?UserData $reporter,
+        public ?UserData $resolver,
+        public ?EmulatorData $emulator,
+        public ?string $emulatorVersion,
+        public ?string $emulatorCore,
+        public ?GameHashData $gameHash,
+        public Lazy|TicketSignalsData|null $signals,
+    ) {
+    }
+
+    public static function fromTicket(Ticket $ticket, ?TicketSignalsData $signals = null): self
+    {
+        $ticketable = $ticket->getTicketableModel();
+
+        return new self(
+            id: $ticket->id,
+            state: $ticket->state,
+            type: $ticket->type,
+            hardcore: $ticket->hardcore === null ? null : (bool) $ticket->hardcore,
+            createdAt: Carbon::parse($ticket->created_at),
+            resolvedAt: $ticket->resolved_at ? Carbon::parse($ticket->resolved_at) : null,
+            resolution: $ticket->resolution,
+            ticketableType: TicketableType::from($ticket->ticketable_type),
+            ticketableId: $ticketable->id,
+            ticketableTitle: $ticketable->getTicketableTitle(),
+            ticketableBadgeUrl: $ticketable->getTicketableBadgeUrl(),
+            game: GameData::fromGame($ticketable->game)->include('badgeUrl', 'system.nameShort'),
+            assignee: $ticket->assignee ? UserData::fromUser($ticket->assignee)->include('isGone') : null,
+            isClaimed: $ticket->isClaimed(),
+            reporter: $ticket->reporter ? UserData::fromUser($ticket->reporter)->include('isGone') : null,
+            resolver: $ticket->resolver ? UserData::fromUser($ticket->resolver)->include('isGone') : null,
+            emulator: $ticket->emulator ? EmulatorData::fromEmulator($ticket->emulator) : null,
+            emulatorVersion: $ticket->emulator_version,
+            emulatorCore: $ticket->emulator_core,
+            gameHash: $ticket->gameHash ? GameHashData::fromGameHash($ticket->gameHash) : null,
+            signals: Lazy::create(fn () => $signals),
+        );
+    }
+}

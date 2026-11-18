@@ -11,7 +11,6 @@ use LaravelJsonApi\Eloquent\Contracts\Paginator;
 use LaravelJsonApi\Eloquent\Fields\Boolean;
 use LaravelJsonApi\Eloquent\Fields\DateTime;
 use LaravelJsonApi\Eloquent\Fields\ID;
-use LaravelJsonApi\Eloquent\Fields\Number;
 use LaravelJsonApi\Eloquent\Fields\Relations\BelongsToMany;
 use LaravelJsonApi\Eloquent\Fields\Str;
 use LaravelJsonApi\Eloquent\Filters\Scope;
@@ -19,6 +18,7 @@ use LaravelJsonApi\Eloquent\Filters\WhereIdIn;
 use LaravelJsonApi\Eloquent\Pagination\PagePagination;
 use LaravelJsonApi\Eloquent\Schema;
 use LaravelJsonApi\Eloquent\Sorting\SortWithCount;
+use LaravelJsonApi\OpenApiSpec\Eloquent\Fields\Integer;
 
 class HubSchema extends Schema
 {
@@ -55,8 +55,8 @@ class HubSchema extends Schema
 
             Boolean::make('hasMatureContent', 'has_mature_content')->readOnly(),
 
-            Number::make('gamesCount')->readOnly(),
-            Number::make('linkedHubsCount')->readOnly(),
+            Integer::make('gamesCount')->readOnly(),
+            Integer::make('linkedHubsCount')->readOnly(),
             Boolean::make('isEventHub')->readOnly(),
 
             DateTime::make('createdAt', 'created_at')->sortable()->readOnly(),
@@ -68,6 +68,26 @@ class HubSchema extends Schema
             // cannotEagerLoad() prevents ?include= on index/show, forcing clients to use the paginated relationship endpoints.
             BelongsToMany::make('games')->cannotEagerLoad()->readOnly(),
             BelongsToMany::make('links', 'linkedHubs')->type('hubs')->cannotEagerLoad()->readOnly(),
+        ];
+    }
+
+    /**
+     * Which attributes can be null in a response.
+     *
+     * @return array<string, bool>
+     */
+    public function attributeNullability(): array
+    {
+        return [
+            'title' => false,
+            'sortTitle' => false,
+            'badgeUrl' => false,
+            'hasMatureContent' => false,
+            'gamesCount' => false,
+            'linkedHubsCount' => false,
+            'isEventHub' => false,
+            'createdAt' => false,
+            'updatedAt' => false,
         ];
     }
 

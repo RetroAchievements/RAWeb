@@ -4,6 +4,9 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
+import { CROWDIN } from './crowdin-project';
+import { getCrowdinToken } from './get-crowdin-token';
+
 /**
  * RetroAchievements Translation Sync Script
  * ========================================
@@ -60,12 +63,6 @@ const LANGUAGES = {
 // IMPLEMENTATION - YOU PROBABLY DON'T NEED TO MODIFY ANYTHING BELOW THIS LINE
 // ============================================================================
 
-const CROWDIN = {
-  PROJECT_ID: 734399,
-  SOURCE_FILE: 'en_US.json',
-  OUTPUT_DIR: 'lang',
-} as const;
-
 type SupportedLocale = keyof typeof LANGUAGES;
 
 function getCrowdinDirectoryName(code: string): string {
@@ -86,15 +83,7 @@ function getCrowdinDirectoryName(code: string): string {
 }
 
 async function downloadTranslations() {
-  const token = process.env.CROWDIN_PERSONAL_TOKEN;
-  if (!token) {
-    throw new Error(
-      '\n' +
-        '🔑 Missing Crowdin API Token\n' +
-        'Please set the CROWDIN_PERSONAL_TOKEN environment variable.\n' +
-        'You can get this from: https://crowdin.com/settings#api-key\n',
-    );
-  }
+  const token = getCrowdinToken();
 
   try {
     console.log('🌍 Fetching target locales...');
@@ -139,7 +128,7 @@ async function downloadTranslations() {
 
       const crowdinDir = getCrowdinDirectoryName(code);
       const sourcePath = join(tempDir, crowdinDir, CROWDIN.SOURCE_FILE);
-      const targetPath = join(CROWDIN.OUTPUT_DIR, `${code}.json`);
+      const targetPath = join(CROWDIN.LANG_DIR, `${code}.json`);
 
       try {
         const content = readFileSync(sourcePath, 'utf-8');

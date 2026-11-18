@@ -9,9 +9,9 @@ interface Variables {
     mode: 'hardcore' | 'casual';
     issue: App.Community.Enums.TicketType;
     description: string;
-    emulator: string;
+    emulator: string | null;
     emulatorVersion: string | null;
-    gameHashId: number;
+    gameHashId: number | null;
 
     core?: string;
     extra?: string | Record<string, string>;
@@ -21,6 +21,6 @@ interface Variables {
 export function useCreateTicketMutation() {
   return useMutation({
     mutationFn: ({ payload }: Variables) =>
-      axios.post<{ message: string; ticketId: string }>(route('api.ticket.store'), payload),
+      axios.post<{ message: string; ticketId: number }>(route('api.ticket.store'), payload),
   });
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\Achievement;
+use App\Models\EventAchievement;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\User;
@@ -93,8 +94,8 @@ class AchievementPolicy
     }
 
     /**
-     * Whether the user can update any achievement without per-record checks.
-     * Junior developers need per-record checks via update().
+     * Whether the user can update any standard achievement without per-record checks.
+     * Junior developers and event achievements need per-record checks via update().
      */
     public function updateAny(User $user): bool
     {
@@ -107,6 +108,10 @@ class AchievementPolicy
 
     public function update(User $user, Achievement $achievement): bool
     {
+        if ($this->isEventAchievement($achievement)) {
+            return $user->can('update', EventAchievement::class);
+        }
+
         if ($this->updateAny($user)) {
             return true;
         }
@@ -126,6 +131,14 @@ class AchievementPolicy
         // have a claim on the game, and the achievement must not be promoted.
         return !$achievement->is_promoted && $achievement->user_id === $user->id
             && $user->hasActiveClaimOnGameId($achievement->game->id);
+    }
+
+    /**
+     * Event achievements mirror a source achievement and are managed by event managers.
+     */
+    private function isEventAchievement(Achievement $achievement): bool
+    {
+        return $achievement->game?->system_id === System::Events;
     }
 
     public function delete(User $user, Achievement $achievement): bool
@@ -168,6 +181,10 @@ class AchievementPolicy
             return true;
         }
 
+        if (isset($achievement) && $this->isEventAchievement($achievement)) {
+            return $user->can('update', EventAchievement::class);
+        }
+
         $userRoles = $user->getRoleNames();
 
         // Aggregate the allowed fields for all roles the user has.
@@ -193,12 +210,6 @@ class AchievementPolicy
         // Otherwise, they can't edit the field.
         if (in_array($fieldName, $allowedFieldsForUser, true)) {
             return true;
-        }
-
-        if ($user->hasRole(Role::EVENT_MANAGER) && isset($achievement)) {
-            if ($achievement->game->system_id === System::Events) {
-                return true;
-            }
         }
 
         return false;
