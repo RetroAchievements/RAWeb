@@ -4,6 +4,79 @@ import { act, renderHook } from '@/test';
 
 import { useGlobalSearchHotkey } from './useGlobalSearchHotkey';
 
+interface HotkeyCase {
+  description: string;
+  eventInit: KeyboardEventInit;
+  expectedOpenChange: boolean;
+}
+
+const hotkeyCases: HotkeyCase[] = [
+  {
+    description: 'given the user presses Cmd+K, calls onOpenChange with true',
+    eventInit: { code: 'KeyK', key: 'k', metaKey: true },
+    expectedOpenChange: true,
+  },
+  {
+    description: 'given the user presses Ctrl+K, calls onOpenChange with true',
+    eventInit: { code: 'KeyK', key: 'k', ctrlKey: true },
+    expectedOpenChange: true,
+  },
+  {
+    description: 'given the user presses Cmd+K with uppercase K (e.g. Caps Lock), calls onOpenChange with true',
+    eventInit: { code: 'KeyK', key: 'K', metaKey: true },
+    expectedOpenChange: true,
+  },
+  {
+    description: 'given the user presses only K without modifier, does not call onOpenChange',
+    eventInit: { code: 'KeyK', key: 'k' },
+    expectedOpenChange: false,
+  },
+  {
+    description: 'given the user presses Cmd+J, does not call onOpenChange',
+    eventInit: { code: 'KeyJ', key: 'j', metaKey: true },
+    expectedOpenChange: false,
+  },
+  {
+    description:
+      'given a non-QWERTY Latin layout where physical KeyK produces a different ASCII letter (e.g. Dvorak Cmd+T), does not call onOpenChange',
+    eventInit: { code: 'KeyK', key: 't', metaKey: true },
+    expectedOpenChange: false,
+  },
+  {
+    description:
+      'given a non-QWERTY Latin layout where K is at a different physical key (e.g. Dvorak Cmd+K at KeyV), calls onOpenChange with true',
+    eventInit: { code: 'KeyV', key: 'k', metaKey: true },
+    expectedOpenChange: true,
+  },
+  {
+    description:
+      'given a non-Latin layout (e.g. Cyrillic) where physical KeyK produces a non-ASCII character, falls back to e.code and calls onOpenChange with true',
+    eventInit: { code: 'KeyK', key: 'л', metaKey: true },
+    expectedOpenChange: true,
+  },
+  {
+    description:
+      'given a non-Latin layout where a different physical key is pressed, does not call onOpenChange',
+    eventInit: { code: 'KeyJ', key: 'о', metaKey: true },
+    expectedOpenChange: false,
+  },
+  {
+    description: 'given Cmd+Alt+K, does not call onOpenChange',
+    eventInit: { code: 'KeyK', key: 'k', metaKey: true, altKey: true },
+    expectedOpenChange: false,
+  },
+  {
+    description: 'given Cmd+Shift+K, does not call onOpenChange',
+    eventInit: { code: 'KeyK', key: 'K', metaKey: true, shiftKey: true },
+    expectedOpenChange: false,
+  },
+  {
+    description: 'given both Cmd and Ctrl are pressed with K, calls onOpenChange once with true',
+    eventInit: { code: 'KeyK', key: 'k', metaKey: true, ctrlKey: true },
+    expectedOpenChange: true,
+  },
+];
+
 describe('Hook: useGlobalSearchHotkey', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,46 +114,6 @@ describe('Hook: useGlobalSearchHotkey', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
   });
 
-  it('given the user presses Cmd+K, calls onOpenChange with true', () => {
-    // ARRANGE
-    const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
-      wrapper: ({ children }: { children: ReactNode }) => children,
-    });
-
-    // ACT
-    act(() => {
-      const event = new KeyboardEvent('keydown', {
-        code: 'KeyK',
-        metaKey: true,
-      });
-      document.dispatchEvent(event);
-    });
-
-    // ASSERT
-    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
-  });
-
-  it('given the user presses Ctrl+K, calls onOpenChange with true', () => {
-    // ARRANGE
-    const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
-      wrapper: ({ children }: { children: ReactNode }) => children,
-    });
-
-    // ACT
-    act(() => {
-      const event = new KeyboardEvent('keydown', {
-        code: 'KeyK',
-        ctrlKey: true,
-      });
-      document.dispatchEvent(event);
-    });
-
-    // ASSERT
-    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
-  });
-
   it('given the user presses Cmd+K, prevents the default browser behavior', () => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
@@ -91,6 +124,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     const event = new KeyboardEvent('keydown', {
       code: 'KeyK',
+      key: 'k',
       metaKey: true,
     });
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
@@ -103,7 +137,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     expect(preventDefaultSpy).toHaveBeenCalled();
   });
 
-  it('given the user presses only K without modifier, does not call onOpenChange', () => {
+  it.each(hotkeyCases)('$description', ({ eventInit, expectedOpenChange }) => {
     // ARRANGE
     const mockOnOpenChange = vi.fn();
     renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
@@ -112,55 +146,15 @@ describe('Hook: useGlobalSearchHotkey', () => {
 
     // ACT
     act(() => {
-      const event = new KeyboardEvent('keydown', {
-        code: 'KeyK',
-      });
-      document.dispatchEvent(event);
+      document.dispatchEvent(new KeyboardEvent('keydown', eventInit));
     });
 
     // ASSERT
-    expect(mockOnOpenChange).not.toHaveBeenCalled();
-  });
-
-  it('given the user presses Cmd+J, does not call onOpenChange', () => {
-    // ARRANGE
-    const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
-      wrapper: ({ children }: { children: ReactNode }) => children,
-    });
-
-    // ACT
-    act(() => {
-      const event = new KeyboardEvent('keydown', {
-        code: 'KeyJ',
-        metaKey: true,
-      });
-      document.dispatchEvent(event);
-    });
-
-    // ASSERT
-    expect(mockOnOpenChange).not.toHaveBeenCalled();
-  });
-
-  it('given both Cmd and Ctrl are pressed with K, still calls onOpenChange', () => {
-    // ARRANGE
-    const mockOnOpenChange = vi.fn();
-    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
-      wrapper: ({ children }: { children: ReactNode }) => children,
-    });
-
-    // ACT
-    act(() => {
-      const event = new KeyboardEvent('keydown', {
-        code: 'KeyK',
-        metaKey: true,
-        ctrlKey: true,
-      });
-      document.dispatchEvent(event);
-    });
-
-    // ASSERT
-    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
-    expect(mockOnOpenChange).toHaveBeenCalledTimes(1);
+    if (expectedOpenChange) {
+      expect(mockOnOpenChange).toHaveBeenCalledTimes(1);
+      expect(mockOnOpenChange).toHaveBeenCalledWith(true);
+    } else {
+      expect(mockOnOpenChange).not.toHaveBeenCalled();
+    }
   });
 });
