@@ -54,7 +54,7 @@ describe('Component: GlobalSearchProvider', () => {
     );
 
     // ACT
-    fireEvent.keyDown(document, { code: 'KeyK', metaKey: true });
+    fireEvent.keyDown(document, { code: 'KeyK', key: 'k', metaKey: true });
 
     // ASSERT
     expect(await screen.findByTestId('global-search')).toBeVisible();
@@ -70,7 +70,7 @@ describe('Component: GlobalSearchProvider', () => {
       { wrapper: ({ children }) => <>{children}</> },
     );
 
-    fireEvent.keyDown(document, { code: 'KeyK', metaKey: true });
+    fireEvent.keyDown(document, { code: 'KeyK', key: 'k', metaKey: true });
 
     const searchDialog = await screen.findByTestId('global-search');
 
