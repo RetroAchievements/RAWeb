@@ -10,7 +10,8 @@
 <x-nav-dropdown
     :class="$class"
     dropdown-class="dropdown-menu-right dropdown-items-right"
-    :title="__res('notification')"
+    :title="__res('ticket')"
+    :desktopHref="route('tickets.mine')"
 >
     <x-slot name="trigger">
         <x-fas-ticket />
