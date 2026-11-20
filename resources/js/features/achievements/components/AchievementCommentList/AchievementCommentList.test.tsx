@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { act, render, screen, waitFor } from '@/test';
 import { createAchievement, createComment } from '@/test/factories';
 
 import { AchievementCommentList } from './AchievementCommentList';
@@ -180,6 +180,40 @@ describe('Component: AchievementCommentList', () => {
     expect(reloadSpy).toHaveBeenCalledWith({
       only: ['recentVisibleComments', 'numComments'],
       onFinish: expect.any(Function),
+    });
+  });
+
+  it('given reload finishes, clears the comment box', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+    const reloadSpy = vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+
+    render(<AchievementCommentList />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        achievement: createAchievement(),
+        can: { createAchievementComments: true },
+        isSubscribedToComments: false,
+        numComments: 5,
+        recentVisibleComments: [],
+      },
+    });
+
+    await userEvent.type(screen.getByRole('textbox'), 'New test comment');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await waitFor(() => {
+      expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    // ACT
+    const { onFinish } = reloadSpy.mock.calls[0][0]!;
+    act(() => {
+      onFinish!({} as never);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('textbox')).toHaveValue('');
     });
   });
 });

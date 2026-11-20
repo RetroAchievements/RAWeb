@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { act, render, screen, waitFor } from '@/test';
 import { createComment, createGame } from '@/test/factories';
 
 import { GameCommentList } from './GameCommentList';
@@ -188,6 +188,42 @@ describe('Component: GameCommentList', () => {
     expect(reloadSpy).toHaveBeenCalledWith({
       only: ['recentVisibleComments'],
       onFinish: expect.any(Function),
+    });
+  });
+
+  it('given reload finishes, clears the comment box', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+    const reloadSpy = vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+
+    const game = createGame();
+    render(<GameCommentList />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        can: { createGameComments: true },
+        game,
+        backingGame: game,
+        isSubscribedToComments: false,
+        numComments: 5,
+        recentVisibleComments: [],
+      },
+    });
+
+    await userEvent.type(screen.getByRole('textbox'), 'New test comment');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await waitFor(() => {
+      expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    // ACT
+    const { onFinish } = reloadSpy.mock.calls[0][0]!;
+    act(() => {
+      onFinish!({} as never);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('textbox')).toHaveValue('');
     });
   });
 });
