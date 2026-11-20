@@ -222,7 +222,7 @@ describe('Component: GameCommentsMainRoot', () => {
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
       ['game.comment.index', { game: 1, _query: { page: 3 } }],
-      { preserveScroll: true },
+      { preserveScroll: true, preserveState: true, onFinish: expect.any(Function) },
     );
   });
 

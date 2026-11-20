@@ -155,7 +155,10 @@ describe('Component: GameCommentList', () => {
     await userEvent.click(screen.getByRole('button', { name: /delete/i }));
 
     // ASSERT
-    expect(reloadSpy).toHaveBeenCalledWith({ only: ['recentVisibleComments'] });
+    expect(reloadSpy).toHaveBeenCalledWith({
+      only: ['recentVisibleComments'],
+      onFinish: expect.any(Function),
+    });
   });
 
   it('when a new comment is submitted, reloads the comments list', async () => {
@@ -182,6 +185,9 @@ describe('Component: GameCommentList', () => {
     await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     // ASSERT
-    expect(reloadSpy).toHaveBeenCalledWith({ only: ['recentVisibleComments'] });
+    expect(reloadSpy).toHaveBeenCalledWith({
+      only: ['recentVisibleComments'],
+      onFinish: expect.any(Function),
+    });
   });
 });
