@@ -27,7 +27,9 @@ export const RelatedTicketsPanel: FC = () => {
 
   return (
     <section>
-      <h2 className="mb-0 border-0 text-lg font-semibold">{t('Related Tickets')}</h2>
+      <h2 className="mb-0 border-0 text-lg font-semibold">
+        {ticket.ticketableType === 'achievement' ? t('Same Achievement') : t('Same Leaderboard')}
+      </h2>
 
       <TicketEntriesTable
         entries={relatedTickets.slice(0, MAX_VISIBLE_RELATED_TICKETS)}

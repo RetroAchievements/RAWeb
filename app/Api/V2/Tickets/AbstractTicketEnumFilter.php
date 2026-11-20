@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Api\V2\Tickets;
 
 use App\Models\Ticket;
-use BackedEnum;
 use Illuminate\Database\Eloquent\Builder;
 use LaravelJsonApi\Core\Exceptions\JsonApiException;
 use LaravelJsonApi\Eloquent\Contracts\Filter;
 
 /**
- * Shared CSV-parse + enum-validate + `all`-keyword bypass for ticket enum filters.
- * Subclasses declare `key`, `column`, `enumClass`, `errorLabel`.
+ * Shared CSV-parse + value-validate + `all`-keyword bypass for ticket enum filters.
+ * Subclasses declare `key`, `column`, `resolveValue`, `errorLabel`, and optionally `nullKeyword`.
  */
 abstract class AbstractTicketEnumFilter implements Filter
 {
@@ -33,18 +32,41 @@ abstract class AbstractTicketEnumFilter implements Filter
             return $query;
         }
 
-        $values = $this->validateEnumValues($raw);
+        $nullKeyword = $this->nullKeyword();
+        $shouldIncludeNull = $nullKeyword !== null && in_array($nullKeyword, $raw, true);
+        $values = $this->validateValues(array_values(array_diff($raw, [$nullKeyword])));
 
-        return $query->whereIn($this->column(), $values);
+        if (!$shouldIncludeNull) {
+            return $query->whereIn($this->column(), $values);
+        }
+
+        // group the OR because we don't want it to escape the visibility and state constraints
+        return $query->where(function (Builder $valueQuery) use ($values) {
+            if ($values !== []) {
+                $valueQuery->whereIn($this->column(), $values);
+            }
+
+            $valueQuery->orWhereNull($this->column());
+        });
     }
 
     abstract protected function column(): string;
 
-    /** @return class-string<BackedEnum> */
-    abstract protected function enumClass(): string;
+    /**
+     * Maps one raw filter token to its column value. Returns null for unknown tokens.
+     */
+    abstract protected function resolveValue(string $value): int|string|null;
 
     /** Noun used in 400 responses, eg: "ticket state". */
     abstract protected function errorLabel(): string;
+
+    /**
+     * The token that matches rows where the column is null, eg: "none".
+     */
+    protected function nullKeyword(): ?string
+    {
+        return null;
+    }
 
     /**
      * @return list<string>
@@ -67,16 +89,13 @@ abstract class AbstractTicketEnumFilter implements Filter
      * @param list<string> $raw
      * @return list<int|string>
      */
-    private function validateEnumValues(array $raw): array
+    private function validateValues(array $raw): array
     {
-        $enumClass = $this->enumClass();
-
         return collect($raw)
-            ->map(function (string $value) use ($enumClass) {
-                /** @var BackedEnum|null $case */
-                $case = $enumClass::tryFrom($value);
+            ->map(function (string $value) {
+                $resolved = $this->resolveValue($value);
 
-                if (!$case) {
+                if ($resolved === null) {
                     throw JsonApiException::error([
                         'status' => '400',
                         'code' => 'invalid_filter',
@@ -85,7 +104,7 @@ abstract class AbstractTicketEnumFilter implements Filter
                     ]);
                 }
 
-                return $case->value;
+                return $resolved;
             })
             ->unique()
             ->values()

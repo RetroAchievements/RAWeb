@@ -148,14 +148,16 @@ class GetAchievementSetsAction extends BaseAuthenticatedApiAction
         $derivedCoreSet = $resolvedSets->first();
 
         /**
-         * When the user is globally opted out and has no local preferences, use legacy
-         * behavior (treat the loaded game/hash as standalone, like pre-multiset).
+         * When the user is globally opted out, has no local preferences, and no core set
+         * resolved, use legacy behavior (treat the loaded game/hash as standalone, like
+         * pre-multiset). This still applies to exclusive hashes.
          *
-         * When the user has local preferences, use multiset behavior and derive the
-         * root game from resolved sets.
+         * Otherwise, use multiset behavior and derive the root game from resolved sets.
+         * Core sets resolve by default even when globally opted out.
          */
         $hasLocalPreferences = $this->getDoesUserHaveLocalPreferences($derivedCoreSet->game_id);
-        if ($this->user->is_globally_opted_out_of_subsets && !$hasLocalPreferences) {
+        $isCoreSetResolved = $resolvedSets->contains('type', AchievementSetType::Core);
+        if ($this->user->is_globally_opted_out_of_subsets && !$hasLocalPreferences && !$isCoreSetResolved) {
             $derivedCoreGame = $actualLoadedGame;
         } else {
             $derivedCoreGame = Game::find($derivedCoreSet->game_id) ?? $actualLoadedGame;
