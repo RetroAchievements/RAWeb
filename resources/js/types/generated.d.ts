@@ -636,6 +636,7 @@ recentUnlocks?: Array<App.Platform.Data.AchievementRecentUnlock>;
 initialTab: App.Platform.Enums.AchievementPageTab;
 eventAchievement: App.Platform.Data.EventAchievement | null;
 isEventGame: boolean;
+isMasteryBadgeLostOnReset: boolean;
 areAllAchievementsOnePoint: boolean;
 };
 export type ActiveEventAchievement = {

@@ -1368,6 +1368,8 @@
     "Achievement trigger logic (the code and conditions that define how achievements are evaluated) is proprietary to the RetroAchievements community and may not be reused, redistributed, or reproduced without explicit permission. The GPL-3 license covering the RetroAchievements web application source code does not extend to achievement data.": "Achievement trigger logic (the code and conditions that define how achievements are evaluated) is proprietary to the RetroAchievements community and may not be reused, redistributed, or reproduced without explicit permission. The GPL-3 license covering the RetroAchievements web application source code does not extend to achievement data.",
     "Media": "Media",
     "You are about to permanently reset your unlock for this achievement. <1>This cannot be reversed.</1>": "You are about to permanently reset your unlock for this achievement. <1>This cannot be reversed.</1>",
+    "<1>You will also lose your mastery badge for this set.</1> To earn it again, you will need to unlock every achievement in the set in hardcore mode.": "<1>You will also lose your mastery badge for this set.</1> To earn it again, you will need to unlock every achievement in the set in hardcore mode.",
+    "<1>You will also lose your completion badge for this set.</1> To earn it again, you will need to unlock every achievement in the set.": "<1>You will also lose your completion badge for this set.</1> To earn it again, you will need to unlock every achievement in the set.",
     "Not promoted": "Not promoted",
     "Quick edit": "Quick edit",
     "Quick Edit": "Quick Edit",
