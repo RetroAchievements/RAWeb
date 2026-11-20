@@ -182,7 +182,7 @@ class LeaderboardEntrySchema extends Schema
             ->whereHas('leaderboard', function (Builder $q) {
                 $q->where('order_column', '>=', 0)
                     ->whereHas('game', function (Builder $gameQuery) {
-                        $gameQuery->whereNotIn('system_id', [System::Hubs, System::Events]);
+                        $gameQuery->whereGameSystem();
                     });
             })
             ->orderBy('leaderboard_id');

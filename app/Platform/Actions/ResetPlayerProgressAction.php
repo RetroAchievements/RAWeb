@@ -19,6 +19,7 @@ use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerMetricsJob;
 use Illuminate\Support\Facades\DB;
 
 class ResetPlayerProgressAction
@@ -279,6 +280,12 @@ class ResetPlayerProgressAction
             // metrics for each achievement won't be recalculated. we really only need to
             // recalculate the affected achievement anyway, so do that now.
             dispatch(new UpdateAchievementMetricsJob($achievementID))->onQueue('achievement-metrics');
+        }
+
+        if (!$isFullReset) {
+            // kept points live outside any single game's metrics, so the
+            // player's totals have to be recalculated from scratch.
+            dispatch(new UpdatePlayerMetricsJob($user->id))->onQueue('player-metrics');
         }
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));

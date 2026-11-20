@@ -13,8 +13,9 @@ import type { TicketCloseAnswer } from '../../../models';
 import type { TicketCloseAction } from '../../../utils/ticketCloseReasonLabels';
 
 export interface FormValues {
-  answer: TicketCloseAnswer | null;
   action: TicketCloseAction | null;
+  answer: TicketCloseAnswer | null;
+  coveringTicketId: number | null;
   note: string;
 }
 
@@ -39,25 +40,40 @@ export function useTicketCloseForm({ onSubmitSuccess }: UseTicketCloseFormProps)
         .trim()
         .transform((trimmedNote) => trimmedNote || null)
         .pipe(buildCommentBodySchema(t).nullable()),
+      coveringTicketId: z.number().nullable(),
     })
     .refine(({ action, note }) => action !== 'closed-other' || note !== null, {
       message: t('Required'),
       path: ['note'],
-    });
+    })
+    .refine(
+      ({ action, coveringTicketId }) =>
+        action !== 'covered-by-another-ticket' || coveringTicketId !== null,
+      { message: t('Required'), path: ['coveringTicketId'] },
+    );
 
   const form = useForm<FormValues, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onTouched', // don't throw validation errors on a half-typed note
-    defaultValues: { answer: null, action: null, note: '' },
+    defaultValues: { answer: null, action: null, note: '', coveringTicketId: null },
   });
 
   const mutation = useUpdateTicketStateMutation();
 
   const onSubmit = (formValues: z.output<typeof formSchema>) => {
+    const coveringTicketFields =
+      formValues.action === 'covered-by-another-ticket'
+        ? { coveringTicketId: formValues.coveringTicketId }
+        : {};
+
     toastMessage.promise(
       mutation.mutateAsync({
         ticketId: ticket.id,
-        payload: { action: formValues.action, note: formValues.note },
+        payload: {
+          action: formValues.action,
+          note: formValues.note,
+          ...coveringTicketFields,
+        },
       }),
       {
         loading: t('Updating...'),

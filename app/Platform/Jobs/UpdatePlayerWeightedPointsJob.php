@@ -65,6 +65,8 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
               AND NOT (pas.points_weighted <=> COALESCE(calc.weighted_points, 0))
         SQL, [$this->startId, $this->endId, AchievementSetType::Core->value, $this->startId, $this->endId]);
 
+        $nonGameSystemIds = implode(', ', System::getNonGameSystems());
+
         // TODO: use sum(pas.points_weighted)
         // Update users.points_weighted.
         DB::update(<<<SQL
@@ -73,7 +75,7 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
                 SELECT pg.user_id, SUM(pg.points_weighted) as total_weighted
                 FROM player_games pg
                 INNER JOIN games g ON g.id = pg.game_id
-                WHERE g.system_id NOT IN (?, ?)
+                WHERE g.system_id NOT IN ({$nonGameSystemIds})
                   AND pg.achievements_unlocked > 0
                   AND pg.user_id BETWEEN ? AND ?
                 GROUP BY pg.user_id
@@ -81,6 +83,6 @@ class UpdatePlayerWeightedPointsJob implements ShouldQueue
             SET u.points_weighted = COALESCE(calc.total_weighted, 0)
             WHERE u.id BETWEEN ? AND ?
               AND NOT (u.points_weighted <=> COALESCE(calc.total_weighted, 0))
-        SQL, [System::Events, System::Hubs, $this->startId, $this->endId, $this->startId, $this->endId]);
+        SQL, [$this->startId, $this->endId, $this->startId, $this->endId]);
     }
 }
