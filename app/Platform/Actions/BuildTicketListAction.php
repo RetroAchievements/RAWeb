@@ -351,8 +351,7 @@ class BuildTicketListAction
                         "{$ticket->ticketable_type}:{$ticket->ticketable_id}" => (int) $ticket->getAttribute('group_ticket_count'),
                     ])
                     ->all(),
-                isFirstGroupContinued:
-                    $previousPageLastTicket !== null
+                isFirstGroupContinued: $previousPageLastTicket !== null
                     && $firstTicket !== null
                     && $previousPageLastTicket->ticketable_type === $firstTicket->ticketable_type
                     && $previousPageLastTicket->ticketable_id === $firstTicket->ticketable_id,
