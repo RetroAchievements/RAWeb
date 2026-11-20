@@ -40,7 +40,7 @@ class ClaimWithUnresolvedTicketsAlertTest extends TestCase
         $this->assertStringContainsString('[2 open tickets]', $message);
         $this->assertStringContainsString(route('user.show', ['user' => $user]), $message);
         $this->assertStringContainsString(route('game.show', ['game' => $game]), $message);
-        $this->assertStringContainsString(route('developer.tickets', ['user' => $user->display_name]), $message);
+        $this->assertStringContainsString(route('developer.tickets', ['user' => $user->display_name, 'filter[status]' => 'open']), $message);
     }
 
     public function testSendDispatchesJobWhenWebhookUrlExists(): void

@@ -10,6 +10,7 @@ use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Platform\Actions\GetHasCasualUnlockFromRestrictedClientAction;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Support\Database\Eloquent\BaseModel;
@@ -103,6 +104,35 @@ class Ticket extends BaseModel
             : $ticketableModel->author_id;
 
         return $this->assignee_id !== $maintainerUserId;
+    }
+
+    public function canReporterRequestManualUnlock(): bool
+    {
+        if (
+            $this->resolution !== TicketResolution::NetworkProblems
+            || $this->ticketable_type !== TicketableType::Achievement->value
+            || $this->reporter_id === null
+        ) {
+            return false;
+        }
+
+        $reporterAchievementUnlock = PlayerAchievement::query()
+            ->where('user_id', $this->reporter_id)
+            ->where('achievement_id', $this->ticketable_id)
+            ->first();
+
+        if ($reporterAchievementUnlock === null) {
+            return true;
+        }
+
+        if (!$this->hardcore || $reporterAchievementUnlock->unlocked_hardcore_at !== null) {
+            return false;
+        }
+
+        /** @var Achievement $achievement */
+        $achievement = $this->ticketable;
+
+        return !(new GetHasCasualUnlockFromRestrictedClientAction())->execute($reporterAchievementUnlock, $achievement);
     }
 
     // == logging

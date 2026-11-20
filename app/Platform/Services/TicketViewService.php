@@ -16,10 +16,13 @@ use App\Platform\Actions\ResolveTicketUnlockWindowsAction;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 
 class TicketViewService
 {
+    private const MAX_OTHER_REPORTER_TICKETS = 100;
+
     public int $unlocksSinceReported = 0;
     public ?Carbon $logicChangedAfterReportAt = null;
     /** @var Ticket[] */
@@ -50,6 +53,7 @@ class TicketViewService
         }
 
         $this->relatedTickets = Ticket::query()
+            ->with('reporter')
             ->where('ticketable_id', $ticket->ticketable_id)
             ->where('ticketable_type', $ticket->ticketable_type)
             ->where('id', '!=', $ticket->id)
@@ -104,11 +108,7 @@ class TicketViewService
             return [];
         }
 
-        $rootGameId = $ticketableGame->parent_game_id ?? $ticketableGame->id;
-        $scopeGameIds = Game::query()
-            ->where('id', $rootGameId)
-            ->orWhere('parent_game_id', $rootGameId)
-            ->pluck('id');
+        $scopeGameIds = $this->resolveGameFamilyIds($ticketableGame);
 
         return Ticket::query()
             ->with('ticketable')
@@ -131,13 +131,56 @@ class TicketViewService
 
     private function countRecentOtherHashUnlocks(Ticket $ticket): ?int
     {
-        $tickets = new Collection([$ticket]);
+        $tickets = new EloquentCollection([$ticket]);
         $unlockWindow = (new ResolveTicketUnlockWindowsAction())->execute($tickets)[$ticket->id];
 
         return (new FindUnlocksOnlyOnOtherHashesAction())->execute(
             $tickets,
             [$ticket->id => $unlockWindow['startedAt']],
         )[$ticket->id] ?? null;
+    }
+
+    /**
+     * @return Ticket[]
+     */
+    public function collectOtherReporterGameTickets(Ticket $ticket): array
+    {
+        $familyGameIds = $this->resolveGameFamilyIds($ticket->getTicketableModel()->getTicketableGame());
+        $hasLiveReporter = $ticket->reporter && !$ticket->reporter->trashed();
+
+        return Ticket::query()
+            ->with(['ticketable', 'reporter'])
+            ->where('id', '!=', $ticket->id)
+            ->when($hasLiveReporter, fn ($gameTicketQuery) => $gameTicketQuery->where(fn ($reporterFilter) => $reporterFilter
+                ->where('reporter_id', '!=', $ticket->reporter_id)
+                ->orWhereNull('reporter_id')
+            ))
+            ->whereNot(fn ($ticketableFilter) => $ticketableFilter
+                ->where('ticketable_type', $ticket->ticketable_type)
+                ->where('ticketable_id', $ticket->ticketable_id)
+            )
+            ->whereHasMorph(
+                'ticketable',
+                [Achievement::class, Leaderboard::class],
+                fn ($morphFilter) => $morphFilter->whereIn('game_id', $familyGameIds),
+            )
+            ->orderByDesc('created_at')
+            ->limit(self::MAX_OTHER_REPORTER_TICKETS)
+            ->get()
+            ->all();
+    }
+
+    /**
+     * @return Collection<int, int>
+     */
+    private function resolveGameFamilyIds(Game $sourceGame): Collection
+    {
+        $familyRootGameId = $sourceGame->parent_game_id ?? $sourceGame->id;
+
+        return Game::query()
+            ->where('id', $familyRootGameId)
+            ->orWhere('parent_game_id', $familyRootGameId)
+            ->pluck('id');
     }
 
     /**

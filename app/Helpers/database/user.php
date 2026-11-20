@@ -233,8 +233,7 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     if ($sortBy == 3) { // OpenTickets DESC
         $query = "SELECT ua.id, SUM(!ISNULL(tick.id)) AS OpenTickets
                   FROM users ua
-                  LEFT JOIN achievements ach ON ach.user_id = ua.id
-                  LEFT JOIN tickets tick ON tick.ticketable_id=ach.id AND tick.ticketable_type='" . TicketableType::Achievement->value . "' AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
+                  LEFT JOIN tickets tick ON tick.assignee_id = ua.id AND tick.deleted_at IS NULL AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
                   WHERE $stateCond
                   GROUP BY ua.id
                   ORDER BY OpenTickets DESC, ua.display_name";
@@ -286,13 +285,12 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $devList = implode(',', $devs);
 
     // merge in open tickets
-    $query = "SELECT ach.user_id as id, COUNT(*) AS OpenTickets
+    $query = "SELECT tick.assignee_id as id, COUNT(*) AS OpenTickets
               FROM tickets tick
-              INNER JOIN achievements ach ON ach.id=tick.ticketable_id
-              WHERE tick.ticketable_type = '" . TicketableType::Achievement->value . "'
-              AND ach.user_id IN ($devList)
+              WHERE tick.assignee_id IN ($devList)
+              AND tick.deleted_at IS NULL
               AND tick.state IN ('" . TicketState::Open->value . "','" . TicketState::Request->value . "')
-              GROUP BY ach.user_id";
+              GROUP BY tick.assignee_id";
     foreach (collect(DB::select($query))->map(fn ($row) => (array) $row) as $row) {
         $data[$row['id']]['OpenTickets'] = $row['OpenTickets'];
     }
