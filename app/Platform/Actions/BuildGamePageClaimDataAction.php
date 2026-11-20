@@ -68,7 +68,7 @@ class BuildGamePageClaimDataAction
                 : null,
 
             isSoleAuthor: $isSoleAuthor,
-            numUnresolvedTickets: Ticket::forMaintainer($user)->awaitingDeveloper()->count(),
+            numUnresolvedTickets: Ticket::forAssignee($user)->awaitingDeveloper()->count(),
             wouldBeCollaboration: $wouldBeCollaboration,
             wouldBeRevision: $wouldBeRevision,
         );

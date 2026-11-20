@@ -84,6 +84,8 @@ class TicketSchema extends Schema
             Str::make('type')->readOnly(),
             Str::make('body')->readOnly(),
             Boolean::make('hardcore')->readOnly(),
+            Str::make('resolution')->readOnly(),
+            Str::make('signalVerdict', 'current_signal_verdict')->readOnly(),
 
             DateTime::make('reportedAt', 'created_at')->sortable()->readOnly(),
             DateTime::make('resolvedAt', 'resolved_at')->sortable()->readOnly(),
@@ -119,6 +121,8 @@ class TicketSchema extends Schema
             'type' => false,
             'body' => false,
             'hardcore' => true,
+            'resolution' => true,
+            'signalVerdict' => true,
             'reportedAt' => false,
             'resolvedAt' => true,
             'ticketableType' => false,
@@ -142,11 +146,17 @@ class TicketSchema extends Schema
             new TicketStateFilter(),
             new TicketTypeFilter(),
             new TicketableTypeFilter(),
+            new TicketResolutionFilter(),
+            new TicketSignalVerdictFilter(),
+            new TicketHardcoreFilter(),
+            new TicketAssigneeDeveloperTypeFilter(),
             new UserUlidFilter('reporterUserId', 'reporter_id'),
             new UserUlidFilter('resolverUserId', 'resolver_id'),
+            new UserUlidFilter('assigneeUserId', 'assignee_id'),
             new AchievementIdFilter(),
             new LeaderboardIdFilter(),
             new GameIdFilter(),
+            new SystemIdFilter(),
         ];
     }
 
