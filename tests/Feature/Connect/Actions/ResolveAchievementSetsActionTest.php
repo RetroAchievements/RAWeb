@@ -595,8 +595,8 @@ class ResolveAchievementSetsActionTest extends TestCase
 
     /**
      * If the user is globally opted out of subsets and they load a bonus subset
-     * game's hash, then it's like the user is still living in the pre-multiset
-     * world. The only set that resolves is the set for the subset game.
+     * game's hash, they receive the base set and the loaded subset. Other subsets
+     * stay excluded because the user is globally opted out of them.
      */
     public function testGloballyOptedOutOfSubsetsAndLoadedSubsetHash(): void
     {
@@ -620,10 +620,12 @@ class ResolveAchievementSetsActionTest extends TestCase
         $resolved = (new ResolveAchievementSetsAction())->execute($bonusGameHash, $user);
 
         // Assert
-        $this->assertCount(1, $resolved);
+        $this->assertCount(2, $resolved);
 
-        $set = $resolved->first();
-        $this->assertAchievementSet($set, AchievementSetType::Bonus, $baseGame->id, 2, 0);
+        $coreSet = $resolved->firstWhere('type', AchievementSetType::Core);
+        $bonusSet = $resolved->firstWhere('type', AchievementSetType::Bonus);
+        $this->assertAchievementSet($coreSet, AchievementSetType::Core, $baseGame->id, 1, 0);
+        $this->assertAchievementSet($bonusSet, AchievementSetType::Bonus, $baseGame->id, 2, 0);
     }
 
     public function testLoadingSpecialtyHashDoesNotReturnOtherSpecialtySets(): void

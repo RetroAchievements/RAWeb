@@ -6,6 +6,7 @@ namespace Tests\Feature\Connect;
 
 use App\Enums\GameHashCompatibility;
 use App\Enums\Permissions;
+use App\Enums\UserPreference;
 use App\Models\Achievement;
 use App\Models\EventAchievement;
 use App\Models\Game;
@@ -84,6 +85,22 @@ describe('session', function () {
         $this->user->refresh();
         $this->assertEquals($game->id, $this->user->rich_presence_game_id);
         $this->assertEquals("Playing " . $game->title, $this->user->rich_presence);
+    });
+
+    test('creates session for base game when globally opted out and loading a challenge subset hash', function () {
+        $game = $this->seedGame(achievements: 4);
+        $subsetGame = $this->seedSubset($game, type: AchievementSetType::Challenge, achievements: 2, withHash: true);
+        $subsetGameHash = $subsetGame->hashes()->first();
+
+        $this->user->preferences_bitfield |= (1 << UserPreference::Game_OptOutOfAllSubsets);
+        $this->user->save();
+
+        $this->withHeaders(['User-Agent' => $this->userAgentValid])
+            ->get($this->apiUrl('startsession', ['g' => $subsetGame->id, 'm' => $subsetGameHash->md5]))
+            ->assertJson(['Success' => true]);
+
+        $this->assertTrue(PlayerSession::where(['user_id' => $this->user->id, 'game_id' => $game->id])->exists());
+        $this->assertFalse(PlayerSession::where(['user_id' => $this->user->id, 'game_id' => $subsetGame->id])->exists());
     });
 
     test('extends recent session', function () {
