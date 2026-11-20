@@ -52,6 +52,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     act(() => {
       const event = new KeyboardEvent('keydown', {
         code: 'KeyK',
+        key: 'k',
         metaKey: true,
       });
       document.dispatchEvent(event);
@@ -72,7 +73,29 @@ describe('Hook: useGlobalSearchHotkey', () => {
     act(() => {
       const event = new KeyboardEvent('keydown', {
         code: 'KeyK',
+        key: 'k',
         ctrlKey: true,
+      });
+      document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
+  });
+
+  it('given the user presses Cmd+K with uppercase K (e.g. Caps Lock), calls onOpenChange with true', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      const event = new KeyboardEvent('keydown', {
+        code: 'KeyK',
+        key: 'K',
+        metaKey: true,
       });
       document.dispatchEvent(event);
     });
@@ -91,6 +114,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     // ACT
     const event = new KeyboardEvent('keydown', {
       code: 'KeyK',
+      key: 'k',
       metaKey: true,
     });
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
@@ -114,6 +138,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     act(() => {
       const event = new KeyboardEvent('keydown', {
         code: 'KeyK',
+        key: 'k',
       });
       document.dispatchEvent(event);
     });
@@ -133,9 +158,145 @@ describe('Hook: useGlobalSearchHotkey', () => {
     act(() => {
       const event = new KeyboardEvent('keydown', {
         code: 'KeyJ',
+        key: 'j',
         metaKey: true,
       });
       document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('given a non-QWERTY Latin layout where physical KeyK produces a different ASCII letter (e.g. Dvorak Cmd+T), does not call onOpenChange', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      const event = new KeyboardEvent('keydown', {
+        code: 'KeyK',
+        key: 't',
+        metaKey: true,
+      });
+      document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('given a non-QWERTY Latin layout where K is at a different physical key (e.g. Dvorak Cmd+K at KeyV), calls onOpenChange with true', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      const event = new KeyboardEvent('keydown', {
+        code: 'KeyV',
+        key: 'k',
+        metaKey: true,
+      });
+      document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
+  });
+
+  it('given a non-Latin layout (e.g. Cyrillic) where physical KeyK produces a non-ASCII character, falls back to e.code and calls onOpenChange with true', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      const event = new KeyboardEvent('keydown', {
+        code: 'KeyK',
+        key: 'л',
+        metaKey: true,
+      });
+      document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
+  });
+
+  it('given a non-Latin layout where a different physical key is pressed, does not call onOpenChange', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      const event = new KeyboardEvent('keydown', {
+        code: 'KeyJ',
+        key: 'о',
+        metaKey: true,
+      });
+      document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('given a synthetic event with only code KeyK and no key property, falls back to e.code and calls onOpenChange with true', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      const event = new KeyboardEvent('keydown', {
+        code: 'KeyK',
+        metaKey: true,
+      });
+      document.dispatchEvent(event);
+    });
+
+    // ASSERT
+    expect(mockOnOpenChange).toHaveBeenCalledWith(true);
+  });
+
+  it('given Alt or Shift is also pressed with Cmd+K, does not call onOpenChange', () => {
+    // ARRANGE
+    const mockOnOpenChange = vi.fn();
+    renderHook(() => useGlobalSearchHotkey({ onOpenChange: mockOnOpenChange }), {
+      wrapper: ({ children }: { children: ReactNode }) => children,
+    });
+
+    // ACT
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          code: 'KeyK',
+          key: 'k',
+          metaKey: true,
+          altKey: true,
+        }),
+      );
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          code: 'KeyK',
+          key: 'K',
+          metaKey: true,
+          shiftKey: true,
+        }),
+      );
     });
 
     // ASSERT
@@ -153,6 +314,7 @@ describe('Hook: useGlobalSearchHotkey', () => {
     act(() => {
       const event = new KeyboardEvent('keydown', {
         code: 'KeyK',
+        key: 'k',
         metaKey: true,
         ctrlKey: true,
       });
