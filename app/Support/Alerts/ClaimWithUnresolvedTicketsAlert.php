@@ -17,13 +17,13 @@ class ClaimWithUnresolvedTicketsAlert extends Alert
     }
 
     /**
-     * "[Scott](<https://retroachievements.org/user/Scott>) created a claim on [Sonic the Hedgehog](<https://retroachievements.org/game/1>) with [2 open tickets](<https://retroachievements.org/user/Scott/tickets>)"
+     * "[Scott](<https://retroachievements.org/user/Scott>) created a claim on [Sonic the Hedgehog](<https://retroachievements.org/game/1>) with [2 open tickets](<https://retroachievements.org/user/Scott/tickets?filter[status]=open>)"
      */
     public function toDiscordMessage(): string
     {
         $userUrl = route('user.show', ['user' => $this->user]);
         $gameUrl = route('game.show', ['game' => $this->game]);
-        $ticketsUrl = route('developer.tickets', ['user' => $this->user->display_name]);
+        $ticketsUrl = route('developer.tickets', ['user' => $this->user->display_name, 'filter[status]' => 'open']);
 
         return sprintf(
             '[%s](<%s>) created a claim on [%s](<%s>) with [%d open tickets](<%s>)',

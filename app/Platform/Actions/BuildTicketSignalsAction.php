@@ -14,7 +14,6 @@ use App\Models\Ticket;
 use App\Models\Trigger;
 use App\Platform\Data\TicketSignalsData;
 use App\Platform\Enums\TicketableType;
-use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -73,10 +72,14 @@ use Illuminate\Support\Facades\DB;
  * often. Of the "did not trigger" tickets finished between 2025-10-23 and
  * 2026-10-23, this verdict was right 72.5% of the time on new sets and 77.4%
  * of the time after a recent logic edit, against 83.3% everywhere else.
+ *
+ * "Probably not a bug" is also not shown when none of the recent unlocks
+ * before the report came from the reporter's hash. Those unlocks show that
+ * the logic works on other hashes, but not necessarily on the one the reporter
+ * used.
  */
 class BuildTicketSignalsAction
 {
-    private const LOOKBACK_DAYS = 90;
     private const MANY_UNLOCKS_FLOOR = 50;
     private const MIN_OTHER_PLAYERS = 5;
     private const NEW_LOGIC_DAYS = 30;
@@ -96,10 +99,14 @@ class BuildTicketSignalsAction
 
         $signalEligibleTickets->loadMissing('ticketable.achievementSet');
 
-        $triggersByTicketId = $this->findReportTriggersByTicket($signalEligibleTickets);
-        $windowStartByTicketId = $this->computeWindowStarts($signalEligibleTickets, $triggersByTicketId);
+        $unlockWindowByTicketId = (new ResolveTicketUnlockWindowsAction())->execute($signalEligibleTickets);
+        $windowStartByTicketId = array_map(fn (array $unlockWindow) => $unlockWindow['startedAt'], $unlockWindowByTicketId);
         $unlockCountByTicketId = $this->countWindowUnlocks($signalEligibleTickets, $windowStartByTicketId);
         $laterReporterUnlockByTicketId = $this->findLaterReporterUnlocks($signalEligibleTickets);
+        $otherHashOnlyUnlockCountByTicketId = (new FindUnlocksOnlyOnOtherHashesAction())->execute(
+            $signalEligibleTickets->filter(fn (Ticket $ticket) => ($unlockCountByTicketId[$ticket->id] ?? 0) >= self::MANY_UNLOCKS_FLOOR),
+            $windowStartByTicketId,
+        );
         $hasEnoughPlayersByTicketId = $this->findTicketsWithEnoughOtherPlayers(
             $signalEligibleTickets->filter(fn (Ticket $ticket) => ($unlockCountByTicketId[$ticket->id] ?? 0) === 0),
             $windowStartByTicketId,
@@ -109,15 +116,18 @@ class BuildTicketSignalsAction
             $windowUnlockCount = $unlockCountByTicketId[$ticket->id] ?? 0;
             $laterReporterUnlock = $laterReporterUnlockByTicketId[$ticket->id] ?? null;
             $unlockSignal = $laterReporterUnlock
-                ? $this->classifyUnlockAgainstReport($laterReporterUnlock, $ticket, $triggersByTicketId[$ticket->id])
+                ? $this->classifyUnlockAgainstReport($laterReporterUnlock, $ticket, $unlockWindowByTicketId[$ticket->id]['reportTrigger'])
                 : null;
             $ticketable = $ticket->ticketable;
             $isPromotedAchievement = $ticketable instanceof Achievement && $ticketable->is_promoted;
 
             $matchedSignals = [
-                TicketSignal::ManyRecentUnlocks->value => $windowUnlockCount >= self::MANY_UNLOCKS_FLOOR,
+                TicketSignal::ManyRecentUnlocks->value => $windowUnlockCount >= self::MANY_UNLOCKS_FLOOR
+                    && !isset($otherHashOnlyUnlockCountByTicketId[$ticket->id]),
+
                 TicketSignal::EarnedWithSameLogic->value => $unlockSignal === TicketSignal::EarnedWithSameLogic,
                 TicketSignal::EarnedAfterReport->value => $unlockSignal === TicketSignal::EarnedAfterReport,
+
                 TicketSignal::EarnedAfterLogicChange->value => $unlockSignal === TicketSignal::EarnedAfterLogicChange,
                 TicketSignal::NoRecentUnlocks->value => $windowUnlockCount === 0
                     && $isPromotedAchievement
@@ -129,7 +139,7 @@ class BuildTicketSignalsAction
                 $signalVerdict === null
                 || (
                     $signalVerdict === TicketSignalVerdict::ProbablyNotDefect
-                    && $this->isReportedLogicNew($ticket, $triggersByTicketId[$ticket->id])
+                    && $this->isReportedLogicNew($ticket, $unlockWindowByTicketId[$ticket->id]['reportTrigger'])
                 )
             ) {
                 continue;
@@ -143,9 +153,7 @@ class BuildTicketSignalsAction
                 )),
                 unlockCount: $windowUnlockCount,
                 windowStartedAt: $windowStartByTicketId[$ticket->id],
-                hasRecentLogicChange: $windowStartByTicketId[$ticket->id]->greaterThan(
-                    Carbon::parse($ticket->created_at)->subDays(self::LOOKBACK_DAYS),
-                ),
+                hasRecentLogicChange: $unlockWindowByTicketId[$ticket->id]['hasRecentLogicChange'],
                 reporterEarnedAt: $laterReporterUnlock?->unlocked_effective_at,
             );
         }
@@ -223,69 +231,6 @@ class BuildTicketSignalsAction
         return
             $logicChangedAt !== null
             && $ticket->created_at->lt($logicChangedAt->copy()->addDays(self::NEW_LOGIC_DAYS));
-    }
-
-    /**
-     * Works out which logic version each ticket was filed against.
-     *
-     * @param Collection<int, Ticket> $tickets
-     * @return array<int, Trigger|null> keyed by ticket id
-     */
-    private function findReportTriggersByTicket(Collection $tickets): array
-    {
-        $triggersByTicketableId = Trigger::withTrashed()
-            ->ofType(TriggerableType::Achievement)
-            ->whereIn('triggerable_id', $tickets->pluck('ticketable_id')->unique()->values())
-            ->get(['id', 'triggerable_id', 'created_at', 'version'])
-            ->groupBy('triggerable_id');
-
-        $triggersByTicketId = [];
-        foreach ($tickets as $ticket) {
-            $triggersByTicketId[$ticket->id] = $this->findReportTriggerForTicket(
-                $ticket,
-                $triggersByTicketableId->get($ticket->ticketable_id, new Collection()),
-            );
-        }
-
-        return $triggersByTicketId;
-    }
-
-    /**
-     * @param Collection<int, Trigger> $triggers
-     */
-    private function findReportTriggerForTicket(Ticket $ticket, Collection $triggers): ?Trigger
-    {
-        $ticketTrigger = $ticket->trigger_id ? $triggers->firstWhere('id', $ticket->trigger_id) : null;
-        if ($ticketTrigger?->created_at) {
-            return $ticketTrigger;
-        }
-
-        $reportedAt = Carbon::parse($ticket->created_at);
-
-        return $triggers
-            ->filter(fn (Trigger $trigger) => $trigger->created_at?->lessThanOrEqualTo($reportedAt))
-            ->sortByDesc('created_at')
-            ->first();
-    }
-
-    /**
-     * @param Collection<int, Ticket> $tickets
-     * @param array<int, Trigger|null> $triggersByTicketId
-     * @return array<int, Carbon> keyed by ticket id
-     */
-    private function computeWindowStarts(Collection $tickets, array $triggersByTicketId): array
-    {
-        $windowStartByTicketId = [];
-        foreach ($tickets as $ticket) {
-            $lookbackStart = Carbon::parse($ticket->created_at)->subDays(self::LOOKBACK_DAYS);
-            $triggerMoment = $triggersByTicketId[$ticket->id]?->created_at;
-
-            $windowStartByTicketId[$ticket->id] = $triggerMoment?->greaterThan($lookbackStart)
-                ? Carbon::parse($triggerMoment)
-                : $lookbackStart;
-        }
-
-        return $windowStartByTicketId;
     }
 
     /**

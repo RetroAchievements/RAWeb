@@ -10,11 +10,6 @@ import { buildStructuredMessage } from './buildStructuredMessage';
  */
 
 describe('Util: buildStructuredMessage', () => {
-  it('is defined', () => {
-    // ASSERT
-    expect(buildStructuredMessage).toBeDefined();
-  });
-
   it.each([
     {
       templateKind: 'writing-error',

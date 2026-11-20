@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 import { baseButtonVariants } from '@/common/components/+vendor/BaseButton';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildManualUnlockRequestUrl } from '@/common/utils/buildManualUnlockRequestUrl';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
 import { cn } from '@/common/utils/cn';
-import { buildManualUnlockRequestUrl } from '@/features/achievements/utils/buildManualUnlockRequestUrl';
 
 interface RequestManualUnlockLinkProps {
   ticketId?: number;
