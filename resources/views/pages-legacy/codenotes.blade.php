@@ -426,7 +426,7 @@ function saveCodeNote(rowIndex, isDeleting = false) {
     if ($hasSubsetNotes) {
         $numSubsetNotes = count($subsetNotes);
         if ($numSubsetNotes > 0) {
-            echo "<p><span class='font-bold subset-code-note-count'>$numSubsetNotes</span> subset notes beed to be merged.</p>";
+            echo "<p><span class='font-bold subset-code-note-count'>$numSubsetNotes</span> subset notes need to be merged.</p>";
         }
     }
     if ($userModel?->Permissions >= Permissions::Registered) {

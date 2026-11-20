@@ -45,6 +45,13 @@ export const TicketStateMenu: FC = () => {
   const isViewerLatestCommenter =
     !!auth?.user && comments.at(-1)?.user.displayName === auth.user.displayName;
 
+  let requestInfoHint: string | null = null;
+  if (!isViewerLatestCommenter) {
+    requestInfoHint = t('Add a comment first');
+  } else if (can.claimTicket) {
+    requestInfoHint = t('Reassigns this ticket to you');
+  }
+
   const reopenLabelByTicketState = {
     quarantined: t('Approve'),
     request: t('Stop waiting for the reporter'),
@@ -126,11 +133,11 @@ export const TicketStateMenu: FC = () => {
               <span className="flex flex-col">
                 <span>{t('Request information')}</span>
 
-                {isViewerLatestCommenter ? null : (
+                {requestInfoHint ? (
                   <span className="text-xs text-neutral-400 light:text-neutral-600">
-                    {t('Add a comment first')}
+                    {requestInfoHint}
                   </span>
-                )}
+                ) : null}
               </span>
             </BaseDropdownMenuItem>
           ) : null}

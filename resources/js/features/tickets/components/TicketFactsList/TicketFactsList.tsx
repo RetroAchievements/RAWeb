@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import {
   LuArrowUpRight,
   LuCode,
+  LuHash,
   LuInfo,
   LuLock,
   LuLockOpen,
@@ -37,6 +38,7 @@ export const TicketFactsList: FC = () => {
     isViewerReporter,
     leaderboardEntryCount,
     logicChangedAfterReportAt,
+    recentOtherHashUnlockCount,
     relatedTickets,
     reportedTriggerVersion,
     reporterLeaderboardEntry,
@@ -114,6 +116,15 @@ export const TicketFactsList: FC = () => {
 
       {ticket.signals ? (
         <TicketSignalVerdictFact signals={ticket.signals} reportedAt={ticket.createdAt} />
+      ) : null}
+
+      {typeof recentOtherHashUnlockCount === 'number' ? (
+        <TicketFactRow Icon={LuHash}>
+          {t(
+            "None of the last {{count, number}} unlocks before the report were on the reporter's hash.",
+            { count: recentOtherHashUnlockCount },
+          )}
+        </TicketFactRow>
       ) : null}
 
       {reporterUnlock ? (

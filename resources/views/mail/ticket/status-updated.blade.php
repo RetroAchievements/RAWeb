@@ -18,6 +18,10 @@ The ticket for the following {{ $ticketableType }} has been updated.
 {{ $comment }}
 </x-mail::panel>
 
+@if ($shouldOfferManualUnlock)
+You can request a manual unlock from a button on the ticket page.
+@endif
+
 <x-mail::button :url="$ticketUrl">
 View ticket
 </x-mail::button>
