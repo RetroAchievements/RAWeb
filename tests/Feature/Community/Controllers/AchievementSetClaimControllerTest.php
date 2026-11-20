@@ -1228,7 +1228,7 @@ class AchievementSetClaimControllerTest extends TestCase
         Queue::assertNotPushed(SendAlertWebhookJob::class);
     }
 
-    public function testClaimCreationCountsTicketsAnotherDeveloperClaimedFromTheClaimingDeveloper(): void
+    public function testClaimCreationDoesNotCountTicketsAnotherDeveloperClaimedFromTheClaimingDeveloper(): void
     {
         // Arrange
         $this->fakeClaimAlertQueue();
@@ -1251,15 +1251,10 @@ class AchievementSetClaimControllerTest extends TestCase
         // Assert
         $response->assertSessionHas('success', 'Claim created successfully');
 
-        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) use ($user) {
-            return
-                $job->alert instanceof ClaimWithUnresolvedTicketsAlert
-                && $job->alert->user->is($user)
-                && $job->alert->ticketCount === 2;
-        });
+        Queue::assertNotPushed(SendAlertWebhookJob::class);
     }
 
-    public function testClaimCreationDoesNotCountTicketsTheDeveloperClaimedFromOthers(): void
+    public function testClaimCreationCountsTicketsTheDeveloperClaimedFromOthers(): void
     {
         // Arrange
         $this->fakeClaimAlertQueue();
@@ -1284,7 +1279,12 @@ class AchievementSetClaimControllerTest extends TestCase
         // Assert
         $response->assertSessionHas('success', 'Claim created successfully');
 
-        Queue::assertNotPushed(SendAlertWebhookJob::class);
+        Queue::assertPushedOn('alerts', SendAlertWebhookJob::class, function ($job) use ($user) {
+            return
+                $job->alert instanceof ClaimWithUnresolvedTicketsAlert
+                && $job->alert->user->is($user)
+                && $job->alert->ticketCount === 3;
+        });
     }
 
     public function testClaimRenewalDoesNotQueueDevComplianceAlertWhenDeveloperHasMultipleOpenTickets(): void

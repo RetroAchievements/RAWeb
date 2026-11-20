@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V2;
 
+use App\Community\Enums\TicketResolution;
+use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
 use App\Models\Achievement;
@@ -11,6 +13,7 @@ use App\Models\AchievementSet;
 use App\Models\Game;
 use App\Models\GameAchievementSet;
 use App\Models\Leaderboard;
+use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
@@ -246,6 +249,225 @@ class TicketsTest extends TestCase
         $this->assertCount(1, $response->json('data'));
         $this->assertEquals((string) $leaderboardTicket->id, $response->json('data.0.id'));
         $this->assertEquals(TicketableType::Leaderboard->value, $response->json('data.0.attributes.ticketableType'));
+    }
+
+    public function testItExposesAndFiltersByResolution(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        $wrongRomTicket = Ticket::factory()->forAchievement($achievement)->closed()->create([
+            'assignee_id' => $author->id,
+            'resolution' => TicketResolution::WrongRom,
+        ]);
+        Ticket::factory()->forAchievement($achievement)->closed()->create([
+            'assignee_id' => $author->id,
+            'resolution' => TicketResolution::NetworkProblems,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[state]=all&filter[resolution]=wrong_rom');
+
+        $invalidResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[state]=all&filter[resolution]=bogus');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals((string) $wrongRomTicket->id, $response->json('data.0.id'));
+        $this->assertEquals('wrong_rom', $response->json('data.0.attributes.resolution'));
+
+        $invalidResponse->assertStatus(400);
+    }
+
+    public function testItShowsSignalVerdictsAndSignalFilterToDevelopers(): void
+    {
+        // Arrange
+        $developer = User::factory()->create(['web_api_key' => 'dev-key']);
+        $developer->assignRole(Role::DEVELOPER_JUNIOR);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        $probablyDefectTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'assignee_id' => $author->id,
+            'current_signal_verdict' => TicketSignalVerdict::ProbablyDefect,
+        ]);
+        Ticket::factory()->forAchievement($achievement)->open()->create([
+            'assignee_id' => $author->id,
+            'current_signal_verdict' => TicketSignalVerdict::ProbablyNotDefect,
+        ]);
+        $noVerdictTicket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'assignee_id' => $author->id,
+            'current_signal_verdict' => null,
+        ]);
+        Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'assignee_id' => $author->id,
+            'current_signal_verdict' => null,
+        ]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'dev-key')
+            ->get('/api/v2/tickets?filter[signalVerdict]=probably-defect,none');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->sort()->values()->all();
+        $expected = collect([$probablyDefectTicket->id, $noVerdictTicket->id])->map(fn ($id) => (string) $id)->sort()->values()->all();
+        $this->assertEquals($expected, $ids);
+
+        $attributesById = collect($response->json('data'))->mapWithKeys(fn (array $ticket) => [$ticket['id'] => $ticket['attributes']])->all();
+        $this->assertEquals('probably-defect', $attributesById[(string) $probablyDefectTicket->id]['signalVerdict']);
+        $this->assertArrayHasKey('signalVerdict', $attributesById[(string) $noVerdictTicket->id]);
+        $this->assertNull($attributesById[(string) $noVerdictTicket->id]['signalVerdict']);
+    }
+
+    public function testItHidesSignalVerdictsAndRejectsSignalFilterForNonDevelopers(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        Ticket::factory()->forAchievement($achievement)->open()->create([
+            'assignee_id' => $author->id,
+            'current_signal_verdict' => TicketSignalVerdict::ProbablyDefect,
+        ]);
+
+        // Act
+        $listResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets');
+
+        $filterResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[signalVerdict]=probably-defect');
+
+        // Assert
+        $listResponse->assertSuccessful();
+        $this->assertCount(1, $listResponse->json('data'));
+        $this->assertArrayNotHasKey('signalVerdict', $listResponse->json('data.0.attributes'));
+
+        $filterResponse->assertStatus(403);
+    }
+
+    public function testItFiltersByAssigneeUlid(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+        $claimant = User::factory()->create();
+
+        $claimedTicket = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $claimant->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets?filter[assigneeUserId]={$claimant->ulid}");
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals((string) $claimedTicket->id, $response->json('data.0.id'));
+    }
+
+    public function testItFiltersByCommaSeparatedSystemIds(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['system' => $system, 'achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+        $secondGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $secondLeaderboard = Leaderboard::factory()->create(['game_id' => $secondGame->id]);
+        $excludedGame = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $excludedAchievement = Achievement::factory()->create(['game_id' => $excludedGame->id, 'user_id' => $author->id]);
+
+        $firstSystemTicket = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id]);
+        $secondSystemTicket = Ticket::factory()->forLeaderboard($secondLeaderboard)->create(['assignee_id' => $author->id]);
+        Ticket::factory()->forAchievement($excludedAchievement)->create(['assignee_id' => $author->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets?filter[systemId]={$system->id},{$secondGame->system_id}");
+
+        $invalidResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets?filter[systemId]={$system->id},abc");
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->sort()->values()->all();
+        $expected = collect([$firstSystemTicket->id, $secondSystemTicket->id])->map(fn ($id) => (string) $id)->sort()->values()->all();
+        $this->assertEquals($expected, $ids);
+
+        $invalidResponse->assertStatus(400);
+    }
+
+    public function testItFiltersByHardcoreIncludingUnspecified(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id, 'hardcore' => true]);
+        $softcoreTicket = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id, 'hardcore' => false]);
+        $unspecifiedTicket = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $author->id, 'hardcore' => null]);
+        Ticket::factory()->forAchievement($achievement)->resolved()->create(['assignee_id' => $author->id, 'hardcore' => null]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[hardcore]=false,unspecified');
+
+        // Assert
+        $response->assertSuccessful();
+        $ids = collect($response->json('data'))->pluck('id')->sort()->values()->all();
+        $expected = collect([$softcoreTicket->id, $unspecifiedTicket->id])->map(fn ($id) => (string) $id)->sort()->values()->all();
+        $this->assertEquals($expected, $ids);
+    }
+
+    public function testItFiltersByAssigneeDeveloperType(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement] = $this->makeGameContext();
+        $juniorDeveloper = User::factory()->create();
+        $juniorDeveloper->assignRole(Role::DEVELOPER_JUNIOR);
+        $fullDeveloper = User::factory()->create();
+        $fullDeveloper->assignRole(Role::DEVELOPER);
+
+        $juniorTicket = Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $juniorDeveloper->id]);
+        Ticket::factory()->forAchievement($achievement)->create(['assignee_id' => $fullDeveloper->id]);
+
+        // Act
+        $response = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[assigneeDeveloperType]=junior');
+
+        $invalidResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get('/api/v2/tickets?filter[assigneeDeveloperType]=retired');
+
+        // Assert
+        $response->assertSuccessful();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals((string) $juniorTicket->id, $response->json('data.0.id'));
+
+        $invalidResponse->assertStatus(400);
     }
 
     public function testItResolvesReporterUlidsAndIgnoresUnknownOnes(): void

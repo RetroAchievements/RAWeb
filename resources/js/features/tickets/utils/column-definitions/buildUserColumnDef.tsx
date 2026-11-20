@@ -74,6 +74,7 @@ const UserCell: FC<UserCellProps> = ({ isRowClaimed, shouldHideWhenUserIsMissing
       size={16}
       wrapperClassName={cn('max-w-full min-w-0', ticketListCellClassNames.entityLinkWrapper)}
       labelClassName={cn(
+        'self-baseline',
         user.isGone ? ticketListCellClassNames.dimText : ticketListCellClassNames.entityLinkLabel,
         ticketListCellClassNames.truncate,
       )}
@@ -85,7 +86,7 @@ const UserCell: FC<UserCellProps> = ({ isRowClaimed, shouldHideWhenUserIsMissing
   }
 
   return (
-    <span className="flex max-w-full min-w-0 items-center gap-1.5">
+    <span className="flex max-w-full min-w-0 items-baseline gap-1.5">
       {userAvatar}
 
       <span className="flex-none text-2xs text-neutral-500">{t('Claimed')}</span>

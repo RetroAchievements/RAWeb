@@ -121,32 +121,15 @@ class TicketListService
 
         switch ($filterOptions['developerType']) {
             case 'active':
-                $tickets->whereHas('assignee.roles', function ($query) {
-                    $query->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]);
-                });
+                $tickets->assignedToActiveDeveloper();
                 break;
 
             case 'junior':
-                $tickets->whereHas('assignee.roles', function ($query) {
-                    $query->where('name', Role::DEVELOPER_JUNIOR);
-                });
+                $tickets->assignedToJuniorDeveloper();
                 break;
 
             case 'inactive':
-                // For achievement tickets, also exclude any with an active maintainer.
-                // Leaderboards don't have a maintainer concept, so author roles
-                // alone are checked.
-                $tickets->where(function ($query) {
-                    $query->where(function ($achievementQuery) {
-                        $achievementQuery
-                            ->where('ticketable_type', TicketableType::Achievement->value)
-                            ->whereHasMorph('ticketable', [Achievement::class], function ($ticketableQuery) {
-                                $ticketableQuery->whereDoesntHave('activeMaintainer');
-                            });
-                    })->orWhere('ticketable_type', TicketableType::Leaderboard->value);
-                })->whereHas('assignee', function ($query) {
-                    $query->whereDoesntHave('roles', fn ($roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
-                });
+                $tickets->assignedToInactiveDeveloper();
                 break;
         }
 

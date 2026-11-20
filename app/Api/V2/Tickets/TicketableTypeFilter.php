@@ -18,9 +18,9 @@ final class TicketableTypeFilter extends AbstractTicketEnumFilter
         return 'ticketable_type';
     }
 
-    protected function enumClass(): string
+    protected function resolveValue(string $value): ?string
     {
-        return TicketableType::class;
+        return TicketableType::tryFrom($value)?->value;
     }
 
     protected function errorLabel(): string

@@ -636,6 +636,7 @@ recentUnlocks?: Array<App.Platform.Data.AchievementRecentUnlock>;
 initialTab: App.Platform.Enums.AchievementPageTab;
 eventAchievement: App.Platform.Data.EventAchievement | null;
 isEventGame: boolean;
+isMasteryBadgeLostOnReset: boolean;
 areAllAchievementsOnePoint: boolean;
 };
 export type ActiveEventAchievement = {
@@ -1304,6 +1305,7 @@ reporterGameTickets: Array<App.Platform.Data.TicketRelatedEntry>;
 otherReporterGameTickets?: Array<App.Platform.Data.TicketRelatedEntry>;
 reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
+recentOtherHashUnlockCount: number | null;
 logicChangedAfterReportAt: string | null;
 reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;

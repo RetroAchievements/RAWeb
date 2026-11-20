@@ -18,9 +18,9 @@ final class TicketStateFilter extends AbstractTicketEnumFilter
         return 'state';
     }
 
-    protected function enumClass(): string
+    protected function resolveValue(string $value): ?string
     {
-        return TicketState::class;
+        return TicketState::tryFrom($value)?->value;
     }
 
     protected function errorLabel(): string
