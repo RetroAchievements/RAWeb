@@ -116,13 +116,11 @@ class UserProfileMeta extends Component
         ];
 
         // Open tickets
-        $openTickets = null;
-        if ($user->yield_unlocks) {
-            $openTickets = app(UserTicketCountService::class)->countOpenForMaintainer($user);
-        }
+        $openTickets = array_sum(app(UserTicketCountService::class)->countOpenForAssignee($user));
+        $canBeAssignedTickets = $user->yield_unlocks || $openTickets;
         $openTicketsStat = [
             'label' => 'Open tickets',
-            'value' => $openTickets === null ? "Tickets can't be assigned to {$user->display_name}." : localized_number($openTickets),
+            'value' => $canBeAssignedTickets ? localized_number($openTickets) : "Tickets can't be assigned to {$user->display_name}.",
             'href' => $openTickets ? route('developer.tickets', ['user' => $user->display_name]) : null,
             'isMuted' => !$openTickets,
         ];

@@ -6,6 +6,7 @@ use App\Community\Enums\TicketSignal;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Models\Achievement;
 use App\Models\Game;
+use App\Models\GameHash;
 use App\Models\PlayerAchievement;
 use App\Models\PlayerSession;
 use App\Models\System;
@@ -258,4 +259,39 @@ it('given reporter unlocks that are manual or predate the report, ignores them',
     expect($result[$inPlay->id]->kinds)->toEqual([TicketSignal::ManyRecentUnlocks, TicketSignal::EarnedWithSameLogic]);
     expect($result[$manual->id]->kinds)->toEqual([TicketSignal::ManyRecentUnlocks]);
     expect($result[$beforeReport->id]->kinds)->toEqual([TicketSignal::ManyRecentUnlocks]);
+});
+
+it('given many recent unlocks, hides "probably not a bug" when none came from the reporter hash', function () {
+    // ARRANGE
+    $createTicketWithHashedUnlocks = function (int $reportedHashUnlocks, string $reportedHashName = 'Example (USA)'): Ticket {
+        $ticket = createSignalsTicket(0);
+        $achievement = Achievement::findOrFail($ticket->ticketable_id);
+        $reportedHash = GameHash::factory()->create(['game_id' => $achievement->game_id, 'name' => $reportedHashName]);
+        $otherHash = GameHash::factory()->create(['game_id' => $achievement->game_id]);
+        $ticket->game_hash_id = $reportedHash->id;
+        $ticket->save();
+
+        foreach (User::factory()->count(50)->create() as $index => $player) {
+            $gameHash = $index < $reportedHashUnlocks ? $reportedHash : $otherHash;
+            PlayerAchievement::factory()->create([
+                'user_id' => $player->id,
+                'achievement_id' => $achievement->id,
+                'player_session_id' => PlayerSession::factory()->create(['user_id' => $player->id, 'game_id' => $achievement->game_id, 'game_hash_id' => $gameHash->id])->id,
+                'unlocked_at' => Carbon::parse('2026-05-27 12:00:00'),
+            ]);
+        }
+
+        return $ticket;
+    };
+    $noneOnReporterHash = $createTicketWithHashedUnlocks(0);
+    $oneOnReporterHash = $createTicketWithHashedUnlocks(1);
+    $multiDiscReporterHash = $createTicketWithHashedUnlocks(0, 'Example (USA) (Disc 2)');
+
+    // ACT
+    $result = buildSignals($noneOnReporterHash, $oneOnReporterHash, $multiDiscReporterHash);
+
+    // ASSERT
+    expect($result[$noneOnReporterHash->id])->toBeNull();
+    expect($result[$oneOnReporterHash->id]->verdict)->toEqual(TicketSignalVerdict::ProbablyNotDefect);
+    expect($result[$multiDiscReporterHash->id]->verdict)->toEqual(TicketSignalVerdict::ProbablyNotDefect);
 });

@@ -18,10 +18,16 @@ import { DialogCheckboxConfirmation } from '@/common/components/DialogCheckboxCo
 import { useResetAchievementProgressMutation } from '@/common/hooks/mutations/useResetAchievementProgressMutation';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { isResetProgressDialogOpenAtom } from '@/features/achievements/state/achievements.atoms';
+import type { TranslationKey } from '@/types/i18next';
 
 export const ResetProgressDialog: FC = () => {
-  const { achievement } = usePageProps<App.Platform.Data.AchievementShowPageProps>();
+  const { achievement, isMasteryBadgeLostOnReset } =
+    usePageProps<App.Platform.Data.AchievementShowPageProps>();
   const { t } = useTranslation();
+
+  const badgeLossWarningKey: TranslationKey = achievement.unlockedHardcoreAt
+    ? '<1>You will also lose your mastery badge for this set.</1> To earn it again, you will need to unlock every achievement in the set in hardcore mode.'
+    : '<1>You will also lose your completion badge for this set.</1> To earn it again, you will need to unlock every achievement in the set.';
 
   const [isChecked, setIsChecked] = useState(false);
 
@@ -55,13 +61,26 @@ export const ResetProgressDialog: FC = () => {
         <BaseDialogHeader>
           <BaseDialogTitle>{t('Reset Progress')}</BaseDialogTitle>
 
-          <BaseDialogDescription className="text-left">
-            <Trans
-              i18nKey="You are about to permanently reset your unlock for this achievement. <1>This cannot be reversed.</1>"
-              components={{
-                1: <span className="font-bold" />,
-              }}
-            />
+          <BaseDialogDescription className="flex flex-col gap-2 text-left">
+            <span>
+              <Trans
+                i18nKey="You are about to permanently reset your unlock for this achievement. <1>This cannot be reversed.</1>"
+                components={{
+                  1: <span className="font-bold" />,
+                }}
+              />
+            </span>
+
+            {isMasteryBadgeLostOnReset ? (
+              <span>
+                <Trans
+                  i18nKey={badgeLossWarningKey}
+                  components={{
+                    1: <span className="font-bold text-text-danger" />,
+                  }}
+                />
+              </span>
+            ) : null}
           </BaseDialogDescription>
         </BaseDialogHeader>
 
