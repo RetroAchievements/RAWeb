@@ -419,6 +419,47 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
+    public function scopeAssignedToActiveDeveloper(Builder $query): Builder
+    {
+        return $query->whereHas('assignee.roles', fn (Builder $roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeAssignedToJuniorDeveloper(Builder $query): Builder
+    {
+        return $query->whereHas('assignee.roles', fn (Builder $roles) => $roles->where('name', Role::DEVELOPER_JUNIOR));
+    }
+
+    /**
+     * For achievement tickets, also exclude any with an active maintainer.
+     * Leaderboards don't have a maintainer concept, so author roles alone
+     * are checked.
+     *
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeAssignedToInactiveDeveloper(Builder $query): Builder
+    {
+        return $query
+            ->where(fn (Builder $ticketableQuery) => $ticketableQuery
+                ->where(fn (Builder $achievementQuery) => $achievementQuery
+                    ->where('ticketable_type', TicketableType::Achievement->value)
+                    ->whereHasMorph('ticketable', [Achievement::class], fn (Builder $achievement) => $achievement->whereDoesntHave('activeMaintainer'))
+                )
+                ->orWhere('ticketable_type', TicketableType::Leaderboard->value)
+            )
+            ->whereHas('assignee', fn (Builder $assignee) => $assignee
+                ->whereDoesntHave('roles', fn (Builder $roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]))
+            );
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
     public function scopeForTicketableType(Builder $query, TicketableType $type): Builder
     {
         return $query->where('ticketable_type', $type->value);
