@@ -7,6 +7,7 @@ import { ticketListSort } from './ticketListSort';
 export function resolveTicketListViewPreferences(
   preferences: Partial<TicketListViewPreferences> | null,
   serverDefaultSortParam: TicketListSortParam,
+  sortFields: App.Platform.Enums.TicketListSortField[],
 ): TicketListViewPreferences {
   const rawColumnVisibility = preferences?.columnVisibility ?? {};
 
@@ -20,6 +21,6 @@ export function resolveTicketListViewPreferences(
 
   return {
     columnVisibility,
-    sortParam: ticketListSort.resolve(preferences?.sortParam, serverDefaultSortParam),
+    sortParam: ticketListSort.resolve(preferences?.sortParam, serverDefaultSortParam, sortFields),
   };
 }

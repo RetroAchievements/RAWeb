@@ -78,7 +78,8 @@ class TicketListRequest extends FormRequest
         $isDescending = str_starts_with($sortParam, '-');
         $fieldValue = $isDescending ? mb_substr($sortParam, 1) : $sortParam;
 
-        if (TicketListSortField::tryFrom($fieldValue) === null) {
+        $field = TicketListSortField::tryFrom($fieldValue);
+        if ($field === null || !in_array($field, $this->getScope()->sortFields(), true)) {
             return null;
         }
 

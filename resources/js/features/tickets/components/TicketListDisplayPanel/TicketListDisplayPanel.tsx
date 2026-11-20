@@ -1,7 +1,8 @@
 import type { VisibilityState } from '@tanstack/react-table';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowDownWideNarrow, LuArrowUpNarrowWide } from 'react-icons/lu';
+import type { IconType } from 'react-icons';
+import { LuArrowDownAZ, LuArrowDownWideNarrow, LuArrowUpNarrowWide } from 'react-icons/lu';
 import { RxMixerHorizontal } from 'react-icons/rx';
 
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
@@ -43,6 +44,7 @@ interface TicketListDisplayPanelProps {
   onSortChange: (sortParam: TicketListSortParam) => void;
   onToggleColumn: (columnId: TicketListColumnId) => void;
   serverDefaultSortParam: TicketListSortParam;
+  sortFields: App.Platform.Enums.TicketListSortField[];
   sortParam: TicketListSortParam;
 
   onPrefetchSort?: (sortParam: TicketListSortParam) => void;
@@ -57,6 +59,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   onSortChange,
   onToggleColumn,
   serverDefaultSortParam,
+  sortFields,
   sortParam,
 }) => {
   const { t } = useTranslation();
@@ -66,21 +69,59 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   const isAscending = ticketListSort.isAscending(sortParam);
   const sortField = ticketListSort.field(sortParam);
 
-  let directionLabel = isAscending ? t('Oldest first') : t('Newest first');
-  if (sortField === 'state') {
-    directionLabel = isAscending ? t('Open first') : t('Closed first');
-  }
+  const DirectionIcon = getSortDirectionIcon(sortField, isAscending);
 
-  const sortFieldLabels = {
-    createdAt: t('Created'),
-    state: t('Status'),
-    resolvedAt: t('Resolved'),
+  const sortFieldLabels: Record<
+    App.Platform.Enums.TicketListSortField,
+    { label: string; ascendingLabel: string; descendingLabel: string }
+  > = {
+    createdAt: {
+      label: t('Created'),
+      ascendingLabel: t('Oldest first'),
+      descendingLabel: t('Newest first'),
+    },
+    state: {
+      label: t('Status'),
+      ascendingLabel: t('Open first'),
+      descendingLabel: t('Closed first'),
+    },
+    resolvedAt: {
+      label: t('Resolved'),
+      ascendingLabel: t('Oldest first'),
+      descendingLabel: t('Newest first'),
+    },
+    ticketable: {
+      label: t('Issue with'),
+      ascendingLabel: t('A to Z'),
+      descendingLabel: t('Most tickets first'),
+    },
+    game: {
+      label: t('Game'),
+      ascendingLabel: t('A to Z'),
+      descendingLabel: t('Most tickets first'),
+    },
   };
+
+  const directionLabel = isAscending
+    ? sortFieldLabels[sortField].ascendingLabel
+    : sortFieldLabels[sortField].descendingLabel;
 
   const hasDisplayChanges = hasColumnVisibilityOverrides || sortParam !== serverDefaultSortParam;
 
+  const getIsAscendingForField = (field: App.Platform.Enums.TicketListSortField): boolean => {
+    if (ticketListSort.isGroupingField(field)) {
+      return false;
+    }
+
+    if (ticketListSort.isGroupingField(sortField)) {
+      return ticketListSort.isAscending(serverDefaultSortParam);
+    }
+
+    return isAscending;
+  };
+
   const handleSortFieldChange = (field: App.Platform.Enums.TicketListSortField) => {
-    onSortChange(ticketListSort.build(field, isAscending));
+    onSortChange(ticketListSort.build(field, getIsAscendingForField(field)));
   };
 
   return (
@@ -126,11 +167,7 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
                     onPrefetchSort?.(ticketListSort.build(sortField, !isAscending))
                   }
                 >
-                  {isAscending ? (
-                    <LuArrowUpNarrowWide className="size-4" />
-                  ) : (
-                    <LuArrowDownWideNarrow className="size-4" />
-                  )}
+                  <DirectionIcon className="size-4" />
                 </BaseButton>
               </BaseTooltipTrigger>
 
@@ -147,18 +184,20 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
               </BaseSelectTrigger>
 
               <BaseSelectContent>
-                {ticketListSort.fields.map((field) => (
+                {sortFields.map((field) => (
                   <BaseSelectItem
                     key={field}
                     value={field}
                     onMouseEnter={() =>
                       hoverIntent.start(() =>
-                        onPrefetchSort?.(ticketListSort.build(field, isAscending)),
+                        onPrefetchSort?.(
+                          ticketListSort.build(field, getIsAscendingForField(field)),
+                        ),
                       )
                     }
                     onMouseLeave={hoverIntent.cancel}
                   >
-                    {sortFieldLabels[field]}
+                    {sortFieldLabels[field].label}
                   </BaseSelectItem>
                 ))}
               </BaseSelectContent>
@@ -216,3 +255,15 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
     </BasePopover>
   );
 };
+
+// Ascending sort on a grouping field means we're sorting A to Z rather than by fewest tickets first.
+function getSortDirectionIcon(
+  field: App.Platform.Enums.TicketListSortField,
+  isAscending: boolean,
+): IconType {
+  if (!isAscending) {
+    return LuArrowDownWideNarrow;
+  }
+
+  return ticketListSort.isGroupingField(field) ? LuArrowDownAZ : LuArrowUpNarrowWide;
+}

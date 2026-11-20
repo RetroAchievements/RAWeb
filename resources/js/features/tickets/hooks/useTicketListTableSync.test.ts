@@ -23,6 +23,7 @@ function renderTicketListTableSync() {
     initialProps: defaultProps,
     pageProps: {
       persistenceCookieName: 'datatable_view_preference_tickets_all',
+      sortFields: ['createdAt', 'state', 'resolvedAt'],
     },
   });
 }
@@ -237,6 +238,7 @@ describe('Hook: useTicketListTableSync', () => {
 
     renderHook((props: TicketListTableSyncProps) => useTicketListTableSync(props), {
       initialProps: { ...defaultProps, restoreState },
+      pageProps: { sortFields: ['createdAt', 'state', 'resolvedAt'] },
     });
 
     // ACT
@@ -258,6 +260,7 @@ describe('Hook: useTicketListTableSync', () => {
       (props: TicketListTableSyncProps) => useTicketListTableSync(props),
       {
         initialProps: { ...defaultProps, restoreState, sortParam: 'state' },
+        pageProps: { sortFields: ['createdAt', 'state', 'resolvedAt'] },
       },
     );
 
@@ -295,6 +298,7 @@ describe('Hook: useTicketListTableSync', () => {
       (props: TicketListTableSyncProps) => useTicketListTableSync(props),
       {
         initialProps: { ...defaultProps, restoreState },
+        pageProps: { sortFields: ['createdAt', 'state', 'resolvedAt'] },
       },
     );
 

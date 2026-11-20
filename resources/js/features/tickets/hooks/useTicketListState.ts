@@ -23,11 +23,12 @@ export function useTicketListState(
 ) {
   const {
     persistedViewPreferences,
+    sortFields,
     ziggy: { query },
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
 
   const [initialViewPreferences] = useState(() =>
-    resolveTicketListViewPreferences(persistedViewPreferences, serverDefaultSortParam),
+    resolveTicketListViewPreferences(persistedViewPreferences, serverDefaultSortParam, sortFields),
   );
 
   const [initialColumnFilters] = useState<ColumnFiltersState>(() =>
@@ -37,7 +38,7 @@ export function useTicketListState(
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialColumnFilters);
   const [pageNumber, setPageNumber] = useState(paginatedTickets.currentPage);
   const [sortParam, setSortParam] = useState<TicketListSortParam>(() =>
-    ticketListSort.resolve(query.sort, initialViewPreferences.sortParam),
+    ticketListSort.resolve(query.sort, initialViewPreferences.sortParam, sortFields),
   );
 
   const [columnVisibilityOverrides, setColumnVisibilityOverrides] = useState(

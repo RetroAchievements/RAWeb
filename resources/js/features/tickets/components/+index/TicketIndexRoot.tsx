@@ -32,17 +32,16 @@ export const TicketIndexRoot: FC = () => {
     defaultSortParam,
     defaultStatusFilter,
     facetCounts,
+    grouping,
     hasStatusFilter,
     game,
     paginatedTickets,
     scope,
+    sortFields,
     stateCounts,
     user,
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
-
-  const shouldShowGameTitle = scope !== 'game' && scope !== 'achievement';
-  const columnDefinitions = useTicketListColumnDefinitions(shouldShowGameTitle);
 
   const serverDefaultColumnFilters: ColumnFiltersState = [
     { id: 'status', value: [defaultStatusFilter] },
@@ -52,12 +51,24 @@ export const TicketIndexRoot: FC = () => {
   const { ticketListTableProps } = useTicketListTableRoot({
     serverDefaultColumnFilters,
     facetCounts,
+    grouping,
     paginatedTickets,
     scope,
     stateCounts,
     serverDefaultSortParam: defaultSortParam,
     targetParams: buildTicketListTargetParams({ achievement, game, user }),
   });
+
+  const shouldShowGameTitle =
+    scope !== 'game' && scope !== 'achievement' && ticketListTableProps.grouping?.field !== 'game';
+  const allColumnDefinitions = useTicketListColumnDefinitions(shouldShowGameTitle);
+
+  const shouldShowTicketable = ticketListTableProps.grouping?.field !== 'ticketable';
+  const columnDefinitions = shouldShowTicketable
+    ? allColumnDefinitions
+    : allColumnDefinitions.filter(
+        (columnDefinition) => columnDefinition.id !== 'id' && columnDefinition.id !== 'ticketable',
+      );
 
   const statusValue =
     getTicketListFilterValue<App.Platform.Enums.TicketListStatusFilter>(
@@ -173,6 +184,7 @@ export const TicketIndexRoot: FC = () => {
               onSortChange={ticketListTableProps.setSortParam}
               onToggleColumn={ticketListTableProps.toggleColumnVisibility}
               serverDefaultSortParam={ticketListTableProps.serverDefaultSortParam}
+              sortFields={sortFields}
               sortParam={ticketListTableProps.sortParam}
             />
           </div>
@@ -181,11 +193,13 @@ export const TicketIndexRoot: FC = () => {
 
       <TicketListTable
         shouldShowGameTitle={shouldShowGameTitle}
+        shouldShowTicketable={shouldShowTicketable}
         hasVerdictSlot={!!can.viewTriageSignals}
         columnDefinitions={columnDefinitions}
         columnVisibility={ticketListTableProps.columnVisibility}
         isFetching={ticketListTableProps.isFetching}
         paginatedTickets={ticketListTableProps.paginatedTickets}
+        grouping={ticketListTableProps.grouping}
         emptyStateNode={
           <TicketListEmptyState
             scope={scope}
