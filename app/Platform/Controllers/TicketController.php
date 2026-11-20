@@ -229,9 +229,11 @@ class TicketController extends Controller
             facetCounts: $result['facetCounts'],
             defaultStatusFilter: $scope->defaultStatusFilter(),
             defaultSortParam: $scope->defaultSortParam(),
+            sortFields: $scope->sortFields(),
             hasStatusFilter: $scope->hasStatusFilter(),
             persistenceCookieName: $scope->persistenceCookieName(),
             persistedViewPreferences: $request->getCookiePreferences(),
+            grouping: $result['grouping'],
             game: $target instanceof Game
                 ? GameData::fromGame($target)->include('badgeUrl', 'system')
                 : null,

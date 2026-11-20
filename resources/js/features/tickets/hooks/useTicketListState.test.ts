@@ -9,10 +9,12 @@ function renderTicketListState({
   currentPage = 1,
   persistedViewPreferences = null,
   query = {},
+  sortFields = ['createdAt', 'state', 'resolvedAt'],
 }: {
   currentPage?: number;
   persistedViewPreferences?: unknown;
   query?: Record<string, string | Record<string, string>>;
+  sortFields?: App.Platform.Enums.TicketListSortField[];
 } = {}) {
   return renderHook(
     () =>
@@ -24,6 +26,7 @@ function renderTicketListState({
     {
       pageProps: {
         persistedViewPreferences,
+        sortFields,
         ziggy: createZiggyProps({ query }),
       },
     },
@@ -31,6 +34,28 @@ function renderTicketListState({
 }
 
 describe('Hook: useTicketListState', () => {
+  it('given the URL names an unknown sort field, uses the default sort', () => {
+    // ARRANGE
+    const { result } = renderTicketListState({
+      query: { sort: 'game' },
+      sortFields: ['createdAt', 'state', 'resolvedAt'],
+    });
+
+    // ASSERT
+    expect(result.current.sortParam).toEqual('-createdAt');
+  });
+
+  it('given the URL names a known grouping sort, uses it', () => {
+    // ARRANGE
+    const { result } = renderTicketListState({
+      query: { sort: 'game' },
+      sortFields: ['createdAt', 'state', 'resolvedAt', 'game'],
+    });
+
+    // ASSERT
+    expect(result.current.sortParam).toEqual('game');
+  });
+
   it('uses persisted display preferences and resets the page when the sort changes', () => {
     // ARRANGE
     const persistedViewPreferences = {

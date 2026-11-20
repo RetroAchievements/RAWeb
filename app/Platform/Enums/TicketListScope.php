@@ -64,6 +64,27 @@ enum TicketListScope: string
     }
 
     /**
+     * @return TicketListSortField[]
+     */
+    public function sortFields(): array
+    {
+        $dateAndStatusFields = [
+            TicketListSortField::CreatedAt,
+            TicketListSortField::State,
+            TicketListSortField::ResolvedAt,
+        ];
+
+        return match ($this) {
+            self::Game => [...$dateAndStatusFields, TicketListSortField::Ticketable],
+            self::Achievement, self::AwaitingReporter => $dateAndStatusFields,
+            self::All, self::AssignedTo, self::ReportedBy, self::SubscribedBy, self::ResolvedBy => [
+                ...$dateAndStatusFields,
+                TicketListSortField::Game,
+            ],
+        };
+    }
+
+    /**
      * The filters usable by a given scope.
      *
      * @return TicketListFilterKind[]

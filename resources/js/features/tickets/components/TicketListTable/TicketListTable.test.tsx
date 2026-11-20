@@ -30,21 +30,25 @@ interface TestHarnessProps {
   columnVisibility?: VisibilityState;
   emptyStateNode?: React.ReactNode;
   hasVerdictSlot?: boolean;
+  grouping?: App.Platform.Data.TicketListGrouping | null;
   isFetching?: boolean;
   lastPage?: number;
   paginatorNode?: React.ReactNode;
   shouldShowGameTitle?: boolean;
+  shouldShowTicketable?: boolean;
   tickets?: App.Platform.Data.TicketListEntry[];
 }
 
 const TestHarness: FC<TestHarnessProps> = ({
   emptyStateNode,
+  grouping,
   isFetching,
   paginatorNode,
   columnVisibility = { ...noneVisible, id: true, ticketable: true, age: true },
   hasVerdictSlot = false,
   lastPage = 1,
   shouldShowGameTitle = true,
+  shouldShowTicketable = true,
   tickets = [createTicketListEntry()],
 }) => {
   const columnDefinitions: TicketListColumnDefinition[] =
@@ -63,10 +67,12 @@ const TestHarness: FC<TestHarnessProps> = ({
       columnVisibility={columnVisibility}
       hasVerdictSlot={hasVerdictSlot}
       emptyStateNode={emptyStateNode}
+      grouping={grouping}
       isFetching={isFetching}
       paginatedTickets={paginatedTickets}
       paginatorNode={paginatorNode}
       shouldShowGameTitle={shouldShowGameTitle}
+      shouldShowTicketable={shouldShowTicketable}
     />
   );
 };
@@ -78,6 +84,177 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     expect(container).toBeTruthy();
+  });
+
+  it('given the list is grouped by game, puts a header with the full group size above each game and correctly links it', () => {
+    // ARRANGE
+    const zelda = createGame({
+      id: 1,
+      title: 'Zelda',
+      system: createSystem({ nameShort: 'NES' }),
+    });
+    const metroid = createGame({
+      id: 2,
+      title: 'Metroid',
+      system: createSystem({ nameShort: 'SNES' }),
+    });
+
+    render(
+      <TestHarness
+        grouping={{ field: 'game', counts: { '1': 61, '2': 1 }, isFirstGroupContinued: false }}
+        tickets={[
+          createTicketListEntry({ id: 11, game: zelda }),
+          createTicketListEntry({ id: 12, game: zelda }),
+          createTicketListEntry({ id: 13, game: metroid }),
+        ]}
+      />,
+    );
+
+    // ASSERT
+    const groupHeaders = screen.getAllByRole('rowheader');
+    expect(groupHeaders).toHaveLength(2);
+    expect(groupHeaders[0]).toHaveTextContent(/Zelda.*NES.*61 tickets/);
+    expect(groupHeaders[1]).toHaveTextContent(/Metroid.*SNES.*1 ticket$/);
+
+    const bodyRows = screen.getAllByRole('row').slice(1);
+    expect(
+      bodyRows.map((row) => (within(row).queryByRole('rowheader') ? 'group header' : 'ticket')),
+    ).toEqual(['group header', 'ticket', 'ticket', 'group header', 'ticket']);
+    expect(within(groupHeaders[0]).getByRole('link', { name: 'Zelda' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('game.tickets,'),
+    );
+  });
+
+  it('given the list is grouped by achievement or leaderboard, keeps an achievement and a leaderboard with the same ID apart', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        shouldShowGameTitle={false}
+        grouping={{
+          field: 'ticketable',
+          counts: { 'achievement:7': 2, 'leaderboard:7': 2 },
+          isFirstGroupContinued: false,
+        }}
+        tickets={[
+          createTicketListEntry({
+            ticketableType: 'achievement',
+            ticketableId: 7,
+            ticketableTitle: 'Boss Rush',
+          }),
+          createTicketListEntry({
+            ticketableType: 'achievement',
+            ticketableId: 7,
+            ticketableTitle: 'Boss Rush',
+          }),
+          createTicketListEntry({
+            ticketableType: 'leaderboard',
+            ticketableId: 7,
+            ticketableTitle: 'Fastest Clear',
+          }),
+          createTicketListEntry({
+            ticketableType: 'leaderboard',
+            ticketableId: 7,
+            ticketableTitle: 'Fastest Clear',
+          }),
+        ]}
+      />,
+    );
+
+    // ASSERT
+    const groupHeaders = screen.getAllByRole('rowheader');
+    expect(groupHeaders).toHaveLength(2);
+    expect(groupHeaders[0]).toHaveTextContent(/Boss Rush.*2 tickets/);
+    expect(groupHeaders[1]).toHaveTextContent(/Fastest Clear.*2 tickets/);
+  });
+
+  it('given the list is grouped by achievement, links each achievement in its header', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        shouldShowGameTitle={false}
+        shouldShowTicketable={false}
+        columnVisibility={{ ...allVisible, id: false, ticketable: false }}
+        grouping={{
+          field: 'ticketable',
+          counts: { 'achievement:7': 1, 'achievement:8': 2 },
+          isFirstGroupContinued: false,
+        }}
+        tickets={[
+          createTicketListEntry({
+            id: 11,
+            ticketableType: 'achievement',
+            ticketableId: 7,
+            ticketableTitle: 'All Clear',
+          }),
+          createTicketListEntry({
+            id: 12,
+            ticketableType: 'achievement',
+            ticketableId: 8,
+            ticketableTitle: 'Boss Rush',
+          }),
+          createTicketListEntry({
+            id: 13,
+            ticketableType: 'achievement',
+            ticketableId: 8,
+            ticketableTitle: 'Boss Rush',
+          }),
+        ]}
+      />,
+    );
+
+    // ASSERT
+    const bodyRows = screen.getAllByRole('row').slice(1);
+    expect(
+      bodyRows.map((row) => (within(row).queryByRole('rowheader') ? 'group header' : 'ticket')),
+    ).toEqual(['group header', 'ticket', 'group header', 'ticket', 'ticket']);
+
+    const groupHeaders = screen.getAllByRole('rowheader');
+    expect(groupHeaders[0]).toHaveTextContent(/All Clear.*1 ticket$/);
+    expect(groupHeaders[1]).toHaveTextContent(/Boss Rush.*2 tickets/);
+    expect(within(groupHeaders[1]).getByRole('link', { name: 'Boss Rush' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('achievement.show,'),
+    );
+
+    expect(bodyRows[3]).not.toHaveTextContent('Boss Rush');
+    expect(within(bodyRows[3]).getByRole('cell', { name: 'Ticket #12' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'ID' })).not.toBeInTheDocument();
+
+    const columnHeaderCount = screen.getAllByRole('columnheader').length;
+    expect(groupHeaders[0]).toHaveAttribute('aria-colspan', String(columnHeaderCount + 1));
+  });
+
+  it('given the first group started on the previous page, says so in that group header only', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        grouping={{
+          field: 'ticketable',
+          counts: { 'achievement:8': 5, 'achievement:7': 1 },
+          isFirstGroupContinued: true,
+        }}
+        tickets={[
+          createTicketListEntry({ ticketableType: 'achievement', ticketableId: 8 }),
+          createTicketListEntry({ ticketableType: 'achievement', ticketableId: 7 }),
+        ]}
+      />,
+    );
+
+    // ASSERT
+    const groupHeaders = screen.getAllByRole('rowheader');
+    expect(groupHeaders[0]).toHaveTextContent(/5 tickets.*continued from previous page/);
+    expect(groupHeaders[1]).not.toHaveTextContent(/continued/);
+  });
+
+  it('given the list is not grouped, shows no group headers', () => {
+    // ARRANGE
+    render(
+      <TestHarness grouping={null} tickets={[createTicketListEntry(), createTicketListEntry()]} />,
+    );
+
+    // ASSERT
+    expect(screen.queryByRole('rowheader')).not.toBeInTheDocument();
   });
 
   it('given the visible columns are id, ticketable, and age, the header has exactly those three labels in order', () => {
@@ -419,22 +596,18 @@ describe('Component: TicketListTable', () => {
     );
   });
 
-  it('given the id column is hidden, the state glyph leads the row and the header keeps its slot', () => {
+  it('given the id column is hidden, the state glyph leads the row and a ticket label stands in for the ID', () => {
     // ARRANGE
-    const ticket = createTicketListEntry({ state: 'open' });
+    const ticket = createTicketListEntry({ id: 6230, state: 'open' });
 
-    render(
-      <TestHarness
-        tickets={[ticket]}
-        columnVisibility={{ ...noneVisible, ticketable: true, age: true }}
-      />,
-    );
+    render(<TestHarness tickets={[ticket]} columnVisibility={{ ...noneVisible, age: true }} />);
 
     // ASSERT
     expect(screen.getAllByRole('columnheader').map((el) => el.textContent)).toEqual([
-      'Issue with',
+      'Ticket',
       'Created',
     ]);
+    expect(screen.getByRole('cell', { name: 'Ticket #6230' })).toBeInTheDocument();
     expect(screen.getAllByRole('img', { name: 'Open' })).toHaveLength(2);
   });
 
@@ -595,13 +768,13 @@ describe('Component: TicketListTable', () => {
     render(
       <TestHarness
         tickets={[ticket]}
-        columnVisibility={{ ...noneVisible, emulator: true, hash: true }}
+        columnVisibility={{ ...noneVisible, id: true, emulator: true, hash: true }}
       />,
     );
 
     // ASSERT
     const row = screen.getByRole('row', { name: /Ticket #7404/ });
-    const [, emulatorCell, hashCell] = within(row).getAllByRole('cell');
+    const [emulatorCell, hashCell] = within(row).getAllByRole('cell').slice(-2);
     expect(emulatorCell.textContent).toEqual('');
     expect(hashCell.textContent).toEqual('');
   });

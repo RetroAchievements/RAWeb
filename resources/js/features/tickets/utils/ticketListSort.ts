@@ -1,14 +1,6 @@
 import type { TicketListSortParam } from '../models';
 
-const fields: readonly App.Platform.Enums.TicketListSortField[] = [
-  'createdAt',
-  'state',
-  'resolvedAt',
-];
-
 export const ticketListSort = {
-  fields,
-
   build(field: App.Platform.Enums.TicketListSortField, isAscending: boolean): TicketListSortParam {
     return isAscending ? field : `-${field}`;
   },
@@ -21,8 +13,16 @@ export const ticketListSort = {
     return !sortParam.startsWith('-');
   },
 
-  resolve(value: unknown, fallback: TicketListSortParam): TicketListSortParam {
-    const isKnown = fields.some((field) => value === field || value === `-${field}`);
+  isGroupingField(field: App.Platform.Enums.TicketListSortField): boolean {
+    return field === 'ticketable' || field === 'game';
+  },
+
+  resolve(
+    value: unknown,
+    fallback: TicketListSortParam,
+    sortFields: App.Platform.Enums.TicketListSortField[],
+  ): TicketListSortParam {
+    const isKnown = sortFields.some((field) => value === field || value === `-${field}`);
 
     return isKnown ? (value as TicketListSortParam) : fallback;
   },

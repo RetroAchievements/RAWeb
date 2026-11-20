@@ -37,8 +37,10 @@ export function useTicketListTableSync({
   restoreState,
   sortParam,
 }: UseTicketListTableSyncProps) {
-  const { persistenceCookieName } =
-    usePageProps<Pick<App.Platform.Data.TicketListPageProps, 'persistenceCookieName'>>();
+  const { persistenceCookieName, sortFields } =
+    usePageProps<
+      Pick<App.Platform.Data.TicketListPageProps, 'persistenceCookieName' | 'sortFields'>
+    >();
 
   const [, setCookie] = useCookie(persistenceCookieName);
 
@@ -65,7 +67,8 @@ export function useTicketListTableSync({
         pageNumber: restored.pageNumber,
         sortParam: ticketListSort.resolve(
           historyState?.ticketListSortParam,
-          ticketListSort.resolve(restored.sort, serverDefaultSortParam),
+          ticketListSort.resolve(restored.sort, serverDefaultSortParam, sortFields),
+          sortFields,
         ),
       };
 

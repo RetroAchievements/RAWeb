@@ -16,12 +16,15 @@ interface UseTicketListTableRootOptions {
   scope: App.Platform.Enums.TicketListScope;
   stateCounts: App.Platform.Data.TicketListStateCounts;
   targetParams: Record<string, number>;
+
+  grouping?: App.Platform.Data.TicketListGrouping | null;
 }
 
 export function useTicketListTableRoot({
   serverDefaultColumnFilters,
   serverDefaultSortParam,
   facetCounts,
+  grouping,
   paginatedTickets,
   scope,
   stateCounts,
@@ -73,7 +76,7 @@ export function useTicketListTableRoot({
 
   const ticketListQuery = useTicketListPaginatedQuery({
     columnFilters,
-    initialData: { facetCounts, paginatedTickets, stateCounts },
+    initialData: { facetCounts, grouping, paginatedTickets, stateCounts },
     pageNumber,
     scope,
     sortParam,
