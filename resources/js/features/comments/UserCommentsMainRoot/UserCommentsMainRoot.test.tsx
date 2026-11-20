@@ -221,7 +221,7 @@ describe('Component: UserCommentsMainRoot', () => {
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
       ['user.comment.index', { user: 'Scott', _query: { page: 3 } }],
-      { preserveScroll: true },
+      { preserveScroll: true, preserveState: true, onFinish: expect.any(Function) },
     );
   });
 
