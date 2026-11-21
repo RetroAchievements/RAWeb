@@ -24,7 +24,8 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
   onValueChange,
   value,
 }) => {
-  const { reporterUnlock, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { alreadyFixedEvidence, reporterUnlock, ticket } =
+    usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
   const isAchievementTicket = ticket.ticketableType === 'achievement';
@@ -71,6 +72,7 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
         value: closeAction,
       }))}
       value={value}
+      suggestedValue={alreadyFixedEvidence ? 'already-fixed' : undefined}
       onValueChange={onValueChange}
     >
       {actions.includes('demoted') && isTicketablePromoted

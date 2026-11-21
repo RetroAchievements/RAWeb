@@ -892,4 +892,61 @@ describe('Component: TicketCloseDialog', () => {
       ),
     ).not.toHaveAttribute('aria-hidden', 'true');
   });
+
+  it('given the reporter probably had the old logic loaded, marks "It was already fixed" as the suggested choice', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['resolved', 'already-fixed', 'closed-mistaken'],
+          alreadyFixedEvidence: {
+            reporterSessionStartedAt: '2026-05-30T12:00:00Z',
+            logicChangedAt: '2026-05-30T14:00:00Z',
+          },
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: /^Yes/ }));
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        "The logic changed 2 hours after the reporter's session started. They may have had the old logic loaded.",
+      ),
+    ).toBeVisible();
+    expect(screen.getByRole('radio', { name: /^Yes/ })).toHaveAccessibleName(/Suggested/);
+    expect(screen.getByRole('radio', { name: /^It was already fixed/ })).toHaveAccessibleName(
+      /Suggested/,
+    );
+    expect(screen.getByRole('radio', { name: /^It was already fixed/ })).not.toBeChecked();
+  });
+
+  it('given the reporter probably had the old logic loaded, marks "Yes" as the suggested choice', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['resolved', 'already-fixed', 'closed-mistaken'],
+          alreadyFixedEvidence: {
+            reporterSessionStartedAt: '2026-05-30T12:00:00Z',
+            logicChangedAt: '2026-05-30T14:00:00Z',
+          },
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /^Yes/ })).toHaveAccessibleName(/Suggested/);
+    expect(screen.getByRole('radio', { name: /^Yes/ })).not.toBeChecked();
+  });
 });

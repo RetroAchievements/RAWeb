@@ -1194,6 +1194,10 @@ persistenceCookieName: string;
 persistedViewPreferences: Record<string, any> | null;
 defaultDesktopPageSize: number;
 };
+export type TicketAlreadyFixedEvidence = {
+reporterSessionStartedAt: string;
+logicChangedAt: string;
+};
 export type TicketChangelogEntry = {
 type: App.Platform.Enums.TicketChangelogEntryType;
 createdAt: string;
@@ -1307,6 +1311,7 @@ reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
 recentOtherHashUnlockCount: number | null;
 logicChangedAfterReportAt: string | null;
+alreadyFixedEvidence: App.Platform.Data.TicketAlreadyFixedEvidence | null;
 reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;
 reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
