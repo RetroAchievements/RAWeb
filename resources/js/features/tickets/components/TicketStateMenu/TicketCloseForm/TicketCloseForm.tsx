@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BaseDialogClose, BaseDialogFooter } from '@/common/components/+vendor/BaseDialog';
 import { BaseForm } from '@/common/components/+vendor/BaseForm';
+import { useFormatCoarseDuration } from '@/common/hooks/useFormatCoarseDuration';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
@@ -22,8 +23,9 @@ interface TicketCloseFormProps {
 }
 
 export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) => {
-  const { achievement, allowedTicketActions, can, leaderboard, ticket } =
+  const { achievement, allowedTicketActions, alreadyFixedEvidence, can, leaderboard, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { formatCoarseDuration } = useFormatCoarseDuration();
   const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useTicketCloseForm({ onSubmitSuccess });
@@ -48,6 +50,9 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
         ),
   );
   const selectedAnswerGroup = closeAnswerGroups.find((group) => group.answer === answer);
+  const alreadyFixedAnswer = closeAnswerGroups.find((group) =>
+    group.actions.includes('already-fixed'),
+  )?.answer;
 
   const labelByAnswer: Record<TicketCloseAnswer, TranslatedString> = {
     yes: t('Yes'),
@@ -113,8 +118,23 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
                 value: group.answer,
               }))}
               value={answer}
+              suggestedValue={alreadyFixedEvidence ? alreadyFixedAnswer : undefined}
               onValueChange={handleAnswerSelect}
-            />
+            >
+              {alreadyFixedEvidence ? (
+                <p className="text-xs text-neutral-400 light:text-neutral-600">
+                  {t(
+                    "The logic changed {{duration}} after the reporter's session started. They may have had the old logic loaded.",
+                    {
+                      duration: formatCoarseDuration(
+                        alreadyFixedEvidence.reporterSessionStartedAt,
+                        alreadyFixedEvidence.logicChangedAt,
+                      ),
+                    },
+                  )}
+                </p>
+              ) : null}
+            </TicketCloseQuestion>
 
             <div className={cn('grid *:col-start-1 *:row-start-1', !answer && 'max-sm:hidden')}>
               <p

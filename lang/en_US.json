@@ -1749,6 +1749,8 @@
     "This achievement has no other tickets.": "This achievement has no other tickets.",
     "This leaderboard has no other tickets.": "This leaderboard has no other tickets.",
     "The logic changed from <1>v{{reportedVersion}}</1> to <2>v{{currentVersion}}</2> after the report.": "The logic changed from <1>v{{reportedVersion}}</1> to <2>v{{currentVersion}}</2> after the report.",
+    "The logic changed {{duration}} after the reporter's session started. They may have had the old logic loaded.": "The logic changed {{duration}} after the reporter's session started. They may have had the old logic loaded.",
+    "Suggested": "Suggested",
     "<1>{{user}}</1> has an entry on this leaderboard: #{{rank, number}} of {{total, number}}, {{score}}.": "<1>{{user}}</1> has an entry on this leaderboard: #{{rank, number}} of {{total, number}}, {{score}}.",
     "<1>{{user}}</1> has no entry yet on this leaderboard.": "<1>{{user}}</1> has no entry yet on this leaderboard.",
     "playersUnlockedSinceReport_zero": "No one has unlocked this achievement in the <1>{{duration}}</1> since the report.",

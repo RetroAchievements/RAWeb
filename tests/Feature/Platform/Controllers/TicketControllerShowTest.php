@@ -342,6 +342,50 @@ describe('Achievement Ticket Props', function () {
             ->missing('unlocksSinceReported')
         );
     });
+
+    it('given the reporter probably had the old logic loaded, sets props correctly', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $firstTrigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'created_at' => Carbon::parse('2026-05-01 12:00:00'),
+        ]);
+        Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 2,
+            'parent_id' => $firstTrigger->id,
+            'created_at' => Carbon::parse('2026-05-30 14:00:00'),
+        ]);
+        $reporter = User::factory()->create();
+        PlayerSession::factory()->create([
+            'user_id' => $reporter->id,
+            'game_id' => $game->id,
+            'created_at' => Carbon::parse('2026-05-30 12:00:00'), // !! before the logic change
+        ]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('alreadyFixedEvidence.reporterSessionStartedAt', fn (string $startedAt) => Carbon::parse($startedAt)->equalTo('2026-05-30 12:00:00'))
+            ->where('alreadyFixedEvidence.logicChangedAt', fn (string $changedAt) => Carbon::parse($changedAt)->equalTo('2026-05-30 14:00:00'))
+        );
+    });
 });
 
 describe('Leaderboard Ticket Props', function () {
