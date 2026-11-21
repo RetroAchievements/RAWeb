@@ -17,7 +17,7 @@ use Carbon\Carbon;
  * All three of these must be true:
  * - The logic changed in the 7 days before the ticket was created.
  * - The reporter's newest session on the game before creation started before that change.
- * - The logic did not change again after that, up to when the ticket was created.
+ * - The logic has not changed since the ticket was created. A later change usually means the report found a real defect.
  */
 class FindAlreadyFixedEvidenceAction
 {
