@@ -6,6 +6,7 @@ namespace App\Platform\Actions;
 
 use App\Community\Enums\CommentableType;
 use App\Community\Enums\TicketAction;
+use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketState;
 use App\Enums\UserPreference;
 use App\Models\Comment;
@@ -47,7 +48,9 @@ class ChangeTicketStateAction
         if ($newState->isResolved() && !$previousState->isResolved()) {
             $ticket->resolved_signal_verdict = (new BuildTicketSignalsAction())->execute(new Collection([$ticket]))[$ticket->id]?->verdict;
 
-            $ticket->has_already_fixed_evidence = (new FindAlreadyFixedEvidenceAction())->execute($ticket) !== null;
+            $ticket->suggested_resolution = (new FindAlreadyFixedEvidenceAction())->execute($ticket)
+                ? TicketResolution::AlreadyFixed
+                : null;
         }
 
         $ticket->state = $newState;
@@ -64,7 +67,7 @@ class ChangeTicketStateAction
             $ticket->resolver_id = null;
             $ticket->resolution = null;
             $ticket->resolved_signal_verdict = null;
-            $ticket->has_already_fixed_evidence = null;
+            $ticket->suggested_resolution = null;
         }
 
         $ticket->save();

@@ -10,14 +10,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $table->boolean('has_already_fixed_evidence')->nullable()->after('resolved_signal_verdict');
+            $table->string('suggested_resolution', 30)->nullable()->after('resolved_signal_verdict');
         });
     }
 
     public function down(): void
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $table->dropColumn('has_already_fixed_evidence');
+            $table->dropColumn('suggested_resolution');
         });
     }
 };

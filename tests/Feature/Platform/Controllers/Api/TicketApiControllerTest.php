@@ -767,7 +767,7 @@ describe('updateState', function () {
         expect($comment->body)->toEqual('Ticket resolved as fixed by Scott.');
     });
 
-    it('given a developer closes a ticket whose reporter probably had the old logic loaded, sets has_already_fixed_evidence to true', function () {
+    it('given a developer closes a ticket whose reporter probably had the old logic loaded, sets suggested_resolution to already fixed', function () {
         // ARRANGE
         User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
 
@@ -802,7 +802,7 @@ describe('updateState', function () {
 
         $ticket->refresh();
         expect($ticket->resolution)->toEqual(TicketResolution::AlreadyFixed);
-        expect($ticket->has_already_fixed_evidence)->toBeTrue();
+        expect($ticket->suggested_resolution)->toEqual(TicketResolution::AlreadyFixed);
     });
 
     it('given a reporter closes their own ticket, does not send them an email notification', function () {

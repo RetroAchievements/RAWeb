@@ -68,7 +68,7 @@ class Ticket extends BaseModel
         'resolution' => TicketResolution::class,
         'current_signal_verdict' => TicketSignalVerdict::class, // only open tickets have one of these
         'resolved_signal_verdict' => TicketSignalVerdict::class, // the verdict a ticket had when it was resolved or closed - cleared on reopen
-        'has_already_fixed_evidence' => 'boolean',
+        'suggested_resolution' => TicketResolution::class,
         'resolved_at' => 'datetime',
     ];
 
