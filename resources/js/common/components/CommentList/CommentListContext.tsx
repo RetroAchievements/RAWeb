@@ -9,7 +9,7 @@ interface CommentListContextValue {
   /** Extra controls shown next to the comment Submit button. */
   inputActionsSlot?: ReactNode;
   onDeleteSuccess?: () => void;
-  onSubmitSuccess?: () => void;
+  onSubmitSuccess?: () => Promise<void>;
   targetUserDisplayName?: string;
 }
 

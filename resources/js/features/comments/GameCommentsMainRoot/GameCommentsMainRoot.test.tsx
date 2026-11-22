@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen } from '@/test';
+import { act, render, screen, waitFor } from '@/test';
 import { createComment, createGame, createPaginatedData, createSystem } from '@/test/factories';
 
 import { GameCommentsMainRoot } from './GameCommentsMainRoot';
@@ -222,8 +222,41 @@ describe('Component: GameCommentsMainRoot', () => {
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
       ['game.comment.index', { game: 1, _query: { page: 3 } }],
-      { preserveScroll: true },
+      { preserveScroll: true, preserveState: true, onFinish: expect.any(Function) },
     );
+  });
+
+  it('given visit finishes, clears the comment box', async () => {
+    // ARRANGE
+    const visitSpy = vi.spyOn(router, 'visit').mockImplementationOnce(vi.fn());
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+
+    render<App.Community.Data.CommentPageProps>(<GameCommentsMainRoot />, {
+      pageProps: {
+        paginatedComments: createPaginatedData([createComment()]),
+        auth: { user: createAuthenticatedUser() },
+        game: createGame({ id: 1 }),
+        isSubscribed: false,
+        canComment: true,
+      },
+    });
+
+    await userEvent.type(screen.getByRole('textbox'), 'this is my new comment');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await waitFor(() => {
+      expect(visitSpy).toHaveBeenCalled();
+    });
+
+    // ACT
+    const { onFinish } = visitSpy.mock.calls[0][1]!;
+    act(() => {
+      onFinish!({} as never);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('textbox')).toHaveValue('');
+    });
   });
 
   it('given the user deletes a comment, changes the current route correctly', async () => {

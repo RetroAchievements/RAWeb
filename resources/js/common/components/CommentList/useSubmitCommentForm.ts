@@ -14,7 +14,7 @@ interface UseSubmitCommentFormProps {
   commentableId: number | string;
   commentableType: App.Community.Enums.CommentableType;
 
-  onSubmitSuccess?: () => void;
+  onSubmitSuccess?: () => Promise<void>;
 }
 
 export function useSubmitCommentForm({
@@ -36,27 +36,29 @@ export function useSubmitCommentForm({
 
   const mutation = useSubmitCommentMutation();
 
-  const onSubmit = (formValues: FormValues) => {
-    toastMessage.promise(
-      mutation.mutateAsync({
-        route: buildPostRoute({ commentableId, commentableType, targetUserDisplayName }),
-        payload: {
-          commentableId,
-          commentableType,
-          body: formValues.body,
-        },
-      }),
-      {
-        loading: t('Submitting...'),
-        success: () => {
-          clearDraft();
-          onSubmitSuccess?.();
+  const submitAndReload = async (body: string) => {
+    await mutation.mutateAsync({
+      route: buildPostRoute({ commentableId, commentableType, targetUserDisplayName }),
+      payload: { commentableId, commentableType, body },
+    });
 
-          return t('Submitted!');
-        },
-        error: t('Something went wrong.'),
-      },
-    );
+    // Empty the box only after the new comment renders.
+    // This prevents it from vanishing from the page.
+    await onSubmitSuccess?.();
+    clearDraft();
+  };
+
+  const onSubmit = async (formValues: FormValues) => {
+    const submission = submitAndReload(formValues.body);
+
+    toastMessage.promise(submission, {
+      loading: t('Submitting...'),
+      success: t('Submitted!'),
+      error: t('Something went wrong.'),
+    });
+
+    // Awaiting keeps the form submitting until the reload ends.
+    await submission.catch(() => undefined);
   };
 
   return { form, mutation, onSubmit };

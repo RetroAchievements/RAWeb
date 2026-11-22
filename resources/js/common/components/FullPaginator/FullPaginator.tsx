@@ -38,6 +38,12 @@ export const FullPaginator: FC<FullPaginatorProps> = ({
 
   const [internalValue, setInternalValue] = useState(String(currentPage));
 
+  const [previousCurrentPage, setPreviousCurrentPage] = useState(currentPage);
+  if (currentPage !== previousCurrentPage) {
+    setPreviousCurrentPage(currentPage);
+    setInternalValue(String(currentPage));
+  }
+
   if (!previousPageUrl && !nextPageUrl) {
     return <span />;
   }
