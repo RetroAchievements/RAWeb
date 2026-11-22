@@ -114,7 +114,7 @@ it('keeps restored achievements attached to their set with existing metadata', f
         ->and($visibleAchievementIds)->toContain($restoredAchievement->id);
 });
 
-it('queues outdated player games when achievement set version changes', function () {
+it('queues outdated player games after a debounce delay when achievement set version changes', function () {
     // ARRANGE
     Queue::fake();
 
@@ -130,7 +130,7 @@ it('queues outdated player games when achievement set version changes', function
     (new UpdateGameMetricsAction())->execute($game);
 
     // ASSERT
-    Queue::assertPushedOn('game-player-games', UpdateGamePlayerGamesJob::class);
+    Queue::assertPushedOn('game-player-games', UpdateGamePlayerGamesJob::class, fn (UpdateGamePlayerGamesJob $job) => $job->delay === 300);
 });
 
 it('dispatches GameBecamePlayable when a set crosses into playable', function () {

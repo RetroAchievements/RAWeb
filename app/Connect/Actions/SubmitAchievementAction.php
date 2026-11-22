@@ -233,7 +233,7 @@ class SubmitAchievementAction extends BaseAuthenticatedApiAction
                 (new UpsertTriggerVersionAction())->execute(
                     $achievement,
                     $this->triggerDefinition,
-                    versioned: $achievement->is_promoted,
+                    versioned: $achievement->is_promoted || $achievement->demoted_at !== null,
                     user: $this->user,
                 );
             }

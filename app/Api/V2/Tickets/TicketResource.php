@@ -22,12 +22,16 @@ class TicketResource extends BaseJsonApiResource
     public function attributes($request): iterable
     {
         $presenter = TicketPresenter::for($this->resource);
+        $canViewTriageSignals = (bool) $request?->user()?->can('viewTriageSignals', Ticket::class);
 
         return [
             'state' => $this->resource->state->value,
             'type' => $this->resource->type->value,
             'body' => $this->resource->body,
             'hardcore' => $this->resource->hardcore !== null ? (bool) $this->resource->hardcore : null,
+            'resolution' => $this->resource->resolution?->value,
+
+            'signalVerdict' => $this->when($canViewTriageSignals, fn (): ?string => $this->resource->current_signal_verdict?->value),
 
             'reportedAt' => $this->resource->created_at,
             'resolvedAt' => $this->resource->resolved_at,

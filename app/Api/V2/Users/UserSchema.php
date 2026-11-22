@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\V2\Users;
 
-use App\Api\V2\Tickets\TicketableTypeFilter;
-use App\Api\V2\Tickets\TicketStateFilter;
-use App\Api\V2\Tickets\TicketTypeFilter;
-use App\Api\V2\Tickets\UserUlidFilter;
 use App\Api\V2\UserAwards\UserAwardGameAwardTierFilter;
 use App\Api\V2\UserAwards\UserAwardKindFilter;
 use App\Models\User;
@@ -120,13 +116,6 @@ class UserSchema extends Schema
             HasMany::make('tickets', 'assignedTickets')
                 ->type('tickets')
                 ->cannotEagerLoad()
-                ->withFilters(
-                    new TicketStateFilter(),
-                    new TicketTypeFilter(),
-                    new TicketableTypeFilter(),
-                    new UserUlidFilter('reporterUserId', 'reporter_id'),
-                    new UserUlidFilter('resolverUserId', 'resolver_id'),
-                )
                 ->readOnly(),
             HasMany::make('userGameListEntries')->type('user-game-list-entries')->cannotEagerLoad()->readOnly(),
             HasMany::make('wallComments', 'visibleComments')->type('comments')->cannotEagerLoad()->readOnly(),
