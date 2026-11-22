@@ -5,13 +5,20 @@ namespace App\Platform\Jobs;
 use App\Models\Game;
 use App\Platform\Actions\UpdateGamePlayerGamesAction;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Attributes\DebounceFor;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateGamePlayerGamesJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+/**
+ * Force this to run 5 minutes after the last change to a game's set.
+ * This forces any burst of changes to be evaluated once in its final state.
+ * Otherwise, a set that is fully demoted and then repromoted one achievement at
+ * a time can grant mastery badges for the partly-promoted set.
+ */
+#[DebounceFor(300, maxWait: 3600)]
+class UpdateGamePlayerGamesJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -23,11 +30,9 @@ class UpdateGamePlayerGamesJob implements ShouldQueue, ShouldBeUniqueUntilProces
     ) {
     }
 
-    public int $uniqueFor = 3600;
-
-    public function uniqueId(): string
+    public function debounceId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->gameId;
+        return (string) $this->gameId;
     }
 
     /**

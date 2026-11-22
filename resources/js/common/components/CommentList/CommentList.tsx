@@ -24,7 +24,7 @@ interface CommentListProps {
   inputActionsSlot?: ReactNode;
   interleavedItems?: CommentListInterleavedItem[];
   onDeleteSuccess?: () => void;
-  onSubmitSuccess?: () => void;
+  onSubmitSuccess?: () => Promise<void>;
   targetUserDisplayName?: string;
 }
 

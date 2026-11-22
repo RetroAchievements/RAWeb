@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Platform\Actions;
 
 use App\Models\Achievement;
+use App\Models\Ticket;
 use App\Models\Trigger;
 use App\Models\User;
 use App\Platform\Contracts\HasVersionedTrigger;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 
@@ -70,8 +72,19 @@ class UpsertTriggerVersionAction
          * With this, we can build a chain of the triggerable asset's logic history.
          */
         $currentTrigger = $triggerable->trigger;
+        $demotedAt = $triggerable instanceof Achievement ? $triggerable->demoted_at : null;
 
         if ($currentTrigger) {
+            // A demoted achievement's unversioned logic was live before the demotion.
+            // Number it as version 1 so this edit adds version 2 instead of overwriting it.
+            if (
+                $demotedAt !== null
+                && $currentTrigger->version === null
+                && $currentTrigger->conditions !== $conditions
+            ) {
+                $currentTrigger->update(['version' => 1]);
+            }
+
             // If we're converting unversioned -> versioned, just update the trigger in-place.
             if ($currentTrigger->version === null) {
                 // Keep the newest conditions and mark them as version 1.
@@ -87,6 +100,20 @@ class UpsertTriggerVersionAction
 
             // If the conditions didn't actually change, don't create a new version
             if ($currentTrigger->conditions === $conditions) {
+                return $currentTrigger;
+            }
+
+            // A demoted achievement keeps at most one unpublished version on top of its
+            // published logic. Later edits replace that version rather than adding more
+            // versions. Once the achievement is published again, more versions can be
+            // added like usual.
+            if ($this->getIsUnpublishedDemotionEdit($currentTrigger, $demotedAt)) {
+                $currentTrigger->update([
+                    'conditions' => $conditions,
+                    'user_id' => $user?->id,
+                ]);
+                $this->assignTriggerIdQuietly($triggerable, $currentTrigger->id);
+
                 return $currentTrigger;
             }
         }
@@ -115,5 +142,14 @@ class UpsertTriggerVersionAction
     {
         $triggerable->trigger_id = $triggerId;
         $triggerable->saveQuietly();
+    }
+
+    private function getIsUnpublishedDemotionEdit(Trigger $trigger, ?Carbon $demotedAt): bool
+    {
+        return
+            $demotedAt !== null
+            && !$trigger->is_initial_version
+            && $trigger->created_at->gte($demotedAt)
+            && !Ticket::where('trigger_id', $trigger->id)->exists();
     }
 }

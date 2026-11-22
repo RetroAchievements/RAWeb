@@ -20,10 +20,13 @@ class ActivePlayerData extends Data
     ) {
     }
 
-    public static function fromHydratedCachedValue(User $user, Game $game): self
+    public static function fromHydratedCachedValue(User $user, Game $game, ?string $richPresence): self
     {
+        $userData = UserData::fromUser($user);
+        $userData->richPresence = $richPresence;
+
         return new self(
-            user: UserData::fromUser($user)->include('richPresence'),
+            user: $userData,
             game: GameData::fromGame($game)->include('badgeUrl'),
         );
     }

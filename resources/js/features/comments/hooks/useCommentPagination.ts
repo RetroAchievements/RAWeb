@@ -49,15 +49,17 @@ export function useCommentPagination({
     );
   };
 
-  const handleCommentSubmitSuccess = () => {
-    router.visit(
-      route(routeName, {
-        [routeParamName]: displayName ?? entityId,
-        _query: { page: getNewLastPageOnItemAdd(paginatedComments) },
-      }),
-      { preserveScroll: true },
-    );
-  };
+  const handleCommentSubmitSuccess = () =>
+    new Promise<void>((resolve) => {
+      router.visit(
+        route(routeName, {
+          [routeParamName]: displayName ?? entityId,
+          _query: { page: getNewLastPageOnItemAdd(paginatedComments) },
+        }),
+        // Keeping state stops a fresh comment form from reloading the draft before it is cleared.
+        { preserveScroll: true, preserveState: true, onFinish: () => resolve() },
+      );
+    });
 
   const handlePageSelectValueChange = (newPageValue: number) => {
     router.visit(

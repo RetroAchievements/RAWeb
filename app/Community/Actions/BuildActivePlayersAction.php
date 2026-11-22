@@ -184,7 +184,7 @@ class BuildActivePlayersAction
                 return null;
             }
 
-            return ActivePlayerData::fromHydratedCachedValue($user, $game);
+            return ActivePlayerData::fromHydratedCachedValue($user, $game, $player['rich_presence']);
         })->filter();
     }
 }
