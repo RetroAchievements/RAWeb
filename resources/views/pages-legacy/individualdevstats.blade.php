@@ -3,6 +3,7 @@
 use App\Community\Enums\TicketState;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Support\Facades\Gate;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -675,7 +676,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Total tickets created
         echo "<tr><td width='50%'>Total Tickets:</td><td>";
-        echo "<a href=\"" . route('developer.tickets', ['user' => $dev, 'filter[status]' => 'all', 'filter[publishedStatus]' => 'published']) . "\">" . $userTickets['total'] . "</a>";
+        echo $userTickets['total'];
 
         $parts = [];
         if ($userTickets['open'] > 0) {
@@ -694,6 +695,13 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
             echo ' (' . implode(' - ', $parts) . ')';
         }
         echo '</td>';
+
+        $assignedTicketCount = array_sum(app(UserTicketCountService::class)->countOpenForAssignee($devUser));
+        if ($assignedTicketCount > 0) {
+            echo "<tr><td width='50%'>Assigned Tickets:</td><td>";
+            echo "<a href=\"" . route('developer.tickets', ['user' => $dev]) . "\">" . localized_number($assignedTicketCount) . "</a>";
+            echo '</td></tr>';
+        }
 
         // Percent of unique achievements with tickets
         echo "<tr><td width='50%'>Unique Achievements with Open/Resolved Tickets:</td><td>" . $userTickets['uniqueValid'] . ' (';
@@ -747,14 +755,14 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Tickets resolved
         echo "<tr><td>Tickets Resolved:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev]) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[status]' => 'resolved']) . "\">";
         echo $devUser->resolvedTickets()->where('state', '=', TicketState::Resolved)->count();
         echo "</a>";
         echo "</td></tr>";
 
         // Tickets resolved for other users
         echo "<tr><td>Tickets Resolved for Others:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[status]' => 'resolved', 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
         echo $closedResolvedTicketInfo['ResolvedCount'];
         echo "</a>";
         echo "</td></tr>";

@@ -242,7 +242,8 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
         $query = "SELECT ua.id, SUM(!ISNULL(ach.id)) as total
                   FROM users as ua
                   LEFT JOIN tickets tick ON tick.resolver_id = ua.id AND tick.state = '" . TicketState::Resolved->value . "' AND tick.resolver_id != tick.reporter_id AND tick.ticketable_type = '" . TicketableType::Achievement->value . "'
-                  LEFT JOIN achievements as ach ON ach.id = tick.ticketable_id AND ach.is_promoted = 1 AND ach.user_id != ua.id
+                  LEFT JOIN achievement_maintainers maint ON maint.achievement_id = tick.ticketable_id AND maint.effective_from <= tick.created_at AND (maint.effective_until IS NULL OR maint.effective_until > tick.created_at)
+                  LEFT JOIN achievements as ach ON ach.id = tick.ticketable_id AND ach.is_promoted = 1 AND NOT (COALESCE(maint.user_id, ach.user_id) <=> ua.id)
                   WHERE $stateCond
                   GROUP BY ua.id
                   ORDER BY total DESC, ua.display_name";
@@ -299,9 +300,10 @@ function GetDeveloperStatsFull(int $count, int $offset = 0, int $sortBy = 0, int
     $query = "SELECT tick.resolver_id AS id, COUNT(*) as total
               FROM tickets AS tick
               INNER JOIN achievements as ach ON ach.id = tick.ticketable_id
+              LEFT JOIN achievement_maintainers maint ON maint.achievement_id = ach.id AND maint.effective_from <= tick.created_at AND (maint.effective_until IS NULL OR maint.effective_until > tick.created_at)
               WHERE tick.ticketable_type = '" . TicketableType::Achievement->value . "'
               AND tick.resolver_id != tick.reporter_id
-              AND ach.user_id != tick.resolver_id
+              AND NOT (COALESCE(maint.user_id, ach.user_id) <=> tick.resolver_id)
               AND ach.is_promoted = 1
               AND tick.state = '" . TicketState::Resolved->value . "'
               AND tick.resolver_id IN ($devList)
