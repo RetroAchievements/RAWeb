@@ -21,23 +21,40 @@ class BuildConnectSniffsAction
         $achievementIds = [];
         $userAgentService = new UserAgentService();
 
+        // Intentionally avoid hydrating models to conserve memory.
         $entries = ConnectWarning::query()
+            ->leftJoin('player_sessions', 'player_sessions.id', '=', 'connect_warnings.player_session_id')
+            ->leftJoin('game_hashes', 'game_hashes.id', '=', 'player_sessions.game_hash_id')
             ->when($date != null, function ($query) use ($date) {
                 // whereDate doesn't leverage index
-                $query->where('created_at', '>=', $date->clone()->startOfDay())
-                      ->where('created_at', '<=', $date->clone()->endOfDay());
+                $query->where('connect_warnings.created_at', '>=', $date->clone()->startOfDay())
+                      ->where('connect_warnings.created_at', '<=', $date->clone()->endOfDay());
             })
-            ->when(filled($username), fn ($query) => $query->where('username', $username))
-            ->with('playerSession', 'playerSession.gameHash')
-            ->orderBy('created_at')
-            ->get();
+            ->when(filled($username), fn ($query) => $query->where('connect_warnings.username', $username))
+            ->select([
+                'connect_warnings.created_at',
+                'connect_warnings.username',
+                'connect_warnings.method',
+                'connect_warnings.smells',
+                'connect_warnings.validation_hash',
+                'connect_warnings.offset',
+                'connect_warnings.related_type',
+                'connect_warnings.related_id',
+                'connect_warnings.hardcore',
+                'connect_warnings.extra',
+                'connect_warnings.user_agent',
+                'player_sessions.id as joined_player_session_id',
+                'game_hashes.md5 as game_hash_md5',
+            ])
+            ->orderByDesc('connect_warnings.created_at')
+            ->orderByDesc('connect_warnings.id')
+            ->toBase()
+            ->cursor();
         foreach ($entries as $entry) {
-            if (!in_array($entry->username, $usernames)) {
-                $usernames[] = $entry->username;
-            }
+            $usernames[$entry->username] = $entry->username;
 
             $sniff = [
-                'date' => $entry->created_at->format('Y-m-d H:i:s'),
+                'date' => $entry->created_at,
                 'user' => $entry->username,
                 'method' => $entry->method,
                 'smells' => [],
@@ -54,9 +71,7 @@ class BuildConnectSniffsAction
             }
 
             if ($entry->related_type === 'achievement') {
-                if (!in_array($entry->related_id, $achievementIds)) {
-                    $achievementIds[] = $entry->related_id;
-                }
+                $achievementIds[$entry->related_id] = $entry->related_id;
 
                 $sniff['achievementId'] = $entry->related_id;
                 $sniff['hardcore'] = $entry->hardcore;
@@ -68,9 +83,7 @@ class BuildConnectSniffsAction
                 }
 
             } elseif ($entry->related_type === 'leaderboard') {
-                if (!in_array($entry->related_id, $leaderboardIds)) {
-                    $leaderboardIds[] = $entry->related_id;
-                }
+                $leaderboardIds[$entry->related_id] = $entry->related_id;
 
                 $sniff['leaderboardId'] = $entry->related_id;
                 $sniff['score'] = $entry->extra;
@@ -82,8 +95,8 @@ class BuildConnectSniffsAction
                 }
             }
 
-            if ($entry->playerSession) {
-                $sniff['gameHash'] = $entry->playerSession->gameHash?->md5;
+            if ($entry->joined_player_session_id !== null) {
+                $sniff['gameHash'] = $entry->game_hash_md5;
             }
 
             $sniff['userAgent'] = $userAgent = $entry->user_agent;
@@ -160,6 +173,6 @@ class BuildConnectSniffsAction
             }
         }
 
-        return array_reverse($sniffs); // newest first
+        return $sniffs;
     }
 }

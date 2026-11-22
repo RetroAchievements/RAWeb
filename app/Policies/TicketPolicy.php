@@ -13,7 +13,6 @@ use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\GetTicketClaimStatusAction;
-use App\Platform\Enums\TicketableType;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -185,8 +184,6 @@ class TicketPolicy
 
                 TicketAction::UnableToDebug => !$ticket->state->isResolved() && !$ticket->emulator?->can_debug_triggers,
 
-                TicketAction::ManualUnlockRequest => !$ticket->state->isResolved() && $ticket->ticketable_type !== TicketableType::Leaderboard->value,
-
                 TicketAction::ClosedMistaken,
                 TicketAction::NotEnoughInfo,
                 TicketAction::WrongRom,
@@ -194,6 +191,7 @@ class TicketPolicy
                 TicketAction::UnableToReproduce,
                 TicketAction::AlreadyFixed,
                 TicketAction::EmulatorProblem,
+                TicketAction::CoveredByAnotherTicket,
                 TicketAction::ClosedOther => !$ticket->state->isResolved(),
             };
         }

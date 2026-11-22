@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildManualUnlockRequestUrl } from '@/common/utils/buildManualUnlockRequestUrl';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { buildManualUnlockRequestUrl } from '@/features/achievements/utils/buildManualUnlockRequestUrl';
 
 import { ReportIssueOptionItem } from './ReportIssueOptionItem';
 import { ReportIssueSection } from './ReportIssueSection';

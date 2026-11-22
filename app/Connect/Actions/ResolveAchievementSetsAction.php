@@ -156,10 +156,7 @@ class ResolveAchievementSetsAction
         Collection $userSetPreferences,
         GameAchievementSet $initialSet,
     ): Collection {
-        // Determine if the initial set is a subset's "core" set.
-        $isSubsetGame = $this->isSubsetGame($initialSet);
-
-        return $allSets->filter(function (GameAchievementSet $set) use ($gameHash, $user, $userSetPreferences, $initialSet, $isSubsetGame) {
+        return $allSets->filter(function (GameAchievementSet $set) use ($gameHash, $user, $userSetPreferences, $initialSet) {
             // Exclude if this hash is marked as incompatible.
             if ($set->achievementSet->incompatibleGameHashes->contains('id', $gameHash->id)) {
                 return false;
@@ -176,15 +173,9 @@ class ResolveAchievementSetsAction
                 return true;
             }
 
-            // If the initial set is a subset's core set and the user is globally opted out,
-            // exclude other sets unless the user has locally opted in to them.
-            if ($isSubsetGame && $user->is_globally_opted_out_of_subsets) {
-                return false;
-            }
-
             switch ($set->type) {
                 case AchievementSetType::Core:
-                    // Include core sets by default.
+                    // Base sets are always included unless the user explicitly opts out of them.
                     return true;
 
                 case AchievementSetType::Challenge:
@@ -242,16 +233,5 @@ class ResolveAchievementSetsAction
             $coreSet = $coreSets->get($set->achievement_set_id);
             $set->core_game_id = $coreSet ? $coreSet->game_id : null;
         }
-    }
-
-    private function isSubsetGame(GameAchievementSet $initialSet): bool
-    {
-        // Check if the initial set's achievement set is linked to other games (e.g., the base game)
-        $linkedSets = GameAchievementSet::where('achievement_set_id', $initialSet->achievement_set_id)
-            ->where('game_id', '!=', $initialSet->game_id)
-            ->get();
-
-        // If the set is linked to other game IDs and the initial set is of type Core, then it's a subset's core set.
-        return $initialSet->type === AchievementSetType::Core && $linkedSets->isNotEmpty();
     }
 }

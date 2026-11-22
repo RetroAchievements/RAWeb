@@ -12,13 +12,13 @@ use App\Models\PlayerProgressReset;
 use App\Models\User;
 use App\Platform\Enums\AchievementSetType;
 use App\Platform\Enums\PlayerProgressResetType;
-use App\Platform\Enums\UnlockMode;
 use App\Platform\Events\PlayerBadgeLost;
 use App\Platform\Jobs\UpdateAchievementMetricsJob;
 use App\Platform\Jobs\UpdateDeveloperContributionYieldJob;
 use App\Platform\Jobs\UpdateGamePlayerCountJob;
 use App\Platform\Jobs\UpdatePlayerBeatenGamesStatsJob;
 use App\Platform\Jobs\UpdatePlayerGameMetricsJob;
+use App\Platform\Jobs\UpdatePlayerMetricsJob;
 use Illuminate\Support\Facades\DB;
 
 class ResetPlayerProgressAction
@@ -122,9 +122,7 @@ class ResetPlayerProgressAction
                 // from the UpdatePlayerGameMetricsJob, but it does not revoke badges unless
                 // all achievements for a game are reset.
                 $playerBadge = $user->playerBadges()
-                    ->where('award_type', AwardType::Mastery)
-                    ->where('award_key', $achievement->game_id)
-                    ->where('award_tier', $playerAchievement->unlocked_hardcore_at ? UnlockMode::Hardcore : UnlockMode::Casual)
+                    ->revokedByUnlockReset($playerAchievement, $achievement)
                     ->first();
                 if ($playerBadge) {
                     PlayerBadgeLost::dispatch($user, $playerBadge->award_type, $playerBadge->award_key, $playerBadge->award_tier);
@@ -279,6 +277,12 @@ class ResetPlayerProgressAction
             // metrics for each achievement won't be recalculated. we really only need to
             // recalculate the affected achievement anyway, so do that now.
             dispatch(new UpdateAchievementMetricsJob($achievementID))->onQueue('achievement-metrics');
+        }
+
+        if (!$isFullReset) {
+            // kept points live outside any single game's metrics, so the
+            // player's totals have to be recalculated from scratch.
+            dispatch(new UpdatePlayerMetricsJob($user->id))->onQueue('player-metrics');
         }
 
         dispatch(new UpdatePlayerBeatenGamesStatsJob($user->id));

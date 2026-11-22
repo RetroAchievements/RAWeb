@@ -10,6 +10,7 @@ use App\Community\Enums\TicketResolution;
 use App\Community\Enums\TicketSignalVerdict;
 use App\Community\Enums\TicketState;
 use App\Community\Enums\TicketType;
+use App\Platform\Actions\GetHasCasualUnlockFromRestrictedClientAction;
 use App\Platform\Enums\LeaderboardState;
 use App\Platform\Enums\TicketableType;
 use App\Support\Database\Eloquent\BaseModel;
@@ -103,6 +104,35 @@ class Ticket extends BaseModel
             : $ticketableModel->author_id;
 
         return $this->assignee_id !== $maintainerUserId;
+    }
+
+    public function canReporterRequestManualUnlock(): bool
+    {
+        if (
+            $this->resolution !== TicketResolution::NetworkProblems
+            || $this->ticketable_type !== TicketableType::Achievement->value
+            || $this->reporter_id === null
+        ) {
+            return false;
+        }
+
+        $reporterAchievementUnlock = PlayerAchievement::query()
+            ->where('user_id', $this->reporter_id)
+            ->where('achievement_id', $this->ticketable_id)
+            ->first();
+
+        if ($reporterAchievementUnlock === null) {
+            return true;
+        }
+
+        if (!$this->hardcore || $reporterAchievementUnlock->unlocked_hardcore_at !== null) {
+            return false;
+        }
+
+        /** @var Achievement $achievement */
+        $achievement = $this->ticketable;
+
+        return !(new GetHasCasualUnlockFromRestrictedClientAction())->execute($reporterAchievementUnlock, $achievement);
     }
 
     // == logging
@@ -383,6 +413,47 @@ class Ticket extends BaseModel
         return $query->where(fn (Builder $q) => $q
             ->whereNull('assignee_id')
             ->orWhere('assignee_id', '!=', $user->id));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeAssignedToActiveDeveloper(Builder $query): Builder
+    {
+        return $query->whereHas('assignee.roles', fn (Builder $roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeAssignedToJuniorDeveloper(Builder $query): Builder
+    {
+        return $query->whereHas('assignee.roles', fn (Builder $roles) => $roles->where('name', Role::DEVELOPER_JUNIOR));
+    }
+
+    /**
+     * For achievement tickets, also exclude any with an active maintainer.
+     * Leaderboards don't have a maintainer concept, so author roles alone
+     * are checked.
+     *
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function scopeAssignedToInactiveDeveloper(Builder $query): Builder
+    {
+        return $query
+            ->where(fn (Builder $ticketableQuery) => $ticketableQuery
+                ->where(fn (Builder $achievementQuery) => $achievementQuery
+                    ->where('ticketable_type', TicketableType::Achievement->value)
+                    ->whereHasMorph('ticketable', [Achievement::class], fn (Builder $achievement) => $achievement->whereDoesntHave('activeMaintainer'))
+                )
+                ->orWhere('ticketable_type', TicketableType::Leaderboard->value)
+            )
+            ->whereHas('assignee', fn (Builder $assignee) => $assignee
+                ->whereDoesntHave('roles', fn (Builder $roles) => $roles->whereIn('name', [Role::DEVELOPER, Role::DEVELOPER_JUNIOR]))
+            );
     }
 
     /**

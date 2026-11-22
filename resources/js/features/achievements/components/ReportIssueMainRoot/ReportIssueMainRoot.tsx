@@ -5,8 +5,8 @@ import { route } from 'ziggy-js';
 import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
 import { AchievementHeading } from '@/common/components/AchievementHeading';
 import { usePageProps } from '@/common/hooks/usePageProps';
+import { buildStructuredMessage } from '@/common/utils/buildStructuredMessage';
 import { buildTrackingClassNames } from '@/common/utils/buildTrackingClassNames';
-import { buildStructuredMessage } from '@/features/achievements/utils/buildStructuredMessage';
 
 import { BugReportSection } from './BugReportSection';
 import { MissingUnlockSection } from './MissingUnlockSection';

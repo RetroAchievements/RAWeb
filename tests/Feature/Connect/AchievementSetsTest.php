@@ -391,7 +391,7 @@ beforeEach(function () {
     $this->createConnectUser();
 });
 
-describe('Non multi-set', function () {
+describe('Non multiset', function () {
     test('returns data for a given id', function () {
         $data = AchievementSetsTestHelpers::createGameWithUnpromotedAchievements();
         $game = $data['game'];
@@ -795,7 +795,7 @@ describe('Non multi-set', function () {
     });
 });
 
-describe('Multi-set', function () {
+describe('Multiset', function () {
     test('returns core and bonus data for core hash', function () {
         $data = AchievementSetsTestHelpers::createMultiSetGame();
         $game = $data['game'];
@@ -1208,47 +1208,6 @@ describe('Multi-set', function () {
             ]);
     });
 
-    test('returns only bonus data for bonus hash if globally opted out of multiset', function () {
-        $data = AchievementSetsTestHelpers::createMultiSetGame();
-        $game = $data['game'];
-        $achievementSet = $game->achievementSets()->first();
-        $bonusGame = $data['bonusGame'];
-        $bonusAchievementSet = $bonusGame->achievementSets()->first();
-
-        $this->user->preferences_bitfield |= (1 << UserPreference::Game_OptOutOfAllSubsets);
-        $this->user->save();
-
-        $this->withHeaders(['User-Agent' => $this->userAgentValid])
-            ->get($this->apiUrl('achievementsets', ['m' => $data['bonusHash']->md5]))
-            ->assertExactJson([
-                'Success' => true,
-                'GameId' => $bonusGame->id,
-                'Title' => $bonusGame->title,
-                'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
-                'ConsoleId' => $bonusGame->system_id,
-                'RichPresenceGameId' => $bonusGame->id,
-                'RichPresencePatch' => $bonusGame->trigger_definition,
-                'Sets' => [
-                    [
-                        'AchievementSetId' => $bonusAchievementSet->id,
-                        'Title' => 'Bonus Title',
-                        'Type' => 'bonus',
-                        'GameId' => $bonusGame->id,
-                        'ImageIconUrl' => media_asset($bonusGame->image_icon_asset_path),
-                        'Achievements' => [
-                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][1]), // DisplayOrder: 4
-                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][0]), // DisplayOrder: 7
-                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][2]), // DisplayOrder: 8 (unpromoted)
-                            AchievementSetsTestHelpers::getAchievementPatchData($data['bonusAchievements'][3]), // DisplayOrder: 9
-                        ],
-                        'Leaderboards' => [
-                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['bonusLeaderboards'][0]), // DisplayOrder: -1
-                        ],
-                    ],
-                ],
-            ]);
-    });
-
     test('returns only core data for core hash if opted out of bonus set', function () {
         $data = AchievementSetsTestHelpers::createMultiSetGame();
         $game = $data['game'];
@@ -1454,7 +1413,7 @@ describe('Multi-set', function () {
             ]);
     });
 
-    test('returns core and bonus data for bonus hash if globally opted out, but opted in to core set', function () {
+    test('returns core and bonus data for bonus hash if globally opted out', function () {
         $data = AchievementSetsTestHelpers::createMultiSetGame();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
@@ -1463,13 +1422,6 @@ describe('Multi-set', function () {
 
         $this->user->preferences_bitfield |= (1 << UserPreference::Game_OptOutOfAllSubsets);
         $this->user->save();
-
-        $gameAchievementSet = GameAchievementSet::whereGameId($game->id)->whereType(AchievementSetType::Core)->first();
-        UserGameAchievementSetPreference::factory()->create([
-            'user_id' => $this->user->id,
-            'game_achievement_set_id' => $gameAchievementSet->id,
-            'opted_in' => true,
-        ]);
 
         $this->withHeaders(['User-Agent' => $this->userAgentValid])
             ->get($this->apiUrl('achievementsets', ['m' => $data['bonusHash']->md5]))
@@ -1591,12 +1543,10 @@ describe('Multi-set', function () {
             ]);
     });
 
-    test('returns no rich presence for specialty hash if specialty game does not have rich presence and globally opted out of multi-set', function () {
+    test('returns core and specialty data with core rich presence for specialty hash if globally opted out', function () {
         $data = AchievementSetsTestHelpers::createMultiSetGame();
         $game = $data['game'];
         $achievementSet = $game->achievementSets()->first();
-        $bonusGame = $data['bonusGame'];
-        $bonusAchievementSet = $bonusGame->achievementSets()->first();
         $specialtyGame = $data['specialtyGame'];
         $specialtyGame->trigger_definition = '';
         $specialtyGame->save();
@@ -1609,13 +1559,31 @@ describe('Multi-set', function () {
             ->get($this->apiUrl('achievementsets', ['m' => $data['specialtyHash']->md5]))
             ->assertExactJson([
                 'Success' => true,
-                'GameId' => $specialtyGame->id,
-                'Title' => $specialtyGame->title,
-                'ImageIconUrl' => media_asset($specialtyGame->image_icon_asset_path),
-                'ConsoleId' => $specialtyGame->system_id,
-                'RichPresenceGameId' => $specialtyGame->id,
-                'RichPresencePatch' => $specialtyGame->trigger_definition,
+                'GameId' => $game->id,
+                'Title' => $game->title,
+                'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                'ConsoleId' => $game->system_id,
+                'RichPresenceGameId' => $game->id,
+                'RichPresencePatch' => $game->trigger_definition,
                 'Sets' => [
+                    [
+                        'AchievementSetId' => $achievementSet->id,
+                        'Title' => null,
+                        'Type' => 'core',
+                        'GameId' => $game->id,
+                        'ImageIconUrl' => media_asset($game->image_icon_asset_path),
+                        'Achievements' => [
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][0]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][2]), // DisplayOrder: 2
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][1]), // DisplayOrder: 3
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][3]), // DisplayOrder: 5
+                            AchievementSetsTestHelpers::getAchievementPatchData($data['achievements'][4]), // DisplayOrder: 6 (unpromoted)
+                        ],
+                        'Leaderboards' => [
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][1]), // DisplayOrder: 1
+                            AchievementSetsTestHelpers::getLeaderboardPatchData($data['leaderboards'][0]), // DisplayOrder: 2
+                        ],
+                    ],
                     [
                         'AchievementSetId' => $specialtyAchievementSet->id,
                         'Title' => 'Specialty Title',

@@ -1,6 +1,7 @@
 <?php
 
 use App\Community\Enums\TicketState;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
@@ -224,59 +225,25 @@ $codeNotes = collect(getCodeNoteCounts($devUser));
 $userCodeNoteCount = $codeNotes->sum('NoteCount');
 
 // Initialize ticket information variables
-$userTickets['total'] = 0;
-$userTickets['closed'] = 0;
-$userTickets['open'] = 0;
-$userTickets['resolved'] = 0;
-$userTickets['request'] = 0;
-$userTickets['uniqueTotal'] = 0;
-$userTickets['uniqueClosed'] = 0;
-$userTickets['uniqueOpen'] = 0;
-$userTickets['uniqueResolved'] = 0;
-$userTickets['uniqueRequest'] = 0;
-$userTickets['uniqueValid'] = 0;
-$prevID = 0;
+$assignedTicketCounts = Ticket::forAssignee($devUser)
+    ->promoted()
+    ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Closed, TicketState::Resolved])
+    ->selectRaw('state, COUNT(*) AS TicketCount')
+    ->groupBy('state')
+    ->pluck('TicketCount', 'state');
+$userTickets = [
+    'open' => (int) ($assignedTicketCounts[TicketState::Open->value] ?? 0),
+    'request' => (int) ($assignedTicketCounts[TicketState::Request->value] ?? 0),
+    'closed' => (int) ($assignedTicketCounts[TicketState::Closed->value] ?? 0),
+    'resolved' => (int) ($assignedTicketCounts[TicketState::Resolved->value] ?? 0),
+];
+$userTickets['total'] = array_sum($userTickets);
 
-// Get ticket information for user
-$userTicketInfo = getTicketsForUser($devUser);
-$counted = false;
-foreach ($userTicketInfo as $ticketData) {
-    if ($prevID != $ticketData['ticketable_id']) { // relies on getTicketsForUser sorting by ID
-        $prevID = $ticketData['ticketable_id'];
-        $userTickets['uniqueTotal']++;
-        $counted = false;
-    }
-    switch ($ticketData['state']) {
-        case TicketState::Closed->value:
-            $userTickets['closed'] += $ticketData['TicketCount'];
-            $userTickets['total'] += $ticketData['TicketCount'];
-            $userTickets['uniqueClosed']++;
-            break;
-        case TicketState::Open->value:
-            $userTickets['open'] += $ticketData['TicketCount'];
-            $userTickets['total'] += $ticketData['TicketCount'];
-            $userTickets['uniqueOpen']++;
-            if (!$counted) {
-                $counted = true;
-                $userTickets['uniqueValid']++;
-            }
-            break;
-        case TicketState::Resolved->value:
-            $userTickets['resolved'] += $ticketData['TicketCount'];
-            $userTickets['total'] += $ticketData['TicketCount'];
-            $userTickets['uniqueResolved']++;
-            if (!$counted) {
-                $counted = true;
-                $userTickets['uniqueValid']++;
-            }
-            break;
-        case TicketState::Request->value:
-            $userTickets['request'] += $ticketData['TicketCount'];
-            $userTickets['total'] += $ticketData['TicketCount'];
-            $userTickets['uniqueRequest']++;
-            break;
-    }
-}
+$userTickets['uniqueValid'] = collect(getTicketsForUser($devUser))
+    ->whereIn('state', [TicketState::Open->value, TicketState::Resolved->value])
+    ->pluck('ticketable_id')
+    ->unique()
+    ->count();
 
 // Get most ticketed game and achievement
 $mostTicketedGame = getUserGameWithMostTickets($devUser);
@@ -708,7 +675,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Total tickets created
         echo "<tr><td width='50%'>Total Tickets:</td><td>";
-        echo "<a href=\"" . route('developer.tickets', ['user' => $dev, 'filter[status]' => 'all']) . "\">" . $userTickets['total'] . "</a>";
+        echo "<a href=\"" . route('developer.tickets', ['user' => $dev, 'filter[status]' => 'all', 'filter[publishedStatus]' => 'published']) . "\">" . $userTickets['total'] . "</a>";
 
         $parts = [];
         if ($userTickets['open'] > 0) {

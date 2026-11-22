@@ -24,10 +24,15 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
   onValueChange,
   value,
 }) => {
-  const { ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
+  const { reporterUnlock, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
   const isAchievementTicket = ticket.ticketableType === 'achievement';
+
+  const shouldShowManualUnlockHint =
+    isAchievementTicket &&
+    actions.includes('network') &&
+    (!reporterUnlock || (!!ticket.hardcore && !reporterUnlock.isHardcore));
 
   const getReasonLabel = (closeAction: TicketCloseAction): TranslatedString => {
     if (closeAction !== 'demoted') {
@@ -77,6 +82,15 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
             'unable-to-debug',
             t(
               'If the player gave steps to reproduce the problem, try to reproduce it before you close the ticket.',
+            ),
+          )
+        : null}
+
+      {shouldShowManualUnlockHint
+        ? renderInlineHint(
+            'network',
+            t(
+              "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
             ),
           )
         : null}
