@@ -29,7 +29,7 @@ export const CommentInput: FC = () => {
   const { canComment, commentableId, commentableType, inputActionsSlot, onSubmitSuccess } =
     useCommentListContext();
 
-  const { form, mutation, onSubmit } = useSubmitCommentForm({
+  const { form, onSubmit } = useSubmitCommentForm({
     commentableId,
     commentableType,
     onSubmitSuccess,
@@ -39,7 +39,7 @@ export const CommentInput: FC = () => {
   useSubmitOnMetaEnter({
     formRef,
     onSubmit: () => form.handleSubmit(onSubmit)(),
-    isEnabled: form.formState.isValid && !mutation.isPending,
+    isEnabled: form.formState.isValid && !form.formState.isSubmitting,
   });
 
   if (!auth?.user || !canComment) {
@@ -69,6 +69,7 @@ export const CommentInput: FC = () => {
                       maxLength={2000}
                       minRows={3}
                       className={baseTextareaClassNames}
+                      readOnly={form.formState.isSubmitting}
                       {...field}
                     />
                   </BaseFormControl>
@@ -91,7 +92,10 @@ export const CommentInput: FC = () => {
               {inputActionsSlot}
 
               <MetaKeySubmitTooltip>
-                <BaseButton type="submit" disabled={mutation.isPending || !form.formState.isValid}>
+                <BaseButton
+                  type="submit"
+                  disabled={form.formState.isSubmitting || !form.formState.isValid}
+                >
                   {t('Submit')}
                 </BaseButton>
               </MetaKeySubmitTooltip>

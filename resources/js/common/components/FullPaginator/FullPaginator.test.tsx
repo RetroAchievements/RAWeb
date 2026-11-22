@@ -3,7 +3,7 @@
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '@/test';
-import { createGame, createPaginatedData } from '@/test/factories';
+import { createGame, createPaginatedData, createZiggyProps } from '@/test/factories';
 
 import { FullPaginator } from './FullPaginator';
 
@@ -136,6 +136,42 @@ describe('Component: FullPaginator', () => {
 
     // ASSERT
     expect(onPageSelectValueChange).toHaveBeenCalledWith(2);
+  });
+
+  it('given the current page changes while the paginator stays mounted, selects the new page', () => {
+    // ARRANGE
+    const links = { previousPageUrl: '#', firstPageUrl: '#', nextPageUrl: '#', lastPageUrl: '#' };
+
+    const { rerender } = render(
+      <FullPaginator
+        onPageSelectValueChange={vi.fn()}
+        paginatedData={createPaginatedData([createGame()], {
+          perPage: 1,
+          lastPage: 3,
+          currentPage: 1,
+          links,
+        })}
+      />,
+      {
+        pageProps: { ziggy: createZiggyProps({ device: 'desktop' }) },
+      },
+    );
+
+    // ACT
+    rerender(
+      <FullPaginator
+        onPageSelectValueChange={vi.fn()}
+        paginatedData={createPaginatedData([createGame()], {
+          perPage: 1,
+          lastPage: 3,
+          currentPage: 3,
+          links,
+        })}
+      />,
+    );
+
+    // ASSERT
+    expect(screen.getByRole('combobox')).toHaveValue('3');
   });
 
   it('given the user is on a mobile device, uses condensed option labels', () => {

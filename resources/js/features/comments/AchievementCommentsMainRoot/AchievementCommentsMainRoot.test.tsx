@@ -237,7 +237,7 @@ describe('Component: AchievementCommentsMainRoot', () => {
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
       ['achievement.comment.index', { achievement: 1, _query: { page: 3 } }],
-      { preserveScroll: true },
+      { preserveScroll: true, preserveState: true, onFinish: expect.any(Function) },
     );
   });
 
