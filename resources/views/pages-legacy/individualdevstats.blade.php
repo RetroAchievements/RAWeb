@@ -1,7 +1,6 @@
 <?php
 
 use App\Community\Enums\TicketState;
-use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Services\UserTicketCountService;
 use Illuminate\Support\Facades\Gate;
@@ -226,21 +225,19 @@ $codeNotes = collect(getCodeNoteCounts($devUser));
 $userCodeNoteCount = $codeNotes->sum('NoteCount');
 
 // Initialize ticket information variables
-$assignedTicketCounts = Ticket::forAssignee($devUser)
-    ->promoted()
-    ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Closed, TicketState::Resolved])
-    ->selectRaw('state, COUNT(*) AS TicketCount')
+$ticketsForUser = collect(getTicketsForUser($devUser));
+$ticketCountsByState = $ticketsForUser
     ->groupBy('state')
-    ->pluck('TicketCount', 'state');
+    ->map(fn ($stateRows) => $stateRows->sum('TicketCount'));
 $userTickets = [
-    'open' => (int) ($assignedTicketCounts[TicketState::Open->value] ?? 0),
-    'request' => (int) ($assignedTicketCounts[TicketState::Request->value] ?? 0),
-    'closed' => (int) ($assignedTicketCounts[TicketState::Closed->value] ?? 0),
-    'resolved' => (int) ($assignedTicketCounts[TicketState::Resolved->value] ?? 0),
+    'open' => (int) ($ticketCountsByState[TicketState::Open->value] ?? 0),
+    'request' => (int) ($ticketCountsByState[TicketState::Request->value] ?? 0),
+    'closed' => (int) ($ticketCountsByState[TicketState::Closed->value] ?? 0),
+    'resolved' => (int) ($ticketCountsByState[TicketState::Resolved->value] ?? 0),
 ];
 $userTickets['total'] = array_sum($userTickets);
 
-$userTickets['uniqueValid'] = collect(getTicketsForUser($devUser))
+$userTickets['uniqueValid'] = $ticketsForUser
     ->whereIn('state', [TicketState::Open->value, TicketState::Resolved->value])
     ->pluck('ticketable_id')
     ->unique()
