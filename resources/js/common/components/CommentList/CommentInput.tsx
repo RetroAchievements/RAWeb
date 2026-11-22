@@ -68,6 +68,7 @@ export const CommentInput: FC = () => {
                       )}
                       maxLength={2000}
                       minRows={3}
+                      rows={3}
                       className={baseTextareaClassNames}
                       readOnly={form.formState.isSubmitting}
                       {...field}
