@@ -116,7 +116,12 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
               onValueChange={handleAnswerSelect}
             />
 
-            <div className={cn('grid *:col-start-1 *:row-start-1', !answer && 'max-sm:hidden')}>
+            <div
+              className={cn(
+                'grid grid-cols-1 *:col-start-1 *:row-start-1',
+                !answer && 'max-sm:hidden',
+              )}
+            >
               <p
                 aria-hidden={answer !== null}
                 className={cn(
