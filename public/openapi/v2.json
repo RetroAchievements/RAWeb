@@ -2344,6 +2344,18 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
+                                                                    "resolution": {
+                                                                        "title": "resolution",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "signalVerdict": {
+                                                                        "title": "signalVerdict",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
                                                                     "reportedAt": {
                                                                         "title": "reportedAt",
                                                                         "type": "string",
@@ -4509,6 +4521,18 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
+                                                                    "resolution": {
+                                                                        "title": "resolution",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "signalVerdict": {
+                                                                        "title": "signalVerdict",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
                                                                     "reportedAt": {
                                                                         "title": "reportedAt",
                                                                         "type": "string",
@@ -5656,6 +5680,46 @@
                         }
                     },
                     {
+                        "name": "filter[resolution]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[signalVerdict]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[hardcore]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeDeveloperType]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter[reporterUserId]",
                         "in": "query",
                         "description": "Filters the records",
@@ -5667,6 +5731,16 @@
                     },
                     {
                         "name": "filter[resolverUserId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeUserId]",
                         "in": "query",
                         "description": "Filters the records",
                         "required": false,
@@ -5706,6 +5780,16 @@
                         }
                     },
                     {
+                        "name": "filter[systemId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "fields[tickets]",
                         "in": "query",
                         "description": "Only return these fields for the \"tickets\" resource. The .data field will be empty if none of the fields are set on a resource.",
@@ -5720,6 +5804,8 @@
                                     "type",
                                     "body",
                                     "hardcore",
+                                    "resolution",
+                                    "signalVerdict",
                                     "reportedAt",
                                     "resolvedAt",
                                     "ticketableType",
@@ -14133,6 +14219,18 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
+                                                                    "resolution": {
+                                                                        "title": "resolution",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "signalVerdict": {
+                                                                        "title": "signalVerdict",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
                                                                     "reportedAt": {
                                                                         "title": "reportedAt",
                                                                         "type": "string",
@@ -15415,6 +15513,18 @@
                                                                     "hardcore": {
                                                                         "title": "hardcore",
                                                                         "type": "boolean",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "resolution": {
+                                                                        "title": "resolution",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "signalVerdict": {
+                                                                        "title": "signalVerdict",
+                                                                        "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
@@ -16894,6 +17004,46 @@
                         }
                     },
                     {
+                        "name": "filter[resolution]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[signalVerdict]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[hardcore]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeDeveloperType]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter[reporterUserId]",
                         "in": "query",
                         "description": "Filters the records",
@@ -16905,6 +17055,16 @@
                     },
                     {
                         "name": "filter[resolverUserId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeUserId]",
                         "in": "query",
                         "description": "Filters the records",
                         "required": false,
@@ -16944,6 +17104,16 @@
                         }
                     },
                     {
+                        "name": "filter[systemId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "fields[tickets]",
                         "in": "query",
                         "description": "Only return these fields for the \"tickets\" resource. The .data field will be empty if none of the fields are set on a resource.",
@@ -16958,6 +17128,8 @@
                                     "type",
                                     "body",
                                     "hardcore",
+                                    "resolution",
+                                    "signalVerdict",
                                     "reportedAt",
                                     "resolvedAt",
                                     "ticketableType",
@@ -22986,6 +23158,46 @@
                         }
                     },
                     {
+                        "name": "filter[resolution]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[signalVerdict]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[hardcore]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeDeveloperType]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter[reporterUserId]",
                         "in": "query",
                         "description": "Filters the records",
@@ -22997,6 +23209,16 @@
                     },
                     {
                         "name": "filter[resolverUserId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeUserId]",
                         "in": "query",
                         "description": "Filters the records",
                         "required": false,
@@ -23036,6 +23258,16 @@
                         }
                     },
                     {
+                        "name": "filter[systemId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "fields[tickets]",
                         "in": "query",
                         "description": "Only return these fields for the \"tickets\" resource. The .data field will be empty if none of the fields are set on a resource.",
@@ -23050,6 +23282,8 @@
                                     "type",
                                     "body",
                                     "hardcore",
+                                    "resolution",
+                                    "signalVerdict",
                                     "reportedAt",
                                     "resolvedAt",
                                     "ticketableType",
@@ -25994,6 +26228,8 @@
                                     "type",
                                     "body",
                                     "hardcore",
+                                    "resolution",
+                                    "signalVerdict",
                                     "reportedAt",
                                     "resolvedAt",
                                     "ticketableType",
@@ -32216,6 +32452,18 @@
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
+                                                                    "resolution": {
+                                                                        "title": "resolution",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "signalVerdict": {
+                                                                        "title": "signalVerdict",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
                                                                     "reportedAt": {
                                                                         "title": "reportedAt",
                                                                         "type": "string",
@@ -34793,6 +35041,18 @@
                                                                     "hardcore": {
                                                                         "title": "hardcore",
                                                                         "type": "boolean",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "resolution": {
+                                                                        "title": "resolution",
+                                                                        "type": "string",
+                                                                        "nullable": true,
+                                                                        "readOnly": true
+                                                                    },
+                                                                    "signalVerdict": {
+                                                                        "title": "signalVerdict",
+                                                                        "type": "string",
                                                                         "nullable": true,
                                                                         "readOnly": true
                                                                     },
@@ -38928,6 +39188,46 @@
                         }
                     },
                     {
+                        "name": "filter[resolution]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[signalVerdict]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[hardcore]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeDeveloperType]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "filter[reporterUserId]",
                         "in": "query",
                         "description": "Filters the records",
@@ -38939,6 +39239,16 @@
                     },
                     {
                         "name": "filter[resolverUserId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter[assigneeUserId]",
                         "in": "query",
                         "description": "Filters the records",
                         "required": false,
@@ -38978,6 +39288,16 @@
                         }
                     },
                     {
+                        "name": "filter[systemId]",
+                        "in": "query",
+                        "description": "Filters the records",
+                        "required": false,
+                        "allowEmptyValue": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "fields[tickets]",
                         "in": "query",
                         "description": "Only return these fields for the \"tickets\" resource. The .data field will be empty if none of the fields are set on a resource.",
@@ -38992,6 +39312,8 @@
                                     "type",
                                     "body",
                                     "hardcore",
+                                    "resolution",
+                                    "signalVerdict",
                                     "reportedAt",
                                     "resolvedAt",
                                     "ticketableType",
@@ -43127,6 +43449,18 @@
                             "hardcore": {
                                 "title": "hardcore",
                                 "type": "boolean",
+                                "nullable": true,
+                                "readOnly": true
+                            },
+                            "resolution": {
+                                "title": "resolution",
+                                "type": "string",
+                                "nullable": true,
+                                "readOnly": true
+                            },
+                            "signalVerdict": {
+                                "title": "signalVerdict",
+                                "type": "string",
                                 "nullable": true,
                                 "readOnly": true
                             },

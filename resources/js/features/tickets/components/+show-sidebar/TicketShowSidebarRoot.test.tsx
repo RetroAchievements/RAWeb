@@ -42,7 +42,7 @@ describe('Component: TicketShowSidebarRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('rowheader', { name: 'Emulator' })).toBeVisible();
-    expect(screen.getByRole('heading', { level: 2, name: 'Related Tickets' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: 'Same Achievement' })).toBeVisible();
   });
 
   it('given no other tickets on the achievement, does not show the related tickets panel', () => {
@@ -59,7 +59,7 @@ describe('Component: TicketShowSidebarRoot', () => {
 
     // ASSERT
     expect(screen.getByRole('rowheader', { name: 'Emulator' })).toBeVisible();
-    expect(screen.queryByRole('heading', { name: 'Related Tickets' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Same Achievement' })).not.toBeInTheDocument();
   });
 
   it('given the reporter opened additional tickets on the same game, shows them in a panel', () => {
@@ -83,6 +83,8 @@ describe('Component: TicketShowSidebarRoot', () => {
     });
 
     // ASSERT
-    expect(screen.getByRole('heading', { level: 2, name: 'Same Reporter, Same Game' })).toBeVisible();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Same Reporter, Same Game' }),
+    ).toBeVisible();
   });
 });
