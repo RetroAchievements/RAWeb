@@ -67,16 +67,20 @@ function gamesSortedByOpenTickets(int $count): array
  */
 function getTicketsForUser(User $user): array
 {
-    $query = Ticket::select('ticketable_id', 'state', DB::raw('COUNT(*) as TicketCount'))
-        ->forMaintainer($user)
-        ->whereHas('achievement', function ($query) {
-            $query->where('is_promoted', true);
-        })
-        ->groupBy('ticketable_id', 'state')
-        ->orderBy('ticketable_id')
-        ->get();
-
-    return $query->toArray();
+    return DB::table('tickets as t')
+        ->join('achievements as ach', 'ach.id', '=', 't.ticketable_id')
+        ->tap(fn (Builder $query) => leftJoinMaintainerAtTicketCreation($query))
+        ->whereRaw('COALESCE(maint.user_id, ach.user_id) = ?', [$user->id])
+        ->where('t.ticketable_type', 'achievement')
+        ->where('ach.is_promoted', 1)
+        ->whereNull('t.deleted_at')
+        ->whereNull('ach.deleted_at')
+        ->groupBy('t.ticketable_id', 't.state')
+        ->orderBy('t.ticketable_id')
+        ->selectRaw('t.ticketable_id, t.state, COUNT(*) AS TicketCount')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->toArray();
 }
 
 /**
@@ -88,7 +92,7 @@ function getUserGameWithMostTickets(User $user): ?array
         ->leftJoin('achievements as ach', 'ach.id', '=', 't.ticketable_id')
         ->leftJoin('games as gd', 'gd.id', '=', 'ach.game_id')
         ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
-        ->tap(fn (Builder $query) => leftJoinActiveMaintainer($query))
+        ->tap(fn (Builder $query) => leftJoinMaintainerAtTicketCreation($query))
         ->whereRaw('COALESCE(maint.user_id, ach.user_id) = ?', [$user->id])
         ->where('t.ticketable_type', 'achievement')
         ->where('ach.is_promoted', 1)
@@ -110,7 +114,7 @@ function getUserAchievementWithMostTickets(User $user): ?array
         ->leftJoin('achievements as ach', 'ach.id', '=', 't.ticketable_id')
         ->leftJoin('games as gd', 'gd.id', '=', 'ach.game_id')
         ->leftJoin('systems as s', 's.id', '=', 'gd.system_id')
-        ->tap(fn (Builder $query) => leftJoinActiveMaintainer($query))
+        ->tap(fn (Builder $query) => leftJoinMaintainerAtTicketCreation($query))
         ->whereRaw('COALESCE(maint.user_id, ach.user_id) = ?', [$user->id])
         ->where('t.ticketable_type', 'achievement')
         ->where('ach.is_promoted', 1)
@@ -131,7 +135,7 @@ function getUserWhoCreatedMostTickets(User $user): ?array
     $row = DB::table('tickets as t')
         ->leftJoin('users as ua', 'ua.id', '=', 't.reporter_id')
         ->leftJoin('achievements as ach', 'ach.id', '=', 't.ticketable_id')
-        ->tap(fn (Builder $query) => leftJoinActiveMaintainer($query))
+        ->tap(fn (Builder $query) => leftJoinMaintainerAtTicketCreation($query))
         ->whereRaw('COALESCE(maint.user_id, ach.user_id) = ?', [$user->id])
         ->where('t.ticketable_type', 'achievement')
         ->where('t.state', '!=', TicketState::Closed->value)
@@ -152,7 +156,7 @@ function getNumberOfTicketsClosedForOthers(User $user): array
         ->leftJoin('users as ua', 'ua.id', '=', 't.reporter_id')
         ->leftJoin('users as ua2', 'ua2.id', '=', 't.resolver_id')
         ->leftJoin('achievements as ach', 'ach.id', '=', 't.ticketable_id')
-        ->tap(fn (Builder $query) => leftJoinActiveMaintainer($query))
+        ->tap(fn (Builder $query) => leftJoinMaintainerAtTicketCreation($query))
         ->leftJoin('users as ua3', 'ua3.id', '=', DB::raw('COALESCE(maint.user_id, ach.user_id)'))
         ->whereIn('t.state', [TicketState::Closed->value, TicketState::Resolved->value])
         ->where('t.ticketable_type', 'achievement')
@@ -179,7 +183,7 @@ function getNumberOfTicketsClosed(User $user): array
     return DB::table('tickets as t')
         ->leftJoin('users as ua2', 'ua2.id', '=', 't.resolver_id')
         ->leftJoin('achievements as ach', 'ach.id', '=', 't.ticketable_id')
-        ->tap(fn (Builder $query) => leftJoinActiveMaintainer($query))
+        ->tap(fn (Builder $query) => leftJoinMaintainerAtTicketCreation($query))
         ->whereIn('t.state', [TicketState::Closed->value, TicketState::Resolved->value])
         ->where('t.ticketable_type', 'achievement')
         ->where('t.reporter_id', '!=', $user->id)
@@ -196,9 +200,13 @@ function getNumberOfTicketsClosed(User $user): array
         ->toArray();
 }
 
-function leftJoinActiveMaintainer(Builder $query): Builder
+function leftJoinMaintainerAtTicketCreation(Builder $query): Builder
 {
     return $query->leftJoin('achievement_maintainers as maint', fn (JoinClause $maintainerJoin) => $maintainerJoin
         ->on('maint.achievement_id', '=', 'ach.id')
-        ->where('maint.is_active', true));
+        ->on('maint.effective_from', '<=', 't.created_at')
+        ->where(fn (JoinClause $untilJoin) => $untilJoin
+            ->whereNull('maint.effective_until')
+            ->orOn('maint.effective_until', '>', 't.created_at')
+        ));
 }
