@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Data\TicketListEntryData;
 use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListGroupField;
 use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use App\Platform\Requests\TicketListRequest;
@@ -297,8 +298,8 @@ describe('available filters', function () {
     });
 });
 
-describe('grouping sorts', function () {
-    it('given the game sort from A to Z, groups tickets by game in title order even when a later game has more tickets, keeps same-titled games apart, and counts every ticket in each group', function () {
+describe('grouping', function () {
+    it('given grouping by game, puts the games with the most tickets first, keeps same-titled games apart, and counts every ticket in each group', function () {
         // ARRANGE
         $developer = User::factory()->create();
         $attributes = ['assignee_id' => $developer->id, 'reporter_id' => User::factory()->create()->id];
@@ -335,19 +336,19 @@ describe('grouping sorts', function () {
         $result = (new BuildTicketListAction())->execute(
             TicketListScope::All,
             null,
-            TicketListRequest::create('/tickets', 'GET', ['sort' => 'game']),
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
             viewer: null,
         );
 
         // ASSERT
         expect(entryIds($result))->toEqual([
+            $zeldaTicket->id,
+            ...$olderZeldaTickets->pluck('id')->all(),
             $newerMetroidNesTicket->id,
             $olderMetroidNesTicket->id,
             $metroidGbaTicket->id,
-            $zeldaTicket->id,
-            ...$olderZeldaTickets->pluck('id')->all(),
         ]);
-        expect($result['grouping']->field)->toEqual(TicketListSortField::Game);
+        expect($result['grouping']->field)->toEqual(TicketListGroupField::Game);
         expect($result['grouping']->counts)->toEqual([
             $zelda->id => 3,
             $metroidNes->id => 2,
@@ -366,7 +367,7 @@ describe('grouping sorts', function () {
         $result = (new BuildTicketListAction())->execute(
             TicketListScope::All,
             null,
-            TicketListRequest::create('/tickets', 'GET', ['sort' => 'game']),
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
             viewer: null,
         );
 
@@ -375,7 +376,7 @@ describe('grouping sorts', function () {
         expect($result['grouping']->counts)->toEqual([$game->id => 53]);
     });
 
-    it('given the second page of the game sort, continues the game that the first page cut off', function () {
+    it('given the second page of grouping by game, continues the game that the first page cut off', function () {
         // ARRANGE
         $developer = User::factory()->create();
         $createGameTickets = function (string $title, string $firstCreatedAt) use ($developer): array {
@@ -398,13 +399,13 @@ describe('grouping sorts', function () {
         $firstPage = (new BuildTicketListAction())->execute(
             TicketListScope::All,
             null,
-            TicketListRequest::create('/tickets', 'GET', ['sort' => 'game']),
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
             viewer: null,
         );
         $secondPage = (new BuildTicketListAction())->execute(
             TicketListScope::All,
             null,
-            TicketListRequest::create('/tickets', 'GET', ['sort' => 'game', 'page' => ['number' => 2]]),
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game', 'page' => ['number' => 2]]),
             viewer: null,
         );
 
@@ -434,7 +435,7 @@ describe('grouping sorts', function () {
         $result = (new BuildTicketListAction())->execute(
             TicketListScope::All,
             null,
-            TicketListRequest::create('/tickets', 'GET', ['sort' => 'game', 'page' => ['number' => 2]]),
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game', 'page' => ['number' => 2]]),
             viewer: null,
         );
 
@@ -444,7 +445,7 @@ describe('grouping sorts', function () {
         expect(entryIds($result))->toEqualCanonicalizing($contraTickets->pluck('id')->all());
     });
 
-    it('given a later page of the achievement sort, says whether its first group started on the previous page', function (
+    it('given a later page of grouping by achievement, says whether its first group started on the previous page', function (
         int $firstAchievementTicketCount,
         bool $isFirstGroupContinued,
         int $pageTicketCount,
@@ -463,7 +464,7 @@ describe('grouping sorts', function () {
             $game,
             TicketListRequest::create('/game/' . $game->id . '/tickets', 'GET', [
                 'scope' => TicketListScope::Game->value,
-                'sort' => 'ticketable',
+                'group' => 'ticketable',
                 'page' => ['number' => 2],
             ]),
             viewer: null,
@@ -475,10 +476,10 @@ describe('grouping sorts', function () {
     })->with([
         'the page starts inside a group' => [53, true, 8],
         'the page starts where a group starts' => [50, false, 5],
-        'the page is past the end' => [45, false, 50],
+        'the requested page is past the last page' => [45, false, 50],
     ]);
 
-    it('given the game sort with the most tickets first, orders games by ticket count and breaks ties A to Z', function () {
+    it('given grouping by game, breaks ticket count ties A to Z', function () {
         // ARRANGE
         $developer = User::factory()->create();
         $alpha = Game::factory()->create(['title' => 'Alpha', 'system_id' => System::factory()->create()->id]);
@@ -495,7 +496,7 @@ describe('grouping sorts', function () {
         $result = (new BuildTicketListAction())->execute(
             TicketListScope::All,
             null,
-            TicketListRequest::create('/tickets', 'GET', ['sort' => '-game']),
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
             viewer: null,
         );
 
@@ -521,6 +522,29 @@ it('prefers the URL sort over the persisted sort', function () {
         'direction' => 'desc',
     ]);
 });
+
+it('resolves the group from the URL first, then from the persisted preference, and only offers the groups the scope allows', function (
+    array $query,
+    ?string $persistedGroupField,
+    TicketListGroupField $expectedGroupField,
+) {
+    // ARRANGE
+    $cookies = $persistedGroupField === null
+        ? []
+        : ['datatable_view_preference_tickets_all' => json_encode(['groupField' => $persistedGroupField])];
+
+    // ACT
+    $request = TicketListRequest::create('/tickets', 'GET', $query, $cookies);
+
+    // ASSERT
+    expect($request->getGroupField())->toEqual($expectedGroupField);
+})->with([
+    'a URL group' => [['group' => 'game'], null, TicketListGroupField::Game],
+    'a persisted group' => [[], 'game', TicketListGroupField::Game],
+    'a URL that turns off the persisted group' => [['group' => 'none'], 'game', TicketListGroupField::None],
+    'a URL group the scope does not offer' => [['group' => 'ticketable'], null, TicketListGroupField::None],
+    'a persisted group the scope does not offer' => [[], 'ticketable', TicketListGroupField::None],
+]);
 
 it('the generated sort column is consistent with the enum sort order', function () {
     // ARRANGE

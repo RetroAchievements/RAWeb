@@ -229,7 +229,7 @@ class TicketController extends Controller
             facetCounts: $result['facetCounts'],
             defaultStatusFilter: $scope->defaultStatusFilter(),
             defaultSortParam: $scope->defaultSortParam(),
-            sortFields: $scope->sortFields(),
+            groupFields: $scope->groupFields(),
             hasStatusFilter: $scope->hasStatusFilter(),
             persistenceCookieName: $scope->persistenceCookieName(),
             persistedViewPreferences: $request->getCookiePreferences(),

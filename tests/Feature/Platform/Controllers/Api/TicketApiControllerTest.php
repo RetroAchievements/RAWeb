@@ -603,13 +603,13 @@ describe('index', function () {
         expect($ids)->toEqual($expectedIds);
     });
 
-    it('given the game sort, the JSON has the grouping with correct group counts', function () {
+    it('given grouping by game, the JSON has the grouping with correct group counts', function () {
         // ARRANGE
         $fixture = createTicketIndexFixture(3);
         $this->actingAs(User::factory()->create());
 
         // ACT
-        $response = $this->getJson(route('api.ticket.index', ['scope' => 'all', 'sort' => 'game']));
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'all', 'group' => 'game']));
 
         // ASSERT
         $response->assertOk();

@@ -24,12 +24,14 @@ function renderTicketListDisplayPanel(overrides: Partial<TicketListDisplayPanelP
   const props: TicketListDisplayPanelProps = {
     columnDefinitions,
     columnVisibility: defaultColumnVisibility,
+    groupField: 'none',
+    groupFields: ['game'],
     hasColumnVisibilityOverrides: false,
+    onGroupChange: vi.fn(),
     onResetDisplay: vi.fn(),
     onSortChange: vi.fn(),
     onToggleColumn: vi.fn(),
     serverDefaultSortParam: '-createdAt',
-    sortFields: ['createdAt', 'state', 'resolvedAt'],
     sortParam: '-createdAt',
     ...overrides,
   };
@@ -109,69 +111,45 @@ describe('Component: TicketListDisplayPanel', () => {
     expect(screen.getByRole('button', { name: 'Closed first' })).toBeVisible();
   });
 
-  it('given a grouping sort, labels its directions as A to Z and most tickets first', async () => {
+  it('given the user picks a grouping, passes it on without changing the sort', async () => {
     // ARRANGE
-    const { props, rerender } = renderTicketListDisplayPanel({
-      sortFields: ['createdAt', 'state', 'resolvedAt', 'game'],
-      sortParam: 'game',
-    });
-
-    // ACT
-    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-
-    // ASSERT
-    expect(screen.getByRole('button', { name: 'A to Z' })).toBeVisible();
-    rerender(<TicketListDisplayPanel {...props} sortParam="-game" />);
-    expect(screen.getByRole('button', { name: 'Most tickets first' })).toBeVisible();
-  });
-
-  it('given the user picks a grouping field, puts the groups with the most tickets first', async () => {
-    // ARRANGE
+    const onGroupChange = vi.fn();
     const onSortChange = vi.fn();
-    renderTicketListDisplayPanel({
-      onSortChange,
-      sortFields: ['createdAt', 'state', 'resolvedAt', 'game'],
-      sortParam: '-createdAt',
-    });
+    renderTicketListDisplayPanel({ onGroupChange, onSortChange });
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Group by' }));
     await userEvent.click(screen.getByRole('option', { name: 'Game' }));
 
     // ASSERT
-    expect(onSortChange).toHaveBeenCalledWith('-game');
+    expect(onGroupChange).toHaveBeenCalledWith('game');
+    expect(onSortChange).not.toHaveBeenCalled();
   });
 
-  it('given the user leaves a grouping field, goes back to the default direction', async () => {
+  it('given the scope offers no grouping, does not show the group control', async () => {
     // ARRANGE
-    const onSortChange = vi.fn();
-    renderTicketListDisplayPanel({
-      onSortChange,
-      serverDefaultSortParam: '-createdAt',
-      sortFields: ['createdAt', 'state', 'resolvedAt', 'game'],
-      sortParam: 'game',
-    });
+    renderTicketListDisplayPanel({ groupFields: [] });
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('sort-field'));
-    await userEvent.click(screen.getByRole('option', { name: 'Created' }));
 
     // ASSERT
-    expect(onSortChange).toHaveBeenCalledWith('-createdAt');
+    expect(screen.queryByRole('combobox', { name: 'Group by' })).not.toBeInTheDocument();
   });
 
-  it('given the scope offers no grouping field, does not include the option', async () => {
+  it('given grouping is enabled, marks the display as changed', async () => {
     // ARRANGE
-    renderTicketListDisplayPanel({ sortFields: ['createdAt', 'state', 'resolvedAt'] });
+    const onResetDisplay = vi.fn();
+    renderTicketListDisplayPanel({ groupField: 'game', onResetDisplay });
 
     // ACT
     await userEvent.click(screen.getByRole('button', { name: 'Display' }));
-    await userEvent.click(screen.getByTestId('sort-field'));
+    await userEvent.click(screen.getByRole('button', { name: 'Reset to defaults' }));
 
     // ASSERT
-    expect(screen.getAllByRole('option')).toHaveLength(3);
+    expect(screen.getByTestId('display-changed-dot')).toBeInTheDocument();
+    expect(onResetDisplay).toHaveBeenCalledOnce();
   });
 
   it('given a column is hidden, marks its control as unpressed', async () => {

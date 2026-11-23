@@ -3,7 +3,7 @@
  * achievement or leaderboard groups by {type}+{ID}.
  */
 export function getTicketListGroupKey(
-  field: App.Platform.Enums.TicketListSortField,
+  field: App.Platform.Enums.TicketListGroupField,
   entry: App.Platform.Data.TicketListEntry,
 ): string {
   if (field === 'game') {

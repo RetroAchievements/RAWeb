@@ -20,16 +20,27 @@ describe('Util: resolveInitialTicketListColumnFilters', () => {
 
   it('given the URL carries a filter, uses it and still applies defaults the URL is silent about', () => {
     // ACT
-    const result = resolveInitialTicketListColumnFilters(
-      { filter: { emulator: 'RetroArch' } },
-      serverDefaultColumnFilters,
-    );
+    const result = resolveInitialTicketListColumnFilters({ filter: { emulator: 'RetroArch' } }, [
+      { id: 'status', value: ['unresolved'] },
+      { id: 'emulator', value: ['all'] },
+    ]);
 
     // ASSERT
     expect(result).toEqual([
       { id: 'emulator', value: ['RetroArch'] },
       { id: 'status', value: ['unresolved'] },
     ]);
+  });
+
+  it('given the URL has a filter the page does not support, drops it', () => {
+    // ACT
+    const result = resolveInitialTicketListColumnFilters(
+      { filter: { system: '7', status: 'all' } },
+      serverDefaultColumnFilters,
+    );
+
+    // ASSERT
+    expect(result).toEqual([{ id: 'status', value: ['all'] }]);
   });
 
   it('given the URL overrides a default filter kind, the URL wins', () => {

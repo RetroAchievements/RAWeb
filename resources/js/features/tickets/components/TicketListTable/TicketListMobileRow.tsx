@@ -17,7 +17,7 @@ interface TicketListMobileRowProps {
   /** Should be falsy for game-scoped lists, as it'd be redundant. */
   shouldShowGameTitle: boolean;
 
-  /** Should be falsy under a group header that already names the achievement. */
+  /** Should be falsy under a group header that already names the achievement or leaderboard. */
   shouldShowTicketable: boolean;
 }
 

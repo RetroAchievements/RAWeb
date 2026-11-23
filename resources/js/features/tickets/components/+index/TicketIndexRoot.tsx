@@ -8,6 +8,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useTicketListColumnDefinitions } from '../../hooks/useTicketListColumnDefinitions';
 import { useTicketListFilterProperties } from '../../hooks/useTicketListFilterProperties';
 import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
+import { buildTicketListFilterLinkParams } from '../../utils/buildTicketListFilterLinkParams';
 import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
@@ -33,11 +34,11 @@ export const TicketIndexRoot: FC = () => {
     defaultStatusFilter,
     facetCounts,
     grouping,
+    groupFields,
     hasStatusFilter,
     game,
     paginatedTickets,
     scope,
-    sortFields,
     stateCounts,
     user,
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
@@ -170,9 +171,16 @@ export const TicketIndexRoot: FC = () => {
             <TicketListDisplayPanel
               columnDefinitions={columnDefinitions}
               columnVisibility={ticketListTableProps.columnVisibility}
+              groupField={ticketListTableProps.groupField}
+              groupFields={groupFields}
               hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
-              onPrefetchSort={(sortParam) =>
+              onGroupChange={ticketListTableProps.setGroupField}
+              onPrefetchDisplay={({
+                groupField = ticketListTableProps.groupField,
+                sortParam = ticketListTableProps.sortParam,
+              }) =>
                 ticketListTableProps.prefetchList({
+                  groupField,
                   sortParam,
                   columnFilters: getTicketListColumnFiltersForSort(
                     ticketListTableProps.columnFilters,
@@ -184,7 +192,6 @@ export const TicketIndexRoot: FC = () => {
               onSortChange={ticketListTableProps.setSortParam}
               onToggleColumn={ticketListTableProps.toggleColumnVisibility}
               serverDefaultSortParam={ticketListTableProps.serverDefaultSortParam}
-              sortFields={sortFields}
               sortParam={ticketListTableProps.sortParam}
             />
           </div>
@@ -200,6 +207,10 @@ export const TicketIndexRoot: FC = () => {
         isFetching={ticketListTableProps.isFetching}
         paginatedTickets={ticketListTableProps.paginatedTickets}
         grouping={ticketListTableProps.grouping}
+        groupLinkFilterParams={buildTicketListFilterLinkParams(
+          appliedColumnFilters,
+          serverDefaultColumnFilters,
+        )}
         emptyStateNode={
           <TicketListEmptyState
             scope={scope}

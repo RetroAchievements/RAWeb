@@ -12,12 +12,14 @@ import { ticketListCellClassNames } from '../../utils/column-definitions/ticketL
 import { TicketableTitleLink } from '../TicketableTitleLink';
 
 const groupTitleClassName = 'font-semibold text-neutral-200 light:text-neutral-900';
+const groupDetailClassName = cn('whitespace-nowrap text-xs', ticketListCellClassNames.dimText);
 
 interface TicketListGroupHeaderRowProps {
   columnCount: number;
   entry: App.Platform.Data.TicketListEntry;
-  field: App.Platform.Enums.TicketListSortField;
+  field: App.Platform.Enums.TicketListGroupField;
   isContinued: boolean;
+  linkFilterParams: Record<string, string>;
   ticketCount: number;
 }
 
@@ -26,19 +28,19 @@ export const TicketListGroupHeaderRow: FC<TicketListGroupHeaderRowProps> = ({
   entry,
   field,
   isContinued,
+  linkFilterParams,
   ticketCount,
 }) => {
   const { t } = useTranslation();
 
-  const detailClassName = cn('whitespace-nowrap text-xs', ticketListCellClassNames.dimText);
   const ticketCountNode = (
     <>
-      <span className={detailClassName}>
+      <span className={groupDetailClassName}>
         {t('{{val, number}} tickets', { count: ticketCount, val: ticketCount })}
       </span>
 
       {isContinued ? (
-        <span className={detailClassName}>{t('continued from previous page')}</span>
+        <span className={groupDetailClassName}>{t('continued from previous page')}</span>
       ) : null}
     </>
   );
@@ -54,7 +56,11 @@ export const TicketListGroupHeaderRow: FC<TicketListGroupHeaderRowProps> = ({
     >
       <div role="rowheader" aria-colspan={columnCount} className="flex min-w-0 items-center gap-2">
         {field === 'game' ? (
-          <GameGroupLabel game={entry.game} ticketCountNode={ticketCountNode} />
+          <GameGroupLabel
+            game={entry.game}
+            linkFilterParams={linkFilterParams}
+            ticketCountNode={ticketCountNode}
+          />
         ) : (
           <TicketableGroupLabel entry={entry} ticketCountNode={ticketCountNode} />
         )}
@@ -73,10 +79,11 @@ const GroupText: FC<GroupTextProps> = ({ children }) => (
 
 interface GameGroupLabelProps {
   game: App.Platform.Data.Game;
+  linkFilterParams: Record<string, string>;
   ticketCountNode: ReactNode;
 }
 
-const GameGroupLabel: FC<GameGroupLabelProps> = ({ game, ticketCountNode }) => {
+const GameGroupLabel: FC<GameGroupLabelProps> = ({ game, linkFilterParams, ticketCountNode }) => {
   const { cardTooltipProps } = useCardTooltip({ dynamicType: 'game', dynamicId: game.id });
 
   return (
@@ -96,7 +103,7 @@ const GameGroupLabel: FC<GameGroupLabelProps> = ({ game, ticketCountNode }) => {
       <GroupText>
         <InertiaLink
           prefetch="desktop-hover-only"
-          href={route('game.tickets', { game: game.id })}
+          href={route('game.tickets', { game: game.id, ...linkFilterParams })}
           className={cn(
             ticketListCellClassNames.entityLinkWrapper,
             ticketListCellClassNames.truncate,
@@ -110,9 +117,13 @@ const GameGroupLabel: FC<GameGroupLabelProps> = ({ game, ticketCountNode }) => {
         </InertiaLink>
 
         {game.system?.nameShort ? (
-          <span className={cn('whitespace-nowrap text-xs', ticketListCellClassNames.dimText)}>
-            {game.system.nameShort}
-          </span>
+          <>
+            <span className={groupDetailClassName}>{game.system.nameShort}</span>
+
+            <span aria-hidden="true" className={groupDetailClassName}>
+              {'·'}
+            </span>
+          </>
         ) : null}
 
         {ticketCountNode}

@@ -36,6 +36,7 @@ interface TicketListTableProps {
   emptyStateNode?: ReactNode;
 
   grouping?: App.Platform.Data.TicketListGrouping | null;
+  groupLinkFilterParams?: Record<string, string>;
 
   isFetching?: boolean;
   paginatorNode?: ReactNode;
@@ -49,6 +50,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   columnVisibility,
   emptyStateNode,
   grouping,
+  groupLinkFilterParams = {},
   hasVerdictSlot,
   paginatedTickets,
   paginatorNode,
@@ -89,7 +91,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   const hasIdColumn = visibleColumns.some((column) => column.id === 'id');
   const hasTicketableColumn = visibleColumns.some((column) => column.id === 'ticketable');
   const stretchSlot = getStretchSlot(hasIdColumn, hasTicketableColumn);
-  
+
   const rowCellCount =
     visibleColumns.length + (hasVerdictSlot ? 2 : 1) + (stretchSlot === 'ticketLabel' ? 1 : 0);
 
@@ -167,6 +169,7 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                     entry={row.original}
                     field={grouping.field}
                     isContinued={groupHeader.isContinued}
+                    linkFilterParams={groupLinkFilterParams}
                     ticketCount={groupHeader.ticketCount}
                   />
                 ) : null}
@@ -300,7 +303,7 @@ const RowLeadingSlots: FC<RowLeadingSlotsProps> = ({ entry, hasVerdictSlot, stre
       ) : null}
 
       {stretchSlot === 'empty' ? <span aria-hidden="true" className="flex-1" /> : null}
-      
+
       {stretchSlot === 'ticketLabel' ? (
         <div role="cell" className={stretchSlotClassName}>
           <InertiaLink

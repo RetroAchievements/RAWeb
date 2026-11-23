@@ -179,18 +179,18 @@ it("given a scoped list, reads that scope's preference cookie", function () {
     );
 });
 
-it("given a game's list is sorted by achievement, supports grouping", function () {
+it("given a game's list is grouped by achievement, sends the grouping", function () {
     // ARRANGE
     $tickets = createTicketListPageTickets(2);
     $achievement = $tickets[0]->getTicketableModel();
     actingAs(User::factory()->create());
 
     // ACT
-    $response = get(route('game.tickets', ['game' => $achievement->game_id, 'sort' => 'ticketable']));
+    $response = get(route('game.tickets', ['game' => $achievement->game_id, 'group' => 'ticketable']));
 
     // ASSERT
     $response->assertInertia(fn (Assert $page) => $page
-        ->where('sortFields', ['createdAt', 'state', 'resolvedAt', 'ticketable'])
+        ->where('groupFields', ['ticketable'])
         ->where('grouping.field', 'ticketable')
         ->where('grouping.counts', ["achievement:{$achievement->id}" => 2])
     );

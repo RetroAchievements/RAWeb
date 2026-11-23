@@ -64,22 +64,17 @@ enum TicketListScope: string
     }
 
     /**
-     * @return TicketListSortField[]
+     * The groupings this scope offers besides "None".
+     *
+     * @return TicketListGroupField[]
      */
-    public function sortFields(): array
+    public function groupFields(): array
     {
-        $dateAndStatusFields = [
-            TicketListSortField::CreatedAt,
-            TicketListSortField::State,
-            TicketListSortField::ResolvedAt,
-        ];
-
         return match ($this) {
-            self::Game => [...$dateAndStatusFields, TicketListSortField::Ticketable],
-            self::Achievement, self::AwaitingReporter => $dateAndStatusFields,
+            self::Game => [TicketListGroupField::Ticketable],
+            self::Achievement, self::AwaitingReporter => [],
             self::All, self::AssignedTo, self::ReportedBy, self::SubscribedBy, self::ResolvedBy => [
-                ...$dateAndStatusFields,
-                TicketListSortField::Game,
+                TicketListGroupField::Game,
             ],
         };
     }

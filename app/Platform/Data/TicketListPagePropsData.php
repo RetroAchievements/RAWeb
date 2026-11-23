@@ -7,8 +7,8 @@ namespace App\Platform\Data;
 use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Data\UserPermissionsData;
+use App\Platform\Enums\TicketListGroupField;
 use App\Platform\Enums\TicketListScope;
-use App\Platform\Enums\TicketListSortField;
 use App\Platform\Enums\TicketListStatusFilter;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
@@ -32,8 +32,8 @@ class TicketListPagePropsData extends Data
         public TicketListStatusFilter $defaultStatusFilter,
         #[LiteralTypeScriptType('App.Platform.Enums.TicketListSortField | `-${App.Platform.Enums.TicketListSortField}`')]
         public string $defaultSortParam,
-        /** @var TicketListSortField[] */
-        public array $sortFields,
+        /** @var TicketListGroupField[] */
+        public array $groupFields,
         public bool $hasStatusFilter,
         public string $persistenceCookieName,
         public UserPermissionsData $can,

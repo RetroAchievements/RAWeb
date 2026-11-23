@@ -31,6 +31,7 @@ interface TestHarnessProps {
   emptyStateNode?: React.ReactNode;
   hasVerdictSlot?: boolean;
   grouping?: App.Platform.Data.TicketListGrouping | null;
+  groupLinkFilterParams?: Record<string, string>;
   isFetching?: boolean;
   lastPage?: number;
   paginatorNode?: React.ReactNode;
@@ -42,6 +43,7 @@ interface TestHarnessProps {
 const TestHarness: FC<TestHarnessProps> = ({
   emptyStateNode,
   grouping,
+  groupLinkFilterParams,
   isFetching,
   paginatorNode,
   columnVisibility = { ...noneVisible, id: true, ticketable: true, age: true },
@@ -68,6 +70,7 @@ const TestHarness: FC<TestHarnessProps> = ({
       hasVerdictSlot={hasVerdictSlot}
       emptyStateNode={emptyStateNode}
       grouping={grouping}
+      groupLinkFilterParams={groupLinkFilterParams}
       isFetching={isFetching}
       paginatedTickets={paginatedTickets}
       paginatorNode={paginatorNode}
@@ -124,6 +127,27 @@ describe('Component: TicketListTable', () => {
       'href',
       expect.stringContaining('game.tickets,'),
     );
+  });
+
+  it('given filter params for the group links, pushes them to the game ticket list', () => {
+    // ARRANGE
+    render(
+      <TestHarness
+        grouping={{ field: 'game', counts: { '1': 3 }, isFirstGroupContinued: false }}
+        groupLinkFilterParams={{
+          'filter[status]': 'all',
+          'filter[signal]': 'probably-defect',
+        }}
+        tickets={[createTicketListEntry({ game: createGame({ id: 1, title: 'Zelda' }) })]}
+      />,
+    );
+
+    // ASSERT
+    expect(route).toHaveBeenCalledWith('game.tickets', {
+      game: 1,
+      'filter[status]': 'all',
+      'filter[signal]': 'probably-defect',
+    });
   });
 
   it('given the list is grouped by achievement or leaderboard, keeps an achievement and a leaderboard with the same ID apart', () => {

@@ -11,6 +11,7 @@ type TicketListTableSyncProps = Parameters<typeof useTicketListTableSync>[0];
 const defaultProps: TicketListTableSyncProps = {
   columnFilters: serverDefaultColumnFilters,
   columnVisibilityOverrides: {},
+  groupField: 'none',
   serverDefaultColumnFilters,
   serverDefaultSortParam: '-createdAt',
   pageNumber: 1,
@@ -22,8 +23,8 @@ function renderTicketListTableSync() {
   return renderHook((props: TicketListTableSyncProps) => useTicketListTableSync(props), {
     initialProps: defaultProps,
     pageProps: {
+      groupFields: ['game'],
       persistenceCookieName: 'datatable_view_preference_tickets_all',
-      sortFields: ['createdAt', 'state', 'resolvedAt'],
     },
   });
 }
@@ -73,7 +74,7 @@ describe('Hook: useTicketListTableSync', () => {
     expect(setCookieSpy).not.toHaveBeenCalled();
   });
 
-  it('persists only the sort and column visibility overrides', () => {
+  it('persists only the sort, the grouping, and the column visibility overrides', () => {
     // ARRANGE
     const cookieName = 'datatable_view_preference_tickets_all';
     const setCookieSpy = vi.spyOn(document, 'cookie', 'set');
@@ -83,6 +84,7 @@ describe('Hook: useTicketListTableSync', () => {
     rerender({
       ...defaultProps,
       columnVisibilityOverrides: { game: false },
+      groupField: 'game',
       pageNumber: 3,
       sortParam: 'state',
     });
@@ -91,6 +93,7 @@ describe('Hook: useTicketListTableSync', () => {
     const lastCookieWrite = setCookieSpy.mock.calls.at(-1)![0];
     expect(readCookieWrite(lastCookieWrite, cookieName)).toEqual({
       columnVisibility: { game: false },
+      groupField: 'game',
       sortParam: 'state',
     });
   });
@@ -104,6 +107,7 @@ describe('Hook: useTicketListTableSync', () => {
     rerender({
       ...defaultProps,
       columnVisibilityOverrides: { game: false },
+      groupField: 'game',
       sortParam: 'state',
     });
 
@@ -114,6 +118,7 @@ describe('Hook: useTicketListTableSync', () => {
     const lastCookieWrite = setCookieSpy.mock.calls.at(-1)![0];
     expect(readCookieWrite(lastCookieWrite, cookieName)).toEqual({
       columnVisibility: {},
+      groupField: 'none',
       sortParam: '-createdAt',
     });
   });
@@ -130,7 +135,7 @@ describe('Hook: useTicketListTableSync', () => {
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       `/tickets?${encodeURIComponent('page[number]')}=3`,
     );
@@ -143,7 +148,7 @@ describe('Hook: useTicketListTableSync', () => {
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       '/tickets',
     );
@@ -160,7 +165,7 @@ describe('Hook: useTicketListTableSync', () => {
     });
 
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       '/tickets?filter%5Bstatus%5D=resolved',
     );
@@ -172,7 +177,7 @@ describe('Hook: useTicketListTableSync', () => {
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       '/tickets',
     );
@@ -192,7 +197,7 @@ describe('Hook: useTicketListTableSync', () => {
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       `/tickets?highlight=17&${encodeURIComponent('page[number]')}=2`,
     );
@@ -210,9 +215,27 @@ describe('Hook: useTicketListTableSync', () => {
 
     // ASSERT
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: 'state' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: 'state' },
       '',
       '/tickets?sort=state',
+    );
+  });
+
+  it('given grouping changes, the URL updates accordingly', () => {
+    // ARRANGE
+    const { rerender } = renderTicketListTableSync();
+
+    // ACT
+    rerender({
+      ...defaultProps,
+      groupField: 'game',
+    });
+
+    // ASSERT
+    expect(pushStateSpy).toHaveBeenCalledWith(
+      { inertia: true, ticketListGroupField: 'game', ticketListSortParam: '-createdAt' },
+      '',
+      '/tickets?group=game',
     );
   });
 
@@ -238,39 +261,41 @@ describe('Hook: useTicketListTableSync', () => {
 
     renderHook((props: TicketListTableSyncProps) => useTicketListTableSync(props), {
       initialProps: { ...defaultProps, restoreState },
-      pageProps: { sortFields: ['createdAt', 'state', 'resolvedAt'] },
+      pageProps: { groupFields: ['game'] },
     });
 
     // ACT
-    setWindowLocation('?filter[status]=resolved&page[number]=3&sort=state');
+    setWindowLocation('?filter[status]=resolved&page[number]=3&sort=state&group=game');
     window.dispatchEvent(new PopStateEvent('popstate'));
 
     // ASSERT
     expect(restoreState).toHaveBeenCalledWith({
       columnFilters: [{ id: 'status', value: ['resolved'] }],
+      groupField: 'game',
       pageNumber: 3,
       sortParam: 'state',
     });
   });
 
-  it('given the initial sort comes from persistence, restores it when navigating back', () => {
+  it('given the initial sort and grouping come from persistence, restores them when navigating back', () => {
     // ARRANGE
     const restoreState = vi.fn();
     const { rerender } = renderHook(
       (props: TicketListTableSyncProps) => useTicketListTableSync(props),
       {
-        initialProps: { ...defaultProps, restoreState, sortParam: 'state' },
-        pageProps: { sortFields: ['createdAt', 'state', 'resolvedAt'] },
+        initialProps: { ...defaultProps, groupField: 'game', restoreState, sortParam: 'state' },
+        pageProps: { groupFields: ['game'] },
       },
     );
 
     expect(replaceStateSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ ticketListSortParam: 'state' }),
+      expect.objectContaining({ ticketListGroupField: 'game', ticketListSortParam: 'state' }),
       '',
     );
 
     rerender({
       ...defaultProps,
+      groupField: 'game',
       pageNumber: 2,
       restoreState,
       sortParam: 'state',
@@ -279,12 +304,15 @@ describe('Hook: useTicketListTableSync', () => {
     // ACT
     setWindowLocation('');
     window.dispatchEvent(
-      new PopStateEvent('popstate', { state: { ticketListSortParam: 'state' } }),
+      new PopStateEvent('popstate', {
+        state: { ticketListGroupField: 'game', ticketListSortParam: 'state' },
+      }),
     );
 
     // ASSERT
     expect(restoreState).toHaveBeenCalledWith({
       columnFilters: serverDefaultColumnFilters,
+      groupField: 'game',
       pageNumber: 1,
       sortParam: 'state',
     });
@@ -298,7 +326,7 @@ describe('Hook: useTicketListTableSync', () => {
       (props: TicketListTableSyncProps) => useTicketListTableSync(props),
       {
         initialProps: { ...defaultProps, restoreState },
-        pageProps: { sortFields: ['createdAt', 'state', 'resolvedAt'] },
+        pageProps: { groupFields: ['game'] },
       },
     );
 
@@ -324,7 +352,7 @@ describe('Hook: useTicketListTableSync', () => {
     });
 
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       `/tickets?${encodeURIComponent('page[number]')}=2`,
     );

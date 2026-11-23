@@ -17,6 +17,7 @@ use App\Platform\Data\TicketListGroupingData;
 use App\Platform\Data\TicketListStateCountsData;
 use App\Platform\Enums\TicketableType;
 use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListGroupField;
 use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use App\Platform\Enums\TicketListStatusFilter;
@@ -48,8 +49,10 @@ class BuildTicketListAction
         $comparisonUser = $scope->comparisonUser($target);
 
         $visibleFilterKinds = $this->getVisibleFilterKinds($scope, $viewer);
-        if (!in_array(TicketListFilterKind::Signal, $visibleFilterKinds, true)) {
-            $filterOptions[TicketListFilterKind::Signal->value] = TicketListFilterKind::Signal->noFilterValue();
+        foreach (TicketListFilterKind::cases() as $kind) {
+            if (!in_array($kind, $visibleFilterKinds, true)) {
+                $filterOptions[$kind->value] = $kind->noFilterValue();
+            }
         }
 
         $scopedTickets = $scope->baseQuery($target);
@@ -75,19 +78,25 @@ class BuildTicketListAction
 
         $query = $service->applyFilters(clone $renderableTickets, $filterOptions, $comparisonUser);
         $sort = $request->getSort();
+        $groupField = $request->getGroupField();
+        $status = TicketListStatusFilter::from($filterOptions['status']);
 
         // If the result set is small, filter it first instead of scanning creation dates for a full page.
         // This makes several queries ~20x faster.
-        if ($total <= self::PER_PAGE && $sort['field'] === TicketListSortField::CreatedAt) {
+        if (
+            $total <= self::PER_PAGE
+            && $sort['field'] === TicketListSortField::CreatedAt
+            && $groupField === TicketListGroupField::None
+        ) {
             $query->ignoreIndex('tickets_created_at_index');
         }
 
         $this->applyTicketListEntryEagerLoads($query);
 
-        ['pageTickets' => $pageTickets, 'grouping' => $grouping] = match ($sort['field']) {
-            TicketListSortField::Game => $this->fetchPageGroupedByGame($query, $sort['direction'], $page, $service),
-            TicketListSortField::Ticketable => $this->fetchPageGroupedByTicketable($query, $sort['direction'], $page, $service),
-            default => $this->fetchSortedPage($query, $sort, TicketListStatusFilter::from($filterOptions['status']), $page),
+        ['pageTickets' => $pageTickets, 'grouping' => $grouping] = match ($groupField) {
+            TicketListGroupField::Game => $this->fetchPageGroupedByGame($query, $sort, $status, $page, $service),
+            TicketListGroupField::Ticketable => $this->fetchPageGroupedByTicketable($query, $sort, $status, $page, $service),
+            TicketListGroupField::None => $this->fetchSortedPage($query, $sort, $status, $page),
         };
 
         $paginator = new LengthAwarePaginator(
@@ -200,31 +209,32 @@ class BuildTicketListAction
     }
 
     /**
-     * Sorting every ticket by its game's title is slow because the DB has to join and sort
+     * Ordering every ticket by its game's ticket count is slow because the DB has to join and sort
      * the whole list just to show one page. Instead, this function counts the filtered tickets
      * per game, works out which games fall on the currently-viewed page, and fetches _only_ those
      * games' tickets. The per-game counts are also the group header counts.
      *
      * @param Builder<Ticket> $filteredQuery
-     * @param 'asc'|'desc' $direction descending puts the games with the most tickets first, whereas ascending orders them A to Z
+     * @param array{field: TicketListSortField, direction: 'asc'|'desc'} $sort orders the tickets inside each game
      * @return array{pageTickets: Collection<int, Ticket>, grouping: TicketListGroupingData}
      */
     private function fetchPageGroupedByGame(
         Builder $filteredQuery,
-        string $direction,
+        array $sort,
+        TicketListStatusFilter $status,
         int $page,
         TicketListService $service,
     ): array {
-        $ticketCountsByGame = $service->joinTicketableGameIds(clone $filteredQuery)
+        $ticketCountsByGameQuery = $service->joinTicketableGameIds(clone $filteredQuery)
             ->toBase()
             ->selectRaw(TicketListService::TICKETABLE_GAME_ID . ' as group_game_id, count(*) as ticket_count')
             ->groupBy('group_game_id');
 
         /** @var array<int, int> $ticketCountsByGameInSortOrder */
         $ticketCountsByGameInSortOrder = DB::query()
-            ->fromSub($ticketCountsByGame, 'game_ticket_counts')
+            ->fromSub($ticketCountsByGameQuery, 'game_ticket_counts')
             ->join('games', 'games.id', '=', 'game_ticket_counts.group_game_id')
-            ->when($direction === 'desc', fn ($query) => $query->orderByDesc('game_ticket_counts.ticket_count'))
+            ->orderByDesc('game_ticket_counts.ticket_count')
             ->orderByRaw('coalesce(games.sort_title, games.title)')
             ->orderBy('games.id')
             ->pluck('game_ticket_counts.ticket_count', 'games.id')
@@ -237,7 +247,7 @@ class BuildTicketListAction
         );
 
         $grouping = new TicketListGroupingData(
-            field: TicketListSortField::Game,
+            field: TicketListGroupField::Game,
             counts: $pageTicketCountsByGame,
             isFirstGroupContinued: $ticketsToSkip > 0,
         );
@@ -253,7 +263,7 @@ class BuildTicketListAction
         $achievementIds = Achievement::whereIn('game_id', $gameIds)->pluck('id')->all();
         $leaderboardIds = Leaderboard::whereIn('game_id', $gameIds)->pluck('id')->all();
 
-        $pageTickets = $service->joinTicketableGameIds($filteredQuery->select('tickets.*'))
+        $pageQuery = $service->joinTicketableGameIds($filteredQuery->select('tickets.*'))
             ->where(fn (Builder $query) => $query
                 ->where(fn (Builder $achievementQuery) => $achievementQuery
                     ->where('tickets.ticketable_type', TicketableType::Achievement->value)
@@ -261,12 +271,10 @@ class BuildTicketListAction
                 ->orWhere(fn (Builder $leaderboardQuery) => $leaderboardQuery
                     ->where('tickets.ticketable_type', TicketableType::Leaderboard->value)
                     ->whereIntegerInRaw('tickets.ticketable_id', $leaderboardIds)))
-            ->orderByRaw('case ' . TicketListService::TICKETABLE_GAME_ID . " {$gamePositions} end", $gameIds)
-            ->orderByDesc('tickets.created_at')
-            ->orderByDesc('tickets.id')
-            ->offset($ticketsToSkip)
-            ->limit(self::PER_PAGE)
-            ->get();
+            ->orderByRaw('case ' . TicketListService::TICKETABLE_GAME_ID . " {$gamePositions} end", $gameIds);
+        $this->applySort($pageQuery, $sort, $status);
+
+        $pageTickets = $pageQuery->offset($ticketsToSkip)->limit(self::PER_PAGE)->get();
 
         return ['pageTickets' => $pageTickets, 'grouping' => $grouping];
     }
@@ -304,12 +312,13 @@ class BuildTicketListAction
 
     /**
      * @param Builder<Ticket> $filteredQuery
-     * @param 'asc'|'desc' $direction
+     * @param array{field: TicketListSortField, direction: 'asc'|'desc'} $sort inside each group
      * @return array{pageTickets: Collection<int, Ticket>, grouping: TicketListGroupingData}
      */
     private function fetchPageGroupedByTicketable(
         Builder $filteredQuery,
-        string $direction,
+        array $sort,
+        TicketListStatusFilter $status,
         int $page,
         TicketListService $service,
     ): array {
@@ -321,7 +330,7 @@ class BuildTicketListAction
 
         $hasPreviousPage = $page > 1;
         $previousPageRowCount = $hasPreviousPage ? 1 : 0;
-        $pageTickets = $service->joinTicketables(
+        $pageQuery = $service->joinTicketables(
             $filteredQuery->select(['tickets.*', 'group_ticket_count']),
             ['title as facet_achievement_title'],
             ['title as facet_leaderboard_title'],
@@ -329,12 +338,13 @@ class BuildTicketListAction
             ->joinSub($ticketCountsByTicketable, 'ticketable_ticket_counts', fn ($join) => $join
                 ->on('group_ticketable_type', '=', 'tickets.ticketable_type')
                 ->on('group_ticketable_id', '=', 'tickets.ticketable_id'))
-            ->when($direction === 'desc', fn (Builder $query) => $query->orderByDesc('group_ticket_count'))
+            ->orderByDesc('group_ticket_count')
             ->orderByRaw('coalesce(facet_achievement_title, facet_leaderboard_title)')
             ->orderBy('tickets.ticketable_type')
-            ->orderBy('tickets.ticketable_id')
-            ->orderByDesc('tickets.created_at')
-            ->orderByDesc('tickets.id')
+            ->orderBy('tickets.ticketable_id');
+        $this->applySort($pageQuery, $sort, $status);
+
+        $pageTickets = $pageQuery
             ->offset(($page - 1) * self::PER_PAGE - $previousPageRowCount)
             ->limit(self::PER_PAGE + $previousPageRowCount)
             ->get();
@@ -345,7 +355,7 @@ class BuildTicketListAction
         return [
             'pageTickets' => $pageTickets,
             'grouping' => new TicketListGroupingData(
-                field: TicketListSortField::Ticketable,
+                field: TicketListGroupField::Ticketable,
                 counts: $pageTickets
                     ->mapWithKeys(fn (Ticket $ticket): array => [
                         "{$ticket->ticketable_type}:{$ticket->ticketable_id}" => (int) $ticket->getAttribute('group_ticket_count'),

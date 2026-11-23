@@ -7,16 +7,19 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import type { TicketListSortParam, TicketListUrlState } from '../models';
 import { readTicketListSearchParams } from '../utils/readTicketListSearchParams';
 import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
+import { resolveTicketListGroupField } from '../utils/resolveTicketListGroupField';
 import { serializeTicketListSearchParams } from '../utils/serializeTicketListSearchParams';
 import { ticketListSort } from '../utils/ticketListSort';
 
 interface TicketListHistoryState {
+  ticketListGroupField?: unknown;
   ticketListSortParam?: unknown;
 }
 
 interface UseTicketListTableSyncProps {
   columnFilters: ColumnFiltersState;
   columnVisibilityOverrides: VisibilityState;
+  groupField: App.Platform.Enums.TicketListGroupField;
   serverDefaultColumnFilters: ColumnFiltersState;
   serverDefaultSortParam: TicketListSortParam;
   pageNumber: number;
@@ -31,25 +34,31 @@ interface UseTicketListTableSyncProps {
 export function useTicketListTableSync({
   columnFilters,
   columnVisibilityOverrides,
+  groupField,
   serverDefaultColumnFilters,
   serverDefaultSortParam,
   pageNumber,
   restoreState,
   sortParam,
 }: UseTicketListTableSyncProps) {
-  const { persistenceCookieName, sortFields } =
+  const { groupFields, persistenceCookieName } =
     usePageProps<
-      Pick<App.Platform.Data.TicketListPageProps, 'persistenceCookieName' | 'sortFields'>
+      Pick<App.Platform.Data.TicketListPageProps, 'groupFields' | 'persistenceCookieName'>
     >();
 
   const [, setCookie] = useCookie(persistenceCookieName);
 
   const restoredUrlStateRef = useRef<TicketListUrlState | null>(null);
   const initialSortParamRef = useRef(sortParam);
+  const initialGroupFieldRef = useRef(groupField);
 
   useEffect(() => {
     window.history.replaceState(
-      { ...window.history.state, ticketListSortParam: initialSortParamRef.current },
+      {
+        ...window.history.state,
+        ticketListGroupField: initialGroupFieldRef.current,
+        ticketListSortParam: initialSortParamRef.current,
+      },
       '',
     );
   }, []);
@@ -64,11 +73,15 @@ export function useTicketListTableSync({
           restored.query,
           serverDefaultColumnFilters,
         ),
+        groupField: resolveTicketListGroupField(
+          historyState?.ticketListGroupField,
+          resolveTicketListGroupField(restored.group, 'none', groupFields),
+          groupFields,
+        ),
         pageNumber: restored.pageNumber,
         sortParam: ticketListSort.resolve(
           historyState?.ticketListSortParam,
-          ticketListSort.resolve(restored.sort, serverDefaultSortParam, sortFields),
-          sortFields,
+          ticketListSort.resolve(restored.sort, serverDefaultSortParam),
         ),
       };
 
@@ -85,11 +98,12 @@ export function useTicketListTableSync({
     setCookie(
       JSON.stringify({
         columnVisibility: columnVisibilityOverrides,
+        groupField,
         sortParam,
       }),
       { expires: 180 },
     );
-  }, [columnVisibilityOverrides, sortParam]);
+  }, [columnVisibilityOverrides, groupField, sortParam]);
 
   useUpdateEffect(() => {
     const restoredUrlState = restoredUrlStateRef.current;
@@ -98,6 +112,7 @@ export function useTicketListTableSync({
     if (
       restoredUrlState &&
       restoredUrlState.columnFilters === columnFilters &&
+      restoredUrlState.groupField === groupField &&
       restoredUrlState.pageNumber === pageNumber &&
       restoredUrlState.sortParam === sortParam
     ) {
@@ -106,6 +121,7 @@ export function useTicketListTableSync({
 
     const searchParams = serializeTicketListSearchParams({
       columnFilters,
+      groupField,
       pageNumber,
       serverDefaultColumnFilters,
       serverDefaultSortParam,
@@ -123,6 +139,10 @@ export function useTicketListTableSync({
       return;
     }
 
-    window.history.pushState({ inertia: true, ticketListSortParam: sortParam }, '', newUrl);
-  }, [columnFilters, pageNumber, sortParam]);
+    window.history.pushState(
+      { inertia: true, ticketListGroupField: groupField, ticketListSortParam: sortParam },
+      '',
+      newUrl,
+    );
+  }, [columnFilters, groupField, pageNumber, sortParam]);
 }

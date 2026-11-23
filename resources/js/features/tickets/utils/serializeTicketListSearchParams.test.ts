@@ -20,6 +20,7 @@ describe('Util: serializeTicketListSearchParams', () => {
         { id: 'emulator', value: ['RetroArch'] },
       ],
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 2,
       serverDefaultColumnFilters,
     });
@@ -37,6 +38,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '?filter[status]=resolved&page[number]=3',
       columnFilters: serverDefaultColumnFilters,
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -52,6 +54,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '?filter[emulator]=RetroArch',
       columnFilters: [{ id: 'status', value: ['resolved'] }],
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -67,6 +70,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '?filter[emulator]=RetroArch',
       columnFilters: [{ id: 'emulator', value: [] }],
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -82,6 +86,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '',
       columnFilters: [{ id: 'status', value: 'all' }],
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -97,6 +102,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '',
       columnFilters: serverDefaultColumnFilters,
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
     });
 
@@ -111,6 +117,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '?highlight=17',
       columnFilters: serverDefaultColumnFilters,
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 2,
       serverDefaultColumnFilters,
     });
@@ -126,6 +133,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '',
       columnFilters: serverDefaultColumnFilters,
       sortParam: 'state',
+      groupField: 'none',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -141,6 +149,7 @@ describe('Util: serializeTicketListSearchParams', () => {
       currentSearch: '?sort=state',
       columnFilters: serverDefaultColumnFilters,
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
       serverDefaultColumnFilters,
     });
@@ -155,17 +164,50 @@ describe('Util: serializeTicketListSearchParams', () => {
       serverDefaultSortParam: '-resolvedAt',
       columnFilters: [],
       sortParam: '-resolvedAt',
+      groupField: 'none',
       pageNumber: 1,
     });
     const changedSortResult = serializeTicketListSearchParams({
       serverDefaultSortParam: '-resolvedAt',
       columnFilters: [],
       sortParam: '-createdAt',
+      groupField: 'none',
       pageNumber: 1,
     });
 
     // ASSERT
     expect(defaultSortResult.has('sort')).toEqual(false);
     expect(changedSortResult.get('sort')).toEqual('-createdAt');
+  });
+
+  it('given grouping is enabled, adds it to the URL', () => {
+    // ACT
+    const result = serializeTicketListSearchParams({
+      columnFilters: serverDefaultColumnFilters,
+      groupField: 'game',
+      pageNumber: 1,
+      serverDefaultColumnFilters,
+      serverDefaultSortParam: '-createdAt',
+      sortParam: '-createdAt',
+    });
+
+    // ASSERT
+    expect(result.toString()).toEqual('group=game');
+  });
+
+  it('given grouping is disabled, removes the group from the current search', () => {
+    // ACT
+    const result = serializeTicketListSearchParams({
+      columnFilters: serverDefaultColumnFilters,
+      currentSearch: '?group=game&highlight=17',
+      groupField: 'none',
+      pageNumber: 1,
+      serverDefaultColumnFilters,
+      serverDefaultSortParam: '-createdAt',
+      sortParam: '-createdAt',
+    });
+
+    // ASSERT
+    expect(result.toString()).toEqual('highlight=17');
   });
 });
