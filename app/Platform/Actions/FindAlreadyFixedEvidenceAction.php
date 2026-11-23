@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\TicketResolution;
 use App\Models\Achievement;
 use App\Models\PlayerSession;
 use App\Models\Ticket;
@@ -27,6 +28,10 @@ class FindAlreadyFixedEvidenceAction
     {
         $achievement = $ticket->ticketable;
         if (!$achievement instanceof Achievement || !$ticket->reporter_id) {
+            return null;
+        }
+
+        if ($ticket->created_at->lt(Trigger::VERSIONING_CUTOFF)) {
             return null;
         }
 
@@ -62,6 +67,20 @@ class FindAlreadyFixedEvidenceAction
         return new TicketAlreadyFixedEvidenceData(
             reporterSessionStartedAt: $reporterSessionStartedAt,
             logicChangedAt: $logicChangedAt,
+            coveringTicketId: $this->findCoveringTicketId($ticket, $logicChangedAt),
         );
+    }
+
+    private function findCoveringTicketId(Ticket $ticket, Carbon $logicChangedAt): ?int
+    {
+        return Ticket::query()
+            ->where('ticketable_type', $ticket->ticketable_type)
+            ->where('ticketable_id', $ticket->ticketable_id)
+            ->where('id', '!=', $ticket->id)
+            ->where('created_at', '<', $logicChangedAt)
+            ->where('resolution', TicketResolution::Fixed)
+            ->where('resolved_at', '>=', $logicChangedAt)
+            ->orderByDesc('created_at')
+            ->value('id');
     }
 }

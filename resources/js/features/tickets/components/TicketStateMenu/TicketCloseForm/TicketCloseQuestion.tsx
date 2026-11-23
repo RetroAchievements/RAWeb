@@ -54,13 +54,15 @@ export const TicketCloseQuestion: FC<TicketCloseQuestionProps> = ({
           >
             <BaseRadioGroupItem id={`${controlIdPrefix}-${option.value}`} value={option.value} />
 
-            {option.label}
-            
-            {option.value === suggestedValue ? (
-              <BaseChip className="ml-auto text-neutral-300 light:text-neutral-700">
-                {t('Suggested')}
-              </BaseChip>
-            ) : null}
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {option.label}
+
+              {option.value === suggestedValue ? (
+                <BaseChip className="text-neutral-300 light:text-neutral-700">
+                  {t('Suggested')}
+                </BaseChip>
+              ) : null}
+            </span>
           </BaseLabel>
         ))}
       </BaseRadioGroup>

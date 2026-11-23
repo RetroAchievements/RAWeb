@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { BaseButton } from '@/common/components/+vendor/BaseButton';
 import { BaseDialogClose, BaseDialogFooter } from '@/common/components/+vendor/BaseDialog';
 import { BaseForm } from '@/common/components/+vendor/BaseForm';
-import { useFormatCoarseDuration } from '@/common/hooks/useFormatCoarseDuration';
 import { usePageProps } from '@/common/hooks/usePageProps';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
 import type { TicketCloseAnswer } from '../../../models';
 import { getAllowedTicketCloseAnswerGroups } from '../../../utils/getAllowedTicketCloseAnswerGroups';
+import type { TicketCloseAction } from '../../../utils/ticketCloseReasonLabels';
+import { TicketAlreadyFixedHint } from './TicketAlreadyFixedHint';
 import { TicketCloseNoteField } from './TicketCloseNoteField';
 import { TicketCloseQuestion } from './TicketCloseQuestion';
 import { TicketCloseReasonQuestion } from './TicketCloseReasonQuestion';
@@ -25,7 +26,6 @@ interface TicketCloseFormProps {
 export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) => {
   const { achievement, allowedTicketActions, alreadyFixedEvidence, can, leaderboard, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
-  const { formatCoarseDuration } = useFormatCoarseDuration();
   const { t } = useTranslation();
 
   const { form, mutation, onSubmit } = useTicketCloseForm({ onSubmitSuccess });
@@ -50,15 +50,32 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
         ),
   );
   const selectedAnswerGroup = closeAnswerGroups.find((group) => group.answer === answer);
-  const alreadyFixedAnswer = closeAnswerGroups.find((group) =>
-    group.actions.includes('already-fixed'),
+
+  const getSuggestedAction = (): TicketCloseAction | undefined => {
+    if (!alreadyFixedEvidence) {
+      return undefined;
+    }
+
+    const isCoveredAllowed = closeAnswerGroups.some((group) =>
+      group.actions.includes('covered-by-another-ticket'),
+    );
+    if (alreadyFixedEvidence.coveringTicketId && isCoveredAllowed) {
+      return 'covered-by-another-ticket';
+    }
+
+    return 'already-fixed';
+  };
+
+  const suggestedAction = getSuggestedAction();
+  const suggestedAnswer = closeAnswerGroups.find(
+    (group) => suggestedAction && group.actions.includes(suggestedAction),
   )?.answer;
 
   const labelByAnswer: Record<TicketCloseAnswer, TranslatedString> = {
     yes: t('Yes'),
     no: t('No'),
     'cant-tell': t("Can't tell"),
-    covered: t('Already covered by another ticket'),
+    covered: t('Covered by another ticket'),
   };
 
   const handleAnswerSelect = (value: string) => {
@@ -118,22 +135,12 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
                 value: group.answer,
               }))}
               value={answer}
-              suggestedValue={alreadyFixedEvidence ? alreadyFixedAnswer : undefined}
+              suggestedValue={suggestedAnswer}
               onValueChange={handleAnswerSelect}
             >
-              {alreadyFixedEvidence ? (
-                <p className="text-xs text-neutral-400 light:text-neutral-600">
-                  {t(
-                    "The logic changed {{duration}} after the reporter's session started. They may have had the old logic loaded.",
-                    {
-                      duration: formatCoarseDuration(
-                        alreadyFixedEvidence.reporterSessionStartedAt,
-                        alreadyFixedEvidence.logicChangedAt,
-                      ),
-                    },
-                  )}
-                </p>
-              ) : null}
+              <TicketAlreadyFixedHint
+                isCoveringTicketSuggested={suggestedAction === 'covered-by-another-ticket'}
+              />
             </TicketCloseQuestion>
 
             <div className={cn('grid *:col-start-1 *:row-start-1', !answer && 'max-sm:hidden')}>
@@ -164,6 +171,7 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
                         actions={group.actions}
                         isTicketablePromoted={isTicketablePromoted}
                         value={isGroupVisible ? action : null}
+                        suggestedValue={suggestedAction}
                         onValueChange={handleReasonSelect}
                       />
                     )}

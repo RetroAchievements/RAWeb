@@ -1197,6 +1197,7 @@ defaultDesktopPageSize: number;
 export type TicketAlreadyFixedEvidence = {
 reporterSessionStartedAt: string;
 logicChangedAt: string;
+coveringTicketId: number | null;
 };
 export type TicketChangelogEntry = {
 type: App.Platform.Enums.TicketChangelogEntryType;

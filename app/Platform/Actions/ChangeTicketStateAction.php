@@ -48,9 +48,12 @@ class ChangeTicketStateAction
         if ($newState->isResolved() && !$previousState->isResolved()) {
             $ticket->resolved_signal_verdict = (new BuildTicketSignalsAction())->execute(new Collection([$ticket]))[$ticket->id]?->verdict;
 
-            $ticket->suggested_resolution = (new FindAlreadyFixedEvidenceAction())->execute($ticket)
-                ? TicketResolution::AlreadyFixed
-                : null;
+            $alreadyFixedEvidence = (new FindAlreadyFixedEvidenceAction())->execute($ticket);
+            $ticket->suggested_resolution = match (true) {
+                $alreadyFixedEvidence === null => null,
+                $alreadyFixedEvidence->coveringTicketId !== null => TicketResolution::CoveredByAnotherTicket,
+                default => TicketResolution::AlreadyFixed,
+            };
         }
 
         $ticket->state = $newState;

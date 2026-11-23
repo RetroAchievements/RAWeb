@@ -14,6 +14,7 @@ class TicketAlreadyFixedEvidenceData extends Data
     public function __construct(
         public Carbon $reporterSessionStartedAt,
         public Carbon $logicChangedAt,
+        public ?int $coveringTicketId,
     ) {
     }
 }
