@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 
 <?php
 $me = Auth::user() ?? null;
+$user->loadMissing('displayableRoles');
 
 $hasVisibleRole = (
     $user->visible_role?->name

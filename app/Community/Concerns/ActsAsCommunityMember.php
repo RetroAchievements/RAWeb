@@ -18,6 +18,7 @@ use App\Models\UserComment;
 use App\Models\UserGameListEntry;
 use App\Models\UserRelation;
 use App\Models\UserUsername;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,32 +35,42 @@ trait ActsAsCommunityMember
     {
     }
 
-    public function getVisibleRoleAttribute(): ?SpatieRole
+    /**
+     * @return Attribute<?SpatieRole, never>
+     */
+    protected function visibleRole(): Attribute
     {
-        // Load the user's displayable roles.
-        if ($this->relationLoaded('roles')) {
-            /** @var Collection<int, SpatieRole> $displayableRoles */
-            $displayableRoles = $this->roles->where('display', '>', 0);
-        } else {
-            /** @var Collection<int, SpatieRole> $displayableRoles */
-            $displayableRoles = $this->displayableRoles()->get();
-        }
+        return Attribute::make(
+            get: function (): ?SpatieRole {
+                // Load the user's displayable roles.
+                if ($this->relationLoaded('roles')) {
+                    /** @var Collection<int, SpatieRole> $displayableRoles */
+                    $displayableRoles = $this->roles->where('display', '>', 0);
+                } elseif ($this->relationLoaded('displayableRoles')) {
+                    /** @var Collection<int, SpatieRole> $displayableRoles */
+                    $displayableRoles = $this->displayableRoles;
+                } else {
+                    /** @var Collection<int, SpatieRole> $displayableRoles */
+                    $displayableRoles = $this->displayableRoles()->get();
+                }
 
-        // If user has an explicitly set visible_role_id, we'll try to show it.
-        // However, we need to verify it's still a valid displayable role for the
-        // user (it's possible they lost the role at some point).
-        if ($this->visible_role_id !== null) {
-            /** @var SpatieRole|null $explicitRole */
-            $explicitRole = $displayableRoles->find($this->visible_role_id);
-            if ($explicitRole) {
-                return $explicitRole;
-            }
-        }
+                // If user has an explicitly set visible_role_id, we'll try to show it.
+                // However, we need to verify it's still a valid displayable role for the
+                // user (it's possible they lost the role at some point).
+                if ($this->visible_role_id !== null) {
+                    /** @var SpatieRole|null $explicitRole */
+                    $explicitRole = $displayableRoles->find($this->visible_role_id);
+                    if ($explicitRole) {
+                        return $explicitRole;
+                    }
+                }
 
-        // Otherwise, fall back to highest ordered displayable role.
-        // For most users, this will return null.
-        /** @var SpatieRole|null */
-        return $displayableRoles->first();
+                // Otherwise, fall back to highest ordered displayable role.
+                // For most users, this will return null.
+                /** @var SpatieRole|null */
+                return $displayableRoles->first();
+            },
+        )->shouldCache();
     }
 
     /**
