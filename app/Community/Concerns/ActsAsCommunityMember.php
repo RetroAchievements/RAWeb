@@ -46,9 +46,6 @@ trait ActsAsCommunityMember
                 if ($this->relationLoaded('roles')) {
                     /** @var Collection<int, SpatieRole> $displayableRoles */
                     $displayableRoles = $this->roles->where('display', '>', 0);
-                } elseif ($this->relationLoaded('displayableRoles')) {
-                    /** @var Collection<int, SpatieRole> $displayableRoles */
-                    $displayableRoles = $this->displayableRoles;
                 } else {
                     /** @var Collection<int, SpatieRole> $displayableRoles */
                     $displayableRoles = $this->displayableRoles()->get();
