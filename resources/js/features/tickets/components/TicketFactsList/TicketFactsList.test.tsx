@@ -20,13 +20,15 @@ describe('Component: TicketFactsList', () => {
     expect(container).toBeTruthy();
   });
 
-  it('renders the related tickets row', () => {
+  it('given the game has no other open tickets, does not render the game tickets row', () => {
     // ARRANGE
     render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
       pageProps: {
         can: {},
         relatedTickets: [],
         isViewerReporter: true,
+        siblingResolvedTicketCount: 69,
+        siblingUnresolvedTicketCount: 0,
         ticket: createTicketListEntry({
           state: 'open',
           ticketableType: 'achievement',
@@ -37,9 +39,31 @@ describe('Component: TicketFactsList', () => {
     });
 
     // ASSERT
-    expect(screen.getAllByRole('listitem').length).toEqual(1);
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+    expect(screen.queryByText(/this game has/i)).not.toBeInTheDocument();
+  });
+
+  it('given the game has other open tickets, renders the game tickets row', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(<TicketFactsList />, {
+      pageProps: {
+        can: {},
+        relatedTickets: [],
+        isViewerReporter: true,
+        siblingResolvedTicketCount: 69,
+        siblingUnresolvedTicketCount: 19,
+        ticket: createTicketListEntry({
+          state: 'open',
+          ticketableType: 'achievement',
+          resolvedAt: null,
+          reporter: createUser({ displayName: 'Reporter' }),
+        }),
+      },
+    });
+
+    // ASSERT
     expect(screen.getByRole('listitem')).toHaveTextContent(
-      'This achievement has no other tickets.',
+      'This game has 19 other open tickets. It has 69 other resolved tickets.',
     );
   });
 

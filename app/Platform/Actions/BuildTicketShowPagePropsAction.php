@@ -105,6 +105,9 @@ class BuildTicketShowPagePropsAction
                 $ticketViewService->relatedTickets,
             ),
 
+            siblingUnresolvedTicketCount: $ticketViewService->siblingUnresolvedTicketCount,
+            siblingResolvedTicketCount: $ticketViewService->siblingResolvedTicketCount,
+
             reporterGameTickets: $this->buildSameReporterTicketProps($ticketViewService, $ticket, $user),
 
             otherReporterGameTickets: Lazy::inertia(fn (): array => array_map(
