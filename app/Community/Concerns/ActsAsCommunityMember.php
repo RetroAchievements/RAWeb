@@ -335,11 +335,6 @@ trait ActsAsCommunityMember
         return $this->hasMany(MessageThreadParticipant::class);
     }
 
-    public function getUnreadMessagesCountAttribute(): int
-    {
-        return (int) ($this->attributes['unread_messages'] ?? 0);
-    }
-
     /**
      * @return HasMany<ForumTopicComment, $this>
      */

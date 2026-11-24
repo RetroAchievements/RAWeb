@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Components\GeneralNotificationsIcon;
+use App\Components\MessageNotificationsIcon;
 use App\Components\TicketNotificationsIcon;
 use App\Console\Commands\BackfillUsersOnlineCounts;
 use App\Console\Commands\CacheMostPopularEmulators;
@@ -40,7 +40,6 @@ use Inertia\ResponseFactory;
 use Inertia\Ssr\Gateway;
 use Inertia\Ssr\HttpGateway;
 use Laravel\Pulse\Facades\Pulse;
-use Livewire\Livewire;
 use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
@@ -164,12 +163,9 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
         ]);
 
-        /*
-         * Register Support Livewire components
-         */
         // TODO remove in favor of Inertia+React components
-        Livewire::component('general-notifications-icon', GeneralNotificationsIcon::class);
-        Livewire::component('ticket-notifications-icon', TicketNotificationsIcon::class);
+        Blade::component('message-notifications-icon', MessageNotificationsIcon::class);
+        Blade::component('ticket-notifications-icon', TicketNotificationsIcon::class);
 
         /*
          * Apply domain namespaces to tests' class name resolvers

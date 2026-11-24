@@ -118,7 +118,7 @@ $menuSystemsList = Cache::remember(CacheKey::SystemMenuList, Carbon::now()->addH
     <x-dropdown-item href="https://docs.retroachievements.org">User Documentation</x-dropdown-item>
     <x-dropdown-item href="https://docs.retroachievements.org/developer-docs/">Developer Documentation</x-dropdown-item>
 </x-nav-dropdown>
-<x-nav-item :href="route('download.index')" :title="__('Download')">
+<x-nav-item :href="route('download.index')">
     <x-fas-download/>
-    <span class="ml-1 hidden sm:inline-block">{{ __('Download') }}</span>
+    <span class="ml-1 sr-only sm:not-sr-only">{{ __('Download') }}</span>
 </x-nav-item>
