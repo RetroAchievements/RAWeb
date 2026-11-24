@@ -2,6 +2,8 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
+import { cn } from '@/common/utils/cn';
+
 import {
   BaseBreadcrumbEllipsis,
   BaseBreadcrumbItem,
@@ -15,7 +17,6 @@ import {
   BaseDropdownMenuTrigger,
 } from '../+vendor/BaseDropdownMenu';
 import { InertiaLink } from '../InertiaLink';
-import { cn } from '@/common/utils/cn';
 
 interface RootBreadcrumbsProps {
   /**
