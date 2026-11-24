@@ -216,6 +216,7 @@ describe('Achievement Ticket Props', function () {
         $response = get(route('ticket.show', ['ticket' => $ticket]));
 
         // ASSERT
+        $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
             ->where('siblingUnresolvedTicketCount', 3)
             ->where('siblingResolvedTicketCount', 1)
