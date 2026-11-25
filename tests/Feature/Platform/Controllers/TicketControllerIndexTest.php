@@ -179,6 +179,23 @@ it("given a scoped list, reads that scope's preference cookie", function () {
     );
 });
 
+it("given a game's list is grouped by achievement, sends the grouping", function () {
+    // ARRANGE
+    $tickets = createTicketListPageTickets(2);
+    $achievement = $tickets[0]->getTicketableModel();
+    actingAs(User::factory()->create());
+
+    // ACT
+    $response = get(route('game.tickets', ['game' => $achievement->game_id, 'group' => 'ticketable']));
+
+    // ASSERT
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('groupFields', ['ticketable'])
+        ->where('grouping.field', 'ticketable')
+        ->where('grouping.counts', ["achievement:{$achievement->id}" => 2])
+    );
+});
+
 it('given the resolved by list has no sort in the URL, uses resolution date as the default sort and orders tickets by newest resolution', function () {
     // ARRANGE
     $resolver = User::factory()->create();

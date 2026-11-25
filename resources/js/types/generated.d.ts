@@ -1194,6 +1194,11 @@ persistenceCookieName: string;
 persistedViewPreferences: Record<string, any> | null;
 defaultDesktopPageSize: number;
 };
+export type TicketAlreadyFixedEvidence = {
+reporterSessionStartedAt: string;
+logicChangedAt: string;
+coveringTicketId: number | null;
+};
 export type TicketChangelogEntry = {
 type: App.Platform.Enums.TicketChangelogEntryType;
 createdAt: string;
@@ -1247,6 +1252,11 @@ values: string[];
 valueLabels: Record<string, string>;
 isFreeText: boolean;
 };
+export type TicketListGrouping = {
+field: App.Platform.Enums.TicketListGroupField;
+counts: Record<string, number>;
+isFirstGroupContinued: boolean;
+};
 export type TicketListPageProps = {
 scope: App.Platform.Enums.TicketListScope;
 paginatedTickets: App.Data.PaginatedData<App.Platform.Data.TicketListEntry>;
@@ -1255,10 +1265,12 @@ availableFilters: Array<App.Platform.Data.TicketListFilter>;
 facetCounts: Record<string, Record<string, number>>;
 defaultStatusFilter: App.Platform.Enums.TicketListStatusFilter;
 defaultSortParam: App.Platform.Enums.TicketListSortField | `-${App.Platform.Enums.TicketListSortField}`;
+groupFields: Array<App.Platform.Enums.TicketListGroupField>;
 hasStatusFilter: boolean;
 persistenceCookieName: string;
 can: App.Data.UserPermissions;
 persistedViewPreferences: Record<string, any> | null;
+grouping: App.Platform.Data.TicketListGrouping | null;
 game: App.Platform.Data.Game | null;
 achievement: App.Platform.Data.Achievement | null;
 user: App.Data.User | null;
@@ -1309,6 +1321,7 @@ reporterUnlock: App.Platform.Data.TicketReporterUnlock | null;
 unlocksSinceReported: number | null;
 recentOtherHashUnlockCount: number | null;
 logicChangedAfterReportAt: string | null;
+alreadyFixedEvidence: App.Platform.Data.TicketAlreadyFixedEvidence | null;
 reportedTriggerVersion: number | null;
 currentTriggerVersion: number | null;
 reporterLeaderboardEntry: App.Platform.Data.LeaderboardEntry | null;
@@ -1368,11 +1381,11 @@ export type GameListSortField = 'achievementsPublished' | 'beatRatio' | 'hasActi
 export type GamePageListSort = 'normal' | 'displayOrder' | '-displayOrder' | 'wonBy' | '-wonBy' | 'points' | '-points' | 'title' | '-title' | 'type' | '-type' | 'rank' | '-rank';
 export type GamePageListView = 'achievements' | 'leaderboards';
 export type GameReleaseRegion = 'as' | 'au' | 'br' | 'ch' | 'eu' | 'jp' | 'kr' | 'nz' | 'na' | 'worldwide' | 'other';
-export type GameScreenshotRejectionReason = 'wrong_game' | 'poor_quality' | 'duplicate' | 'incorrect_type' | 'wrong_resolution' | 'missing_matching_companion' | 'manually_resized' | 'spoiler' | 'inappropriate_content' | 'other';
 export type GameScreenshotStatus = 'approved' | 'pending' | 'rejected' | 'replaced';
+export type UnlockMode = 0 | 1;
+export type GameScreenshotRejectionReason = 'wrong_game' | 'poor_quality' | 'duplicate' | 'incorrect_type' | 'wrong_resolution' | 'missing_matching_companion' | 'manually_resized' | 'spoiler' | 'inappropriate_content' | 'other';
 export type GameSetRolePermission = 'view' | 'update';
 export type GameSetType = 'hub' | 'similar-games';
-export type UnlockMode = 0 | 1;
 export type GameSuggestionReason = 'common-players' | 'random' | 'revised' | 'shared-author' | 'shared-hub' | 'similar-game' | 'want-to-play';
 export type GlobalRankingMode = 'hardcore' | 'casual';
 export type GlobalRankingSortField = 'points' | 'points_weighted' | 'achievements_unlocked' | 'awards_count';
@@ -1389,6 +1402,7 @@ export type TicketChangelogEntryType = 'resolved' | 'closed' | 'requested' | 're
 export type TicketCreationBlockReason = 'no_play_session';
 export type TicketInboxSectionKind = 'toResolve' | 'awaitingYourFeedback' | 'awaitingReporter' | 'subscribedByYou' | 'reportedByYou' | 'resolvedByYou';
 export type TicketListFilterKind = 'type' | 'mode' | 'publishedStatus' | 'developerType' | 'developer' | 'reporter' | 'resolution' | 'signal' | 'system' | 'emulator' | 'core';
+export type TicketListGroupField = 'none' | 'game' | 'ticketable';
 export type TicketListScope = 'all' | 'game' | 'achievement' | 'assignedTo' | 'reportedBy' | 'subscribedBy' | 'awaitingReporter' | 'resolvedBy';
 export type TicketListSortField = 'createdAt' | 'state' | 'resolvedAt';
 export type TicketListStatusFilter = 'all' | 'unresolved' | 'open' | 'request' | 'resolved' | 'closed' | 'quarantined';

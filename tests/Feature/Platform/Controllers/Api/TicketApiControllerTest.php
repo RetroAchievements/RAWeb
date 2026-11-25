@@ -23,9 +23,11 @@ use App\Models\PlayerSession;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
+use App\Models\Trigger;
 use App\Models\User;
 use App\Notifications\Ticket\TicketClaimChangedNotification;
 use App\Notifications\Ticket\TicketStatusUpdatedNotification;
+use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -603,6 +605,20 @@ describe('index', function () {
         expect($ids)->toEqual($expectedIds);
     });
 
+    it('given grouping by game, the JSON has the grouping with correct group counts', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'all', 'group' => 'game']));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('grouping.field', 'game');
+        $response->assertJsonPath('grouping.counts', [(string) $fixture['game']->id => 3]);
+    });
+
     it('given the scope is unset, the global list is returned', function () {
         // ARRANGE
         createTicketIndexFixture(2);
@@ -763,6 +779,88 @@ describe('updateState', function () {
             ->where('user_id', '!=', $developer->id)
             ->sole();
         expect($comment->body)->toEqual('Ticket resolved as fixed by Scott.');
+    });
+
+    it('given a developer closes a ticket whose reporter probably had the old logic loaded, sets suggested_resolution to already fixed', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $firstTrigger = Trigger::factory()->create(['triggerable_type' => TriggerableType::Achievement, 'triggerable_id' => $achievement->id, 'created_at' => Carbon::parse('2026-05-01 12:00:00')]);
+        Trigger::factory()->create(['triggerable_type' => TriggerableType::Achievement, 'triggerable_id' => $achievement->id, 'version' => 2, 'parent_id' => $firstTrigger->id, 'created_at' => Carbon::parse('2026-05-30 14:00:00')]);
+        $reporter = User::factory()->create();
+        PlayerSession::factory()->create(['user_id' => $reporter->id, 'game_id' => $game->id, 'created_at' => Carbon::parse('2026-05-30 12:00:00')]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'This was fixed two days before your report.',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::AlreadyFixed->value,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->resolution)->toEqual(TicketResolution::AlreadyFixed);
+        expect($ticket->suggested_resolution)->toEqual(TicketResolution::AlreadyFixed);
+    });
+
+    it('given a developer closes a ticket whose logic change probably fixed an earlier ticket, sets suggested_resolution to covered by another ticket', function () {
+        // ARRANGE
+        User::factory()->create(['username' => 'Server', 'display_name' => 'Server']);
+
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $firstTrigger = Trigger::factory()->create(['triggerable_type' => TriggerableType::Achievement, 'triggerable_id' => $achievement->id, 'created_at' => Carbon::parse('2026-05-01 12:00:00')]);
+        Trigger::factory()->create(['triggerable_type' => TriggerableType::Achievement, 'triggerable_id' => $achievement->id, 'version' => 2, 'parent_id' => $firstTrigger->id, 'created_at' => Carbon::parse('2026-05-30 14:00:00')]);
+        $earlierTicket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'created_at' => Carbon::parse('2026-05-28 12:00:00'),
+            'resolution' => TicketResolution::Fixed,
+            'resolved_at' => Carbon::parse('2026-05-30 14:05:00'),
+        ]);
+        $reporter = User::factory()->create();
+        PlayerSession::factory()->create(['user_id' => $reporter->id, 'game_id' => $game->id, 'created_at' => Carbon::parse('2026-05-30 12:00:00')]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        Comment::factory()->create([
+            'commentable_type' => CommentableType::Ticket,
+            'commentable_id' => $ticket->id,
+            'user_id' => $developer->id,
+            'body' => 'This is the same problem as the earlier ticket.',
+        ]);
+        $this->actingAs($developer);
+
+        // ACT
+        $response = $this->patchJson(route('api.ticket.state.update', $ticket), [
+            'action' => TicketAction::CoveredByAnotherTicket->value,
+            'coveringTicketId' => $earlierTicket->id,
+        ]);
+
+        // ASSERT
+        $response->assertOk();
+
+        $ticket->refresh();
+        expect($ticket->resolution)->toEqual(TicketResolution::CoveredByAnotherTicket);
+        expect($ticket->suggested_resolution)->toEqual(TicketResolution::CoveredByAnotherTicket);
     });
 
     it('given a reporter closes their own ticket, does not send them an email notification', function () {

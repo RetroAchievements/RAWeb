@@ -1,5 +1,7 @@
 import { type FC, type ReactNode, useId } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { BaseChip } from '@/common/components/+vendor/BaseChip';
 import { BaseLabel } from '@/common/components/+vendor/BaseLabel';
 import { BaseRadioGroup, BaseRadioGroupItem } from '@/common/components/+vendor/BaseRadioGroup';
 import { cn } from '@/common/utils/cn';
@@ -12,6 +14,7 @@ interface TicketCloseQuestionProps {
   value: string | null;
 
   children?: ReactNode;
+  suggestedValue?: string;
 }
 
 export const TicketCloseQuestion: FC<TicketCloseQuestionProps> = ({
@@ -19,8 +22,11 @@ export const TicketCloseQuestion: FC<TicketCloseQuestionProps> = ({
   label,
   onValueChange,
   options,
+  suggestedValue,
   value,
 }) => {
+  const { t } = useTranslation();
+
   const controlIdPrefix = useId();
   const questionLabelElementId = `${controlIdPrefix}-question`;
 
@@ -47,7 +53,16 @@ export const TicketCloseQuestion: FC<TicketCloseQuestionProps> = ({
             )}
           >
             <BaseRadioGroupItem id={`${controlIdPrefix}-${option.value}`} value={option.value} />
-            {option.label}
+
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {option.label}
+
+              {option.value === suggestedValue ? (
+                <BaseChip className="text-neutral-300 light:text-neutral-700">
+                  {t('Suggested')}
+                </BaseChip>
+              ) : null}
+            </span>
           </BaseLabel>
         ))}
       </BaseRadioGroup>

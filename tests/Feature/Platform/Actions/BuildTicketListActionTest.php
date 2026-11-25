@@ -8,6 +8,7 @@ use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Emulator;
 use App\Models\Game;
+use App\Models\Leaderboard;
 use App\Models\Role;
 use App\Models\System;
 use App\Models\Ticket;
@@ -15,11 +16,13 @@ use App\Models\User;
 use App\Platform\Actions\BuildTicketListAction;
 use App\Platform\Data\TicketListEntryData;
 use App\Platform\Enums\TicketListFilterKind;
+use App\Platform\Enums\TicketListGroupField;
 use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use App\Platform\Requests\TicketListRequest;
 use Carbon\Carbon;
 use Database\Seeders\RolesTableSeeder;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
 uses(LazilyRefreshDatabase::class);
@@ -295,6 +298,218 @@ describe('available filters', function () {
     });
 });
 
+describe('grouping', function () {
+    it('given grouping by game, puts the games with the most tickets first, keeps same-titled games apart, and counts every ticket in each group', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $attributes = ['assignee_id' => $developer->id, 'reporter_id' => User::factory()->create()->id];
+
+        $zelda = Game::factory()->create(['title' => 'Zelda', 'system_id' => System::factory()->create()->id]);
+        $metroidNes = Game::factory()->create(['title' => 'Metroid', 'system_id' => System::factory()->create()->id]);
+        $metroidGba = Game::factory()->create(['title' => 'Metroid', 'system_id' => System::factory()->create()->id]);
+
+        $zeldaAchievement = Achievement::factory()->promoted()->create(['game_id' => $zelda->id, 'user_id' => $developer->id]);
+        $metroidNesAchievement = Achievement::factory()->promoted()->create(['game_id' => $metroidNes->id, 'user_id' => $developer->id]);
+        $metroidNesLeaderboard = Leaderboard::factory()->create(['game_id' => $metroidNes->id]);
+        $metroidGbaAchievement = Achievement::factory()->promoted()->create(['game_id' => $metroidGba->id, 'user_id' => $developer->id]);
+
+        $zeldaTicket = Ticket::factory()->forAchievement($zeldaAchievement)->open()->create($attributes);
+        $olderZeldaTickets = Ticket::factory()
+            ->count(2)
+            ->forAchievement($zeldaAchievement)
+            ->open()
+            ->sequence(['created_at' => Carbon::parse('2023-02-01')], ['created_at' => Carbon::parse('2023-01-01')])
+            ->create($attributes);
+        $olderMetroidNesTicket = Ticket::factory()->forAchievement($metroidNesAchievement)->open()->create([
+            ...$attributes,
+            'created_at' => Carbon::parse('2024-01-01 00:00:00'),
+        ]);
+        $newerMetroidNesTicket = Ticket::factory()->forLeaderboard($metroidNesLeaderboard)->open()->create([
+            ...$attributes,
+            'created_at' => Carbon::parse('2024-02-01 00:00:00'),
+        ]);
+        $metroidGbaTicket = Ticket::factory()->forAchievement($metroidGbaAchievement)->open()->create($attributes);
+
+        Ticket::factory()->forAchievement($zeldaAchievement)->resolved()->create($attributes);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect(entryIds($result))->toEqual([
+            $zeldaTicket->id,
+            ...$olderZeldaTickets->pluck('id')->all(),
+            $newerMetroidNesTicket->id,
+            $olderMetroidNesTicket->id,
+            $metroidGbaTicket->id,
+        ]);
+        expect($result['grouping']->field)->toEqual(TicketListGroupField::Game);
+        expect($result['grouping']->counts)->toEqual([
+            $zelda->id => 3,
+            $metroidNes->id => 2,
+            $metroidGba->id => 1,
+        ]);
+    });
+
+    it('given a game group continues onto the next page, its count still covers the whole group', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $game = Game::factory()->create(['title' => 'Castlevania', 'system_id' => System::factory()->create()->id]);
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+        Ticket::factory()->count(53)->forAchievement($achievement)->open()->create(['assignee_id' => $developer->id]);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect($result['paginatedTickets']->items)->toHaveCount(50);
+        expect($result['grouping']->counts)->toEqual([$game->id => 53]);
+    });
+
+    it('given the second page of grouping by game, continues the game that the first page cut off', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $createGameTickets = function (string $title, string $firstCreatedAt) use ($developer): array {
+            $game = Game::factory()->create(['title' => $title, 'system_id' => System::factory()->create()->id]);
+            $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id]);
+            $tickets = Ticket::factory()
+                ->count(30)
+                ->forAchievement($achievement)
+                ->open()
+                ->sequence(fn (Sequence $sequence) => ['created_at' => Carbon::parse($firstCreatedAt)->addDays($sequence->index)])
+                ->create(['assignee_id' => $developer->id]);
+
+            return [$game, $tickets];
+        };
+        [$castlevania] = $createGameTickets('Castlevania', '2024-01-01');
+
+        [$contra, $contraTickets] = $createGameTickets('Contra', '2023-01-01');
+
+        // ACT
+        $firstPage = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
+            viewer: null,
+        );
+        $secondPage = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game', 'page' => ['number' => 2]]),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect($firstPage['grouping']->counts)->toEqual([$castlevania->id => 30, $contra->id => 30]);
+        expect($firstPage['grouping']->isFirstGroupContinued)->toBeFalse();
+        expect($secondPage['grouping']->counts)->toEqual([$contra->id => 30]);
+        expect($secondPage['grouping']->isFirstGroupContinued)->toBeTrue();
+
+        $contraIdsNewestFirst = $contraTickets->sortByDesc('created_at')->pluck('id')->values()->all();
+        expect(entryIds($firstPage))->toHaveCount(50);
+        expect(array_slice(entryIds($firstPage), 30))->toEqual(array_slice($contraIdsNewestFirst, 0, 20));
+        expect(entryIds($secondPage))->toEqual(array_slice($contraIdsNewestFirst, 20));
+    });
+
+    it('given a page that starts exactly where a game starts, leaves the previous game off that page', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $castlevania = Game::factory()->create(['title' => 'Castlevania', 'system_id' => System::factory()->create()->id]);
+        $contra = Game::factory()->create(['title' => 'Contra', 'system_id' => System::factory()->create()->id]);
+        $castlevaniaAchievement = Achievement::factory()->promoted()->create(['game_id' => $castlevania->id, 'user_id' => $developer->id]);
+        $contraAchievement = Achievement::factory()->promoted()->create(['game_id' => $contra->id, 'user_id' => $developer->id]);
+        Ticket::factory()->count(50)->forAchievement($castlevaniaAchievement)->open()->create(['assignee_id' => $developer->id]);
+        $contraTickets = Ticket::factory()->count(5)->forAchievement($contraAchievement)->open()->create(['assignee_id' => $developer->id]);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game', 'page' => ['number' => 2]]),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect($result['grouping']->counts)->toEqual([$contra->id => 5]);
+        expect($result['grouping']->isFirstGroupContinued)->toBeFalse();
+        expect(entryIds($result))->toEqualCanonicalizing($contraTickets->pluck('id')->all());
+    });
+
+    it('given a later page of grouping by achievement, says whether its first group started on the previous page', function (
+        int $firstAchievementTicketCount,
+        bool $isFirstGroupContinued,
+        int $pageTicketCount,
+    ) {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $game = Game::factory()->create(['system_id' => System::factory()->create()->id]);
+        $alpha = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id, 'title' => 'Alpha']);
+        $beta = Achievement::factory()->promoted()->create(['game_id' => $game->id, 'user_id' => $developer->id, 'title' => 'Beta']);
+        Ticket::factory()->count($firstAchievementTicketCount)->forAchievement($alpha)->open()->create(['assignee_id' => $developer->id]);
+        Ticket::factory()->count(5)->forAchievement($beta)->open()->create(['assignee_id' => $developer->id]);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::Game,
+            $game,
+            TicketListRequest::create('/game/' . $game->id . '/tickets', 'GET', [
+                'scope' => TicketListScope::Game->value,
+                'group' => 'ticketable',
+                'page' => ['number' => 2],
+            ]),
+            viewer: null,
+        );
+
+        // ASSERT
+        expect($result['grouping']->isFirstGroupContinued)->toEqual($isFirstGroupContinued);
+        expect(entryIds($result))->toHaveCount($pageTicketCount);
+    })->with([
+        'the page starts inside a group' => [53, true, 8],
+        'the page starts where a group starts' => [50, false, 5],
+        'the requested page is past the last page' => [45, false, 50],
+    ]);
+
+    it('given grouping by game, breaks ticket count ties A to Z', function () {
+        // ARRANGE
+        $developer = User::factory()->create();
+        $alpha = Game::factory()->create(['title' => 'Alpha', 'system_id' => System::factory()->create()->id]);
+        $beta = Game::factory()->create(['title' => 'Beta', 'system_id' => System::factory()->create()->id]);
+        $contra = Game::factory()->create(['title' => 'Contra', 'system_id' => System::factory()->create()->id]);
+        $alphaAchievement = Achievement::factory()->promoted()->create(['game_id' => $alpha->id, 'user_id' => $developer->id]);
+        $betaLeaderboard = Leaderboard::factory()->create(['game_id' => $beta->id]);
+        $contraAchievement = Achievement::factory()->promoted()->create(['game_id' => $contra->id, 'user_id' => $developer->id]);
+        $alphaTickets = Ticket::factory()->count(2)->forAchievement($alphaAchievement)->open()->create(['assignee_id' => $developer->id]);
+        $betaTickets = Ticket::factory()->count(2)->forLeaderboard($betaLeaderboard)->open()->create();
+        $contraTickets = Ticket::factory()->count(3)->forAchievement($contraAchievement)->open()->create(['assignee_id' => $developer->id]);
+
+        // ACT
+        $result = (new BuildTicketListAction())->execute(
+            TicketListScope::All,
+            null,
+            TicketListRequest::create('/tickets', 'GET', ['group' => 'game']),
+            viewer: null,
+        );
+
+        // ASSERT
+        $entryIds = entryIds($result);
+        expect(array_slice($entryIds, 0, 3))->toEqualCanonicalizing($contraTickets->pluck('id')->all());
+        expect(array_slice($entryIds, 3, 2))->toEqualCanonicalizing($alphaTickets->pluck('id')->all());
+        expect(array_slice($entryIds, 5))->toEqualCanonicalizing($betaTickets->pluck('id')->all());
+        expect(array_keys($result['grouping']->counts))->toEqual([$contra->id, $alpha->id, $beta->id]);
+        expect($result['grouping']->counts)->toEqual([$contra->id => 3, $alpha->id => 2, $beta->id => 2]);
+    });
+});
+
 it('prefers the URL sort over the persisted sort', function () {
     // ACT
     $request = TicketListRequest::create('/tickets', 'GET', ['sort' => '-resolvedAt'], [
@@ -307,6 +522,29 @@ it('prefers the URL sort over the persisted sort', function () {
         'direction' => 'desc',
     ]);
 });
+
+it('resolves the group from the URL first, then from the persisted preference, and only offers the groups the scope allows', function (
+    array $query,
+    ?string $persistedGroupField,
+    TicketListGroupField $expectedGroupField,
+) {
+    // ARRANGE
+    $cookies = $persistedGroupField === null
+        ? []
+        : ['datatable_view_preference_tickets_all' => json_encode(['groupField' => $persistedGroupField])];
+
+    // ACT
+    $request = TicketListRequest::create('/tickets', 'GET', $query, $cookies);
+
+    // ASSERT
+    expect($request->getGroupField())->toEqual($expectedGroupField);
+})->with([
+    'a URL group' => [['group' => 'game'], null, TicketListGroupField::Game],
+    'a persisted group' => [[], 'game', TicketListGroupField::Game],
+    'a URL that turns off the persisted group' => [['group' => 'none'], 'game', TicketListGroupField::None],
+    'a URL group the scope does not offer' => [['group' => 'ticketable'], null, TicketListGroupField::None],
+    'a persisted group the scope does not offer' => [[], 'ticketable', TicketListGroupField::None],
+]);
 
 it('the generated sort column is consistent with the enum sort order', function () {
     // ARRANGE

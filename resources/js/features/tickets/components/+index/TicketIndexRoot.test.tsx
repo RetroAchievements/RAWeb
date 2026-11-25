@@ -1,7 +1,16 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import { route } from 'ziggy-js';
 
-import { __UNSAFE_VERY_DANGEROUS_SLEEP, act, fireEvent, render, screen, waitFor } from '@/test';
+import {
+  __UNSAFE_VERY_DANGEROUS_SLEEP,
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@/test';
 import {
   createGame,
   createPaginatedData,
@@ -38,6 +47,7 @@ function renderTicketIndexRoot(pageProps: TicketIndexRenderProps = {}) {
       ],
       facetCounts: {},
       persistenceCookieName: 'datatable_view_preference_tickets_all',
+      groupFields: ['game'],
       persistedViewPreferences: null,
       can: {},
       ziggy: createZiggyProps({ query: {} }),
@@ -139,6 +149,151 @@ describe('Component: TicketIndexRoot', () => {
     expect(screen.getByText('2 of 300 tickets')).toBeVisible();
   });
 
+  it('given the page loads grouped by game, shows a header per game instead of the game title in each row', () => {
+    // ARRANGE
+    const tickets = [
+      createTicketListEntry({
+        id: 1001,
+        game: createGame({ id: 1, title: 'Sonic the Hedgehog', system: createSystem() }),
+      }),
+      createTicketListEntry({
+        id: 1002,
+        game: createGame({ id: 2, title: 'Streets of Rage', system: createSystem() }),
+      }),
+    ];
+
+    renderTicketIndexRoot({
+      grouping: { field: 'game', counts: { '1': 7, '2': 3 }, isFirstGroupContinued: false },
+      paginatedTickets: createPaginatedData(tickets, {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: tickets.length,
+      }),
+      ziggy: createZiggyProps({ query: { group: 'game' } }),
+    });
+
+    // ASSERT
+    const sonicHeader = screen.getByRole('rowheader', { name: /Sonic the Hedgehog.*7 tickets/ });
+    expect(sonicHeader).toBeVisible();
+    expect(screen.getByRole('rowheader', { name: /Streets of Rage.*3 tickets/ })).toBeVisible();
+
+    expect(screen.getAllByRole('link', { name: 'Sonic the Hedgehog' })).toEqual([
+      within(sonicHeader).getByRole('link', { name: 'Sonic the Hedgehog' }),
+    ]);
+  });
+
+  it('given filters are set while grouped by game, pushes the status and narrowing filters to the game ticket list', () => {
+    // ARRANGE
+    renderTicketIndexRoot({
+      grouping: { field: 'game', counts: { '1': 4 }, isFirstGroupContinued: false },
+      paginatedTickets: createPaginatedData(
+        [createTicketListEntry({ game: createGame({ id: 1, system: createSystem() }) })],
+        { currentPage: 1, lastPage: 1, perPage: 50, total: 1 },
+      ),
+      ziggy: createZiggyProps({
+        query: { group: 'game', filter: { status: 'all', type: '2' } },
+      }),
+    });
+
+    // ASSERT
+    expect(route).toHaveBeenCalledWith('game.tickets', {
+      game: 1,
+      'filter[status]': 'all',
+      'filter[type]': '2',
+    });
+  });
+
+  it('given the page loads grouped by achievement, names each row with its ticket number instead of the ID and Issue with columns', async () => {
+    // ARRANGE
+    const game = createGame({ id: 1, system: createSystem() });
+    const tickets = [
+      createTicketListEntry({
+        id: 1001,
+        game,
+        ticketableType: 'achievement',
+        ticketableId: 7,
+        ticketableTitle: 'Boss Rush',
+      }),
+    ];
+
+    renderTicketIndexRoot({
+      scope: 'game',
+      groupFields: ['ticketable'],
+      game,
+      grouping: {
+        field: 'ticketable',
+        counts: { 'achievement:7': 1 },
+        isFirstGroupContinued: false,
+      },
+      paginatedTickets: createPaginatedData(tickets, {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 50,
+        total: tickets.length,
+      }),
+      ziggy: createZiggyProps({ query: { group: 'ticketable' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+
+    // ASSERT
+    expect(screen.getByRole('rowheader', { name: /Boss Rush.*1 ticket/ })).toBeVisible();
+    expect(screen.queryByRole('columnheader', { name: 'Issue with' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'ID' })).not.toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Ticket' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Ticket #1001' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Boss Rush' })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Developer' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Issue with' })).not.toBeInTheDocument();
+  });
+
+  it('given the user turns achievement grouping off, brings back the ID and Issue with columns once the new list arrives', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const game = createGame({ id: 1, system: createSystem() });
+    const tickets = [
+      createTicketListEntry({
+        id: 1001,
+        game,
+        ticketableType: 'achievement',
+        ticketableId: 7,
+        ticketableTitle: 'Boss Rush',
+      }),
+    ];
+    const paginatedTickets = createPaginatedData(tickets, {
+      currentPage: 1,
+      lastPage: 1,
+      perPage: 50,
+      total: tickets.length,
+    });
+    vi.spyOn(axios, 'get').mockResolvedValue({ data: createTicketListResponse(paginatedTickets) });
+
+    renderTicketIndexRoot({
+      scope: 'game',
+      groupFields: ['ticketable'],
+      game,
+      grouping: {
+        field: 'ticketable',
+        counts: { 'achievement:7': 1 },
+        isFirstGroupContinued: false,
+      },
+      paginatedTickets,
+      ziggy: createZiggyProps({ query: { group: 'ticketable' } }),
+    });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Group by' }));
+    await userEvent.click(screen.getByRole('option', { name: 'None' }));
+
+    // ASSERT
+    expect(await screen.findByRole('columnheader', { name: 'Issue with' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'ID' })).toBeInTheDocument();
+    expect(screen.queryByRole('rowheader', { name: /Boss Rush/ })).not.toBeInTheDocument();
+  });
+
   it('given the page has no tickets, shows the empty state instead of a table', () => {
     // ARRANGE
     renderTicketIndexRoot({
@@ -225,6 +380,7 @@ describe('Component: TicketIndexRoot', () => {
             scope: 'game',
             game: 1701,
             sort: 'createdAt',
+            group: 'none',
             'filter[status]': status,
             'filter[type]': '0',
             'filter[mode]': 'all',
@@ -265,6 +421,7 @@ describe('Component: TicketIndexRoot', () => {
           scope: 'game',
           game: 1701,
           sort: 'createdAt',
+          group: 'none',
           'filter[status]': 'unresolved',
           'filter[type]': '0',
           'page[number]': 1,
@@ -592,6 +749,7 @@ describe('Component: TicketIndexRoot', () => {
         {
           scope: 'all',
           sort: '-createdAt',
+          group: 'none',
           'filter[status]': 'quarantined',
           'filter[type]': '0',
           'page[number]': 1,
@@ -604,13 +762,13 @@ describe('Component: TicketIndexRoot', () => {
     });
 
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       expect.stringContaining('filter%5Bstatus%5D=quarantined'),
     );
 
     expect(pushStateSpy).not.toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       expect.stringContaining('filter%5Btype%5D'),
     );
@@ -643,6 +801,7 @@ describe('Component: TicketIndexRoot', () => {
         {
           scope: 'all',
           sort: '-createdAt',
+          group: 'none',
           'filter[status]': 'all',
           'filter[type]': '0',
           'page[number]': 1,
@@ -689,6 +848,7 @@ describe('Component: TicketIndexRoot', () => {
         {
           scope: 'all',
           sort: '-createdAt',
+          group: 'none',
           'filter[status]': 'resolved',
           'filter[type]': '0',
           'page[number]': 1,
@@ -761,6 +921,7 @@ describe('Component: TicketIndexRoot', () => {
         {
           scope: 'all',
           sort: '-createdAt',
+          group: 'none',
           'filter[status]': 'unresolved',
           'filter[type]': '0',
           'page[number]': 2,
@@ -780,6 +941,7 @@ describe('Component: TicketIndexRoot', () => {
         {
           scope: 'all',
           sort: '-createdAt',
+          group: 'none',
           'filter[status]': 'unresolved',
           'filter[type]': '0',
           'page[number]': 3,
@@ -794,7 +956,7 @@ describe('Component: TicketIndexRoot', () => {
     expect(getSpy).toHaveBeenCalledTimes(2);
 
     expect(pushStateSpy).toHaveBeenCalledWith(
-      { inertia: true, ticketListSortParam: '-createdAt' },
+      { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
       '',
       expect.stringContaining('page%5Bnumber%5D=2'),
     );
@@ -845,6 +1007,7 @@ describe('Component: TicketIndexRoot', () => {
           {
             scope: 'all',
             sort: '-createdAt',
+            group: 'none',
             'filter[status]': 'unresolved',
             'filter[type]': '0',
             'page[number]': 3,
@@ -894,6 +1057,7 @@ describe('Component: TicketIndexRoot', () => {
         {
           scope: 'all',
           sort: 'state',
+          group: 'none',
           'filter[status]': 'resolved',
           'filter[type]': '0',
           'page[number]': 2,
@@ -963,7 +1127,7 @@ describe('Component: TicketIndexRoot', () => {
     // ASSERT
     await waitFor(() => {
       expect(pushStateSpy).toHaveBeenCalledWith(
-        { inertia: true, ticketListSortParam: '-createdAt' },
+        { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-createdAt' },
         '',
         expect.stringContaining('sort=-createdAt'),
       );
@@ -974,7 +1138,7 @@ describe('Component: TicketIndexRoot', () => {
 
     await waitFor(() => {
       expect(pushStateSpy).toHaveBeenLastCalledWith(
-        { inertia: true, ticketListSortParam: '-resolvedAt' },
+        { inertia: true, ticketListGroupField: 'none', ticketListSortParam: '-resolvedAt' },
         '',
         expect.not.stringContaining('sort='),
       );
@@ -1085,6 +1249,7 @@ describe('Component: TicketIndexRoot', () => {
           scope: 'game',
           game: 1701,
           sort: '-createdAt',
+          group: 'none',
           'filter[status]': 'unresolved',
           'filter[type]': '0',
           'page[number]': 2,
@@ -1169,6 +1334,7 @@ describe('Component: TicketIndexRoot', () => {
       {
         scope: 'all',
         sort: '-createdAt',
+        group: 'none',
         'filter[status]': 'quarantined',
         'filter[type]': '1',
         'page[number]': 1,
@@ -1203,6 +1369,7 @@ describe('Component: TicketIndexRoot', () => {
       {
         scope: 'all',
         sort: '-createdAt',
+        group: 'none',
         'filter[status]': 'quarantined',
         'filter[type]': '0',
         'page[number]': 1,
@@ -1249,6 +1416,7 @@ describe('Component: TicketIndexRoot', () => {
       {
         scope: 'all',
         sort: '-state',
+        group: 'none',
         'filter[status]': 'unresolved',
         'filter[type]': '0',
         'page[number]': 1,
@@ -1278,7 +1446,39 @@ describe('Component: TicketIndexRoot', () => {
       {
         scope: 'all',
         sort: '-resolvedAt',
+        group: 'none',
         'filter[status]': 'resolved',
+        'filter[type]': '0',
+        'page[number]': 1,
+      },
+    ]);
+  });
+
+  it('given the user hovers a grouping option, prefetches it', async () => {
+    // ARRANGE
+    vi.spyOn(window.history, 'pushState').mockImplementation(() => {});
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValue({
+      data: createTicketListResponse(createPaginatedData([])),
+    });
+
+    renderTicketIndexRoot({ ziggy: createZiggyProps({ query: { sort: 'state' } }) });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Group by' }));
+    await userEvent.hover(screen.getByRole('option', { name: 'Game' }));
+    await waitFor(() => expect(getSpy).toHaveBeenCalledOnce());
+    await userEvent.click(screen.getByRole('option', { name: 'Game' }));
+
+    // ASSERT
+    expect(getSpy).toHaveBeenCalledOnce();
+    expect(getSpy).toHaveBeenCalledWith([
+      'api.ticket.index',
+      {
+        scope: 'all',
+        sort: 'state',
+        group: 'game',
+        'filter[status]': 'unresolved',
         'filter[type]': '0',
         'page[number]': 1,
       },
@@ -1325,6 +1525,7 @@ describe('Component: TicketIndexRoot', () => {
       {
         scope: 'all',
         sort: '-createdAt',
+        group: 'none',
         'filter[status]': 'unresolved',
         'filter[type]': '0',
         'page[number]': 1,
@@ -1353,6 +1554,7 @@ describe('Component: TicketIndexRoot', () => {
       {
         scope: 'all',
         sort: '-createdAt',
+        group: 'none',
         'filter[status]': 'unresolved',
         'filter[type]': '0',
         'page[number]': 1,

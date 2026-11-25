@@ -38,6 +38,7 @@ class TicketShowPagePropsData extends Data
         public ?int $unlocksSinceReported,
         public ?int $recentOtherHashUnlockCount,
         public ?Carbon $logicChangedAfterReportAt,
+        public ?TicketAlreadyFixedEvidenceData $alreadyFixedEvidence,
         public ?int $reportedTriggerVersion,
         public ?int $currentTriggerVersion,
         public ?LeaderboardEntryData $reporterLeaderboardEntry,
