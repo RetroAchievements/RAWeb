@@ -7,10 +7,12 @@ const serverDefaultColumnFilters = [{ id: 'status', value: ['unresolved'] }];
 
 function renderTicketListState({
   currentPage = 1,
+  groupFields = ['game'],
   persistedViewPreferences = null,
   query = {},
 }: {
   currentPage?: number;
+  groupFields?: App.Platform.Enums.TicketListGroupField[];
   persistedViewPreferences?: unknown;
   query?: Record<string, string | Record<string, string>>;
 } = {}) {
@@ -23,6 +25,7 @@ function renderTicketListState({
       ),
     {
       pageProps: {
+        groupFields,
         persistedViewPreferences,
         ziggy: createZiggyProps({ query }),
       },
@@ -103,6 +106,56 @@ describe('Hook: useTicketListState', () => {
     expect(result.current.sortParam).toBe('-resolvedAt');
   });
 
+  it('uses a persisted grouping and resets the page when the grouping changes', () => {
+    // ARRANGE
+    const persistedViewPreferences = {
+      columnVisibility: {},
+      groupField: 'game',
+      sortParam: 'state',
+    };
+
+    // ACT
+    const { result } = renderTicketListState({ currentPage: 3, persistedViewPreferences });
+
+    // ASSERT
+    expect(result.current.groupField).toEqual('game');
+    expect(result.current.pageNumber).toEqual(3);
+
+    act(() => result.current.setGroupField('none'));
+
+    expect(result.current.groupField).toEqual('none');
+    expect(result.current.pageNumber).toEqual(1);
+    expect(result.current.sortParam).toEqual('state');
+  });
+
+  it('given the URL turns grouping off, ignores the persisted grouping', () => {
+    // ARRANGE
+    const persistedViewPreferences = {
+      columnVisibility: {},
+      groupField: 'game',
+    };
+
+    // ACT
+    const { result } = renderTicketListState({
+      persistedViewPreferences,
+      query: { group: 'none' },
+    });
+
+    // ASSERT
+    expect(result.current.groupField).toEqual('none');
+  });
+
+  it('given the URL has some grouping the scope does not support, does not group', () => {
+    // ACT
+    const { result } = renderTicketListState({
+      groupFields: ['game'],
+      query: { group: 'ticketable' },
+    });
+
+    // ASSERT
+    expect(result.current.groupField).toEqual('none');
+  });
+
   it('ignores invalid persisted display preferences', () => {
     // ARRANGE
     const persistedViewPreferences = {
@@ -111,6 +164,7 @@ describe('Hook: useTicketListState', () => {
         id: false,
         unknown: true,
       },
+      groupField: 'garbage',
       sortParam: 'garbage',
     };
 
@@ -120,5 +174,6 @@ describe('Hook: useTicketListState', () => {
     // ASSERT
     expect(result.current.columnVisibilityOverrides).toEqual({});
     expect(result.current.sortParam).toBe('-createdAt');
+    expect(result.current.groupField).toEqual('none');
   });
 });

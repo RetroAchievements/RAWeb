@@ -7,6 +7,7 @@ import type { TicketListSortParam, TicketListUrlState } from '../models';
 import { getTicketListColumnFiltersForSort } from '../utils/getTicketListColumnFiltersForSort';
 import { getTicketListColumnFiltersForStatus } from '../utils/getTicketListColumnFiltersForStatus';
 import { resolveInitialTicketListColumnFilters } from '../utils/resolveInitialTicketListColumnFilters';
+import { resolveTicketListGroupField } from '../utils/resolveTicketListGroupField';
 import { resolveTicketListViewPreferences } from '../utils/resolveTicketListViewPreferences';
 import { ticketListSort } from '../utils/ticketListSort';
 
@@ -22,12 +23,13 @@ export function useTicketListState(
   serverDefaultSortParam: TicketListSortParam,
 ) {
   const {
+    groupFields,
     persistedViewPreferences,
     ziggy: { query },
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
 
   const [initialViewPreferences] = useState(() =>
-    resolveTicketListViewPreferences(persistedViewPreferences, serverDefaultSortParam),
+    resolveTicketListViewPreferences(persistedViewPreferences, serverDefaultSortParam, groupFields),
   );
 
   const [initialColumnFilters] = useState<ColumnFiltersState>(() =>
@@ -38,6 +40,9 @@ export function useTicketListState(
   const [pageNumber, setPageNumber] = useState(paginatedTickets.currentPage);
   const [sortParam, setSortParam] = useState<TicketListSortParam>(() =>
     ticketListSort.resolve(query.sort, initialViewPreferences.sortParam),
+  );
+  const [groupField, setGroupField] = useState<App.Platform.Enums.TicketListGroupField>(() =>
+    resolveTicketListGroupField(query.group, initialViewPreferences.groupField, groupFields),
   );
 
   const [columnVisibilityOverrides, setColumnVisibilityOverrides] = useState(
@@ -65,21 +70,33 @@ export function useTicketListState(
     );
   };
 
+  const setGroupFieldAndResetPage = (nextGroupField: App.Platform.Enums.TicketListGroupField) => {
+    if (nextGroupField === groupField) {
+      return;
+    }
+
+    setPageNumber(1);
+    setGroupField(nextGroupField);
+  };
+
   const restoreState = (urlState: TicketListUrlState) => {
     setColumnFilters(urlState.columnFilters);
     setPageNumber(urlState.pageNumber);
     setSortParam(urlState.sortParam);
+    setGroupField(urlState.groupField);
   };
 
   return {
     columnFilters,
     columnVisibilityOverrides,
+    groupField,
     pageNumber,
     restoreState,
     setColumnVisibilityOverrides,
     setPageNumber,
     sortParam,
     setColumnFilters: setColumnFiltersAndResetPage,
+    setGroupField: setGroupFieldAndResetPage,
     setSortParam: setSortParamAndResetPage,
   };
 }

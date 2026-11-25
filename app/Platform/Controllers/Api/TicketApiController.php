@@ -37,6 +37,7 @@ class TicketApiController extends Controller
             'paginatedTickets' => $result['paginatedTickets'],
             'stateCounts' => $result['stateCounts'],
             'facetCounts' => $result['facetCounts'],
+            'grouping' => $result['grouping'],
         ]);
     }
 

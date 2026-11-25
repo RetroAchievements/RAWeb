@@ -5,6 +5,7 @@ import { normalizeTicketListFilterValue } from './normalizeTicketListFilterValue
 
 interface SerializeTicketListSearchParamsOptions {
   columnFilters: ColumnFiltersState;
+  groupField: App.Platform.Enums.TicketListGroupField;
   pageNumber: number;
   serverDefaultSortParam: TicketListSortParam;
   sortParam: TicketListSortParam;
@@ -19,6 +20,7 @@ interface SerializeTicketListSearchParamsOptions {
  */
 export function serializeTicketListSearchParams({
   columnFilters,
+  groupField,
   pageNumber,
   serverDefaultSortParam,
   sortParam,
@@ -31,6 +33,12 @@ export function serializeTicketListSearchParams({
     searchParams.set('sort', sortParam);
   } else {
     searchParams.delete('sort');
+  }
+
+  if (groupField !== 'none') {
+    searchParams.set('group', groupField);
+  } else {
+    searchParams.delete('group');
   }
 
   if (pageNumber > 1) {

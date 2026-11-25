@@ -112,9 +112,9 @@ $nextPageHref = ($currentPage < $totalPages)
         }
         echo "</small>";
         echo "</div></td>";
-        echo "<td class='text-right'><a href='" . route('developer.tickets', ['user' => $devStats['Author']]) ."'>" . $devStats['OpenTickets'] . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.tickets', ['user' => $devStats['Author']]) . "'>" . $devStats['OpenTickets'] . "</a></td>";
         echo "<td class='text-right'><a href='" . route('developer.sets', ['user' => $devStats['Author']]) . "'>" . localized_number($devStats['Achievements']) . "</a></td>";
-        echo "<td class='text-right'><a href='" . route('developer.tickets.resolved', ['user' => $devStats['Author'], 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) ."'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
+        echo "<td class='text-right'><a href='" . route('developer.tickets.resolved', ['user' => $devStats['Author'], 'filter[status]' => 'resolved', 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "'>" . localized_number($devStats['TicketsResolvedForOthers']) . "</a></td>";
         echo "<td class='text-right'>" . localized_number($devStats['yield_unlocks']) . "</td>";
         echo "<td class='text-right'>" . localized_number($devStats['yield_points']) . "</td>";
         echo "<td class='text-right'><a href='" . route('developer.claims', ['user' => $devStats['Author']]) . "'>" . $devStats['ActiveClaims'] . "</a></td>";

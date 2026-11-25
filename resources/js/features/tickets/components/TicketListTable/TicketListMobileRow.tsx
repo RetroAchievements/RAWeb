@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChartBar } from 'react-icons/lu';
 
 import { GameTitle } from '@/common/components/GameTitle';
@@ -15,13 +16,18 @@ interface TicketListMobileRowProps {
 
   /** Should be falsy for game-scoped lists, as it'd be redundant. */
   shouldShowGameTitle: boolean;
+
+  /** Should be falsy under a group header that already names the achievement or leaderboard. */
+  shouldShowTicketable: boolean;
 }
 
 export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({
   entry,
   hasVerdictSlot,
   shouldShowGameTitle,
+  shouldShowTicketable,
 }) => {
+  const { t } = useTranslation();
   const { diffForHumans } = useDiffForHumans();
 
   return (
@@ -40,32 +46,13 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({
         </div>
       ) : null}
 
-      {entry.ticketableType === 'achievement' && entry.ticketableBadgeUrl ? (
-        <img
-          loading="lazy"
-          decoding="async"
-          width={24}
-          height={24}
-          src={entry.ticketableBadgeUrl}
-          alt=""
-          className="flex-none rounded-xs"
-        />
-      ) : null}
-
-      {entry.ticketableType === 'leaderboard' ? (
-        <LuChartBar aria-hidden="true" className="size-6 flex-none text-link" />
-      ) : null}
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-link">{entry.ticketableTitle}</span>
-
-        {shouldShowGameTitle ? (
-          <GameTitle
-            title={entry.game.title}
-            className={cn('min-w-0 truncate text-xs', ticketListCellClassNames.dimText)}
-          />
-        ) : null}
-      </div>
+      {shouldShowTicketable ? (
+        <MobileTicketableLabel entry={entry} shouldShowGameTitle={shouldShowGameTitle} />
+      ) : (
+        <span className="min-w-0 flex-1 truncate text-link">
+          {t('Ticket #{{ticketId}}', { ticketId: entry.id })}
+        </span>
+      )}
 
       <div className="ml-auto flex flex-none items-center gap-2">
         {entry.reporter ? (
@@ -87,3 +74,39 @@ export const TicketListMobileRow: FC<TicketListMobileRowProps> = ({
     </div>
   );
 };
+
+interface MobileTicketableLabelProps {
+  entry: App.Platform.Data.TicketListEntry;
+  shouldShowGameTitle: boolean;
+}
+
+const MobileTicketableLabel: FC<MobileTicketableLabelProps> = ({ entry, shouldShowGameTitle }) => (
+  <>
+    {entry.ticketableType === 'achievement' && entry.ticketableBadgeUrl ? (
+      <img
+        loading="lazy"
+        decoding="async"
+        width={24}
+        height={24}
+        src={entry.ticketableBadgeUrl}
+        alt=""
+        className="flex-none rounded-xs"
+      />
+    ) : null}
+
+    {entry.ticketableType === 'leaderboard' ? (
+      <LuChartBar aria-hidden="true" className="size-6 flex-none text-link" />
+    ) : null}
+
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="truncate text-link">{entry.ticketableTitle}</span>
+
+      {shouldShowGameTitle ? (
+        <GameTitle
+          title={entry.game.title}
+          className={cn('min-w-0 truncate text-xs', ticketListCellClassNames.dimText)}
+        />
+      ) : null}
+    </div>
+  </>
+);

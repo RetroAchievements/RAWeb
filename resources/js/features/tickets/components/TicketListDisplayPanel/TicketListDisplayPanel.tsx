@@ -35,24 +35,35 @@ import type {
 } from '../../models';
 import { ticketListSort } from '../../utils/ticketListSort';
 
+interface TicketListDisplayChanges {
+  groupField?: App.Platform.Enums.TicketListGroupField;
+  sortParam?: TicketListSortParam;
+}
+
 interface TicketListDisplayPanelProps {
   columnDefinitions: TicketListColumnDefinition[];
   columnVisibility: VisibilityState;
+  groupField: App.Platform.Enums.TicketListGroupField;
+  groupFields: App.Platform.Enums.TicketListGroupField[];
   hasColumnVisibilityOverrides: boolean;
+  onGroupChange: (groupField: App.Platform.Enums.TicketListGroupField) => void;
   onResetDisplay: () => void;
   onSortChange: (sortParam: TicketListSortParam) => void;
   onToggleColumn: (columnId: TicketListColumnId) => void;
   serverDefaultSortParam: TicketListSortParam;
   sortParam: TicketListSortParam;
 
-  onPrefetchSort?: (sortParam: TicketListSortParam) => void;
+  onPrefetchDisplay?: (changes: TicketListDisplayChanges) => void;
 }
 
 export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
   columnDefinitions,
   columnVisibility,
+  groupField,
+  groupFields,
   hasColumnVisibilityOverrides,
-  onPrefetchSort,
+  onGroupChange,
+  onPrefetchDisplay,
   onResetDisplay,
   onSortChange,
   onToggleColumn,
@@ -77,7 +88,15 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
     resolvedAt: t('Resolved'),
   };
 
-  const hasDisplayChanges = hasColumnVisibilityOverrides || sortParam !== serverDefaultSortParam;
+  const groupFieldLabels: Record<App.Platform.Enums.TicketListGroupField, string> = {
+    none: t('None'),
+    game: t('Game'),
+    ticketable: t('Issue with'),
+  };
+  const groupFieldOptions: App.Platform.Enums.TicketListGroupField[] = ['none', ...groupFields];
+
+  const isDisplayDefault = sortParam === serverDefaultSortParam && groupField === 'none';
+  const hasDisplayChanges = hasColumnVisibilityOverrides || !isDisplayDefault;
 
   const handleSortFieldChange = (field: App.Platform.Enums.TicketListSortField) => {
     onSortChange(ticketListSort.build(field, isAscending));
@@ -123,7 +142,9 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
                   data-testid="toggle-sort-direction"
                   onClick={() => onSortChange(ticketListSort.build(sortField, !isAscending))}
                   onMouseEnter={() =>
-                    onPrefetchSort?.(ticketListSort.build(sortField, !isAscending))
+                    onPrefetchDisplay?.({
+                      sortParam: ticketListSort.build(sortField, !isAscending),
+                    })
                   }
                 >
                   {isAscending ? (
@@ -153,7 +174,9 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
                     value={field}
                     onMouseEnter={() =>
                       hoverIntent.start(() =>
-                        onPrefetchSort?.(ticketListSort.build(field, isAscending)),
+                        onPrefetchDisplay?.({
+                          sortParam: ticketListSort.build(field, isAscending),
+                        }),
                       )
                     }
                     onMouseLeave={hoverIntent.cancel}
@@ -165,6 +188,37 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
             </BaseSelect>
           </div>
         </div>
+
+        {groupFields.length ? (
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <span className="text-neutral-200 light:text-neutral-900">{t('Group')}</span>
+
+            <BaseSelect value={groupField} onValueChange={onGroupChange}>
+              <BaseSelectTrigger
+                aria-label={t('Group by')}
+                className="h-8 w-36"
+                data-testid="group-field"
+              >
+                <BaseSelectValue />
+              </BaseSelectTrigger>
+
+              <BaseSelectContent>
+                {groupFieldOptions.map((field) => (
+                  <BaseSelectItem
+                    key={field}
+                    value={field}
+                    onMouseEnter={() =>
+                      hoverIntent.start(() => onPrefetchDisplay?.({ groupField: field }))
+                    }
+                    onMouseLeave={hoverIntent.cancel}
+                  >
+                    {groupFieldLabels[field]}
+                  </BaseSelectItem>
+                ))}
+              </BaseSelectContent>
+            </BaseSelect>
+          </div>
+        ) : null}
 
         <div className="max-sm:hidden">
           <BaseSeparator className="my-3" />
@@ -203,8 +257,8 @@ export const TicketListDisplayPanel: FC<TicketListDisplayPanelProps> = ({
               data-testid="reset-display"
               onClick={onResetDisplay}
               onMouseEnter={() => {
-                if (sortParam !== serverDefaultSortParam) {
-                  onPrefetchSort?.(serverDefaultSortParam);
+                if (!isDisplayDefault) {
+                  onPrefetchDisplay?.({ groupField: 'none', sortParam: serverDefaultSortParam });
                 }
               }}
             >
