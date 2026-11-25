@@ -1668,7 +1668,7 @@
     "Probably a real bug": "Probablement un bug",
     "Nearly 9 in 10 past tickets with this verdict were closed without a logic change.": "Presque 9 billets sur 10 avec ce verdict ont été fermés sans changement de logique.",
     "Nearly 4 in 5 tickets with this verdict receive a logic change.": "Presque 4 billets sur 5 avec ce verdict ont reçus un changement de logique.",
-    "None of the last {{count, number}} unlocks before the report were on the reporter's hash.": "Aucun des {{count, number}} obtenus avant le rapport était sur l'empreinte du rapporteur.",
+    "None of the last {{count, number}} unlocks before the report were on the reporter's hash.": "Aucun des {{count, number}} derniers déblocages avant le signalement n'a été effectué avec l'empreinte du rapporteur.",
     "The reporter unlocked this achievement {{duration}} after the report.": "Le rapporteur a débloqué ce succès {{duration}} après le rapport.",
     "The reporter unlocked this achievement {{duration}} after the report, with the same logic they reported.": "Le rapporteur a débloqué ce\n succès {{duration}} après le rapport, avec la logique signalée.",
     "The reporter unlocked this achievement {{duration}} after the report, after its logic changed. This was probably fixed already.": "Le rapporteur a débloqué ce succès {{duration}} après le rapport, après que sa logique ait changé. Cela a probablement déjà été corrigé.",
