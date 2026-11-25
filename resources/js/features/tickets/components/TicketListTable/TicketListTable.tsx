@@ -13,9 +13,11 @@ import { cn } from '@/common/utils/cn';
 
 import { useSyncedHorizontalScroll } from '../../hooks/useSyncedHorizontalScroll';
 import type { TicketListColumnDefinition } from '../../models';
+import { getTicketListGroupHeaders } from '../../utils/getTicketListGroupHeaders';
 import { TicketListEmptyState } from '../TicketListEmptyState';
 import { TicketSignalVerdict } from '../TicketSignalVerdict';
 import { TicketStateGlyph } from '../TicketStateGlyph';
+import { TicketListGroupHeaderRow } from './TicketListGroupHeaderRow';
 import { TicketListMobileRow } from './TicketListMobileRow';
 
 const glyphSlotClassName = 'mx-[0.6em] flex w-4 flex-none items-center justify-center';
@@ -32,20 +34,29 @@ interface TicketListTableProps {
   paginatedTickets: TicketListTablePage;
 
   emptyStateNode?: ReactNode;
+
+  grouping?: App.Platform.Data.TicketListGrouping | null;
+  groupLinkFilterParams?: Record<string, string>;
+
   isFetching?: boolean;
   paginatorNode?: ReactNode;
   shouldShowGameTitle?: boolean;
+
+  shouldShowTicketable?: boolean;
 }
 
 export const TicketListTable: FC<TicketListTableProps> = ({
   columnDefinitions,
   columnVisibility,
   emptyStateNode,
+  grouping,
+  groupLinkFilterParams = {},
   hasVerdictSlot,
   paginatedTickets,
   paginatorNode,
   isFetching = false,
   shouldShowGameTitle = true,
+  shouldShowTicketable = true,
 }) => {
   const { t } = useTranslation();
 
@@ -79,10 +90,19 @@ export const TicketListTable: FC<TicketListTableProps> = ({
 
   const hasIdColumn = visibleColumns.some((column) => column.id === 'id');
   const hasTicketableColumn = visibleColumns.some((column) => column.id === 'ticketable');
+  const stretchSlot = getStretchSlot(hasIdColumn, hasTicketableColumn);
+
+  const rowCellCount =
+    visibleColumns.length + (hasVerdictSlot ? 2 : 1) + (stretchSlot === 'ticketLabel' ? 1 : 0);
 
   if (!rows.length) {
     return <>{emptyStateNode ?? <TicketListEmptyState />}</>;
   }
+
+  const groupHeaders = getTicketListGroupHeaders(
+    grouping,
+    rows.map((row) => row.original),
+  );
 
   return (
     <div className="flex flex-col gap-[0.6em]">
@@ -106,7 +126,9 @@ export const TicketListTable: FC<TicketListTableProps> = ({
             role="row"
             className="flex w-min min-w-full items-center gap-[0.6em] p-[0.6em] text-menu-link"
           >
-            {hasIdColumn ? null : <RowGlyphSlotsHeader hasVerdictSlot={hasVerdictSlot} />}
+            {hasIdColumn ? null : (
+              <RowLeadingSlotsHeader hasVerdictSlot={hasVerdictSlot} stretchSlot={stretchSlot} />
+            )}
 
             {visibleColumns.map((column) => (
               <Fragment key={column.id}>
@@ -121,7 +143,10 @@ export const TicketListTable: FC<TicketListTableProps> = ({
                 </div>
 
                 {column.id === 'id' ? (
-                  <RowGlyphSlotsHeader hasVerdictSlot={hasVerdictSlot} />
+                  <RowLeadingSlotsHeader
+                    hasVerdictSlot={hasVerdictSlot}
+                    stretchSlot={stretchSlot}
+                  />
                 ) : null}
               </Fragment>
             ))}
@@ -133,54 +158,79 @@ export const TicketListTable: FC<TicketListTableProps> = ({
           className="overflow-x-auto rounded-b-[0.3em]"
           onScroll={handleBodyScroll}
         >
-          {rows.map((row) => (
-            <div
-              key={row.id}
-              role="row"
-              className={cn(
-                'relative flex h-[2.6em] min-w-full items-center gap-[0.6em] px-[0.6em]',
-                'focus-within:bg-embed-highlight hover:bg-embed-highlight sm:w-min',
-                shouldShowGameTitle ? 'max-sm:h-[3.6em]' : null,
-                shouldShowGameTitle && hasTicketableColumn ? 'sm:h-[3.6em]' : null,
-              )}
-            >
-              <InertiaLink
-                href={route('ticket.show', { ticket: row.original.id })}
-                aria-label={t('Ticket #{{ticketId}}', { ticketId: row.original.id })}
-                className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"
-              />
+          {rows.map((row, index) => {
+            const groupHeader = groupHeaders[index];
 
-              <TicketListMobileRow
-                entry={row.original}
-                hasVerdictSlot={hasVerdictSlot}
-                shouldShowGameTitle={shouldShowGameTitle}
-              />
+            return (
+              <Fragment key={row.id}>
+                {grouping && groupHeader ? (
+                  <TicketListGroupHeaderRow
+                    columnCount={rowCellCount}
+                    entry={row.original}
+                    field={grouping.field}
+                    isContinued={groupHeader.isContinued}
+                    linkFilterParams={groupLinkFilterParams}
+                    ticketCount={groupHeader.ticketCount}
+                  />
+                ) : null}
 
-              <div className="max-sm:hidden sm:contents">
-                {hasIdColumn ? null : (
-                  <RowGlyphSlots entry={row.original} hasVerdictSlot={hasVerdictSlot} />
-                )}
+                <div
+                  role="row"
+                  className={cn(
+                    'relative flex h-[2.6em] min-w-full items-center gap-[0.6em] px-[0.6em]',
+                    'focus-within:bg-embed-highlight hover:bg-embed-highlight sm:w-min',
+                    shouldShowGameTitle ? 'max-sm:h-[3.6em]' : null,
+                    shouldShowGameTitle && hasTicketableColumn ? 'sm:h-[3.6em]' : null,
+                  )}
+                >
+                  <InertiaLink
+                    href={route('ticket.show', { ticket: row.original.id })}
+                    aria-label={t('Ticket #{{ticketId}}', { ticketId: row.original.id })}
+                    className="absolute inset-0 rounded-[0.3em] focus-visible:outline-2"
+                  />
 
-                {row.getVisibleCells().map((cell) => (
-                  <Fragment key={cell.id}>
-                    <div
-                      role="cell"
-                      className={cn(
-                        'min-w-0 overflow-hidden contain-[inline-size]',
-                        cell.column.columnDef.meta?.responsiveClassName,
-                      )}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </div>
+                  <TicketListMobileRow
+                    entry={row.original}
+                    hasVerdictSlot={hasVerdictSlot}
+                    shouldShowGameTitle={shouldShowGameTitle}
+                    shouldShowTicketable={shouldShowTicketable}
+                  />
 
-                    {cell.column.id === 'id' ? (
-                      <RowGlyphSlots entry={row.original} hasVerdictSlot={hasVerdictSlot} />
-                    ) : null}
-                  </Fragment>
-                ))}
-              </div>
-            </div>
-          ))}
+                  <div className="max-sm:hidden sm:contents">
+                    {hasIdColumn ? null : (
+                      <RowLeadingSlots
+                        entry={row.original}
+                        hasVerdictSlot={hasVerdictSlot}
+                        stretchSlot={stretchSlot}
+                      />
+                    )}
+
+                    {row.getVisibleCells().map((cell) => (
+                      <Fragment key={cell.id}>
+                        <div
+                          role="cell"
+                          className={cn(
+                            'min-w-0 overflow-hidden contain-[inline-size]',
+                            cell.column.columnDef.meta?.responsiveClassName,
+                          )}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+
+                        {cell.column.id === 'id' ? (
+                          <RowLeadingSlots
+                            entry={row.original}
+                            hasVerdictSlot={hasVerdictSlot}
+                            stretchSlot={stretchSlot}
+                          />
+                        ) : null}
+                      </Fragment>
+                    ))}
+                  </div>
+                </div>
+              </Fragment>
+            );
+          })}
         </div>
       </div>
 
@@ -189,38 +239,81 @@ export const TicketListTable: FC<TicketListTableProps> = ({
   );
 };
 
-interface RowGlyphSlotsHeaderProps {
-  hasVerdictSlot: boolean;
+type StretchSlot = 'none' | 'empty' | 'ticketLabel';
+
+function getStretchSlot(hasIdColumn: boolean, hasTicketableColumn: boolean): StretchSlot {
+  if (!hasIdColumn) {
+    return 'ticketLabel';
+  }
+
+  return hasTicketableColumn ? 'none' : 'empty';
 }
 
-const RowGlyphSlotsHeader: FC<RowGlyphSlotsHeaderProps> = ({ hasVerdictSlot }) => (
-  <>
-    <span aria-hidden="true" className={glyphSlotClassName} />
-    {hasVerdictSlot ? <span aria-hidden="true" className={glyphSlotClassName} /> : null}
-  </>
-);
+const stretchSlotClassName = 'min-w-0 flex-1 truncate';
 
-interface RowGlyphSlotsProps {
+interface RowLeadingSlotsHeaderProps {
+  hasVerdictSlot: boolean;
+  stretchSlot: StretchSlot;
+}
+
+const RowLeadingSlotsHeader: FC<RowLeadingSlotsHeaderProps> = ({ hasVerdictSlot, stretchSlot }) => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <span aria-hidden="true" className={glyphSlotClassName} />
+      {hasVerdictSlot ? <span aria-hidden="true" className={glyphSlotClassName} /> : null}
+
+      {stretchSlot === 'empty' ? <span aria-hidden="true" className="flex-1" /> : null}
+
+      {stretchSlot === 'ticketLabel' ? (
+        <div role="columnheader" className={stretchSlotClassName}>
+          {t('Ticket')}
+        </div>
+      ) : null}
+    </>
+  );
+};
+
+interface RowLeadingSlotsProps {
   entry: App.Platform.Data.TicketListEntry;
   hasVerdictSlot: boolean;
+  stretchSlot: StretchSlot;
 }
 
-const RowGlyphSlots: FC<RowGlyphSlotsProps> = ({ entry, hasVerdictSlot }) => (
-  <>
-    <div role="cell" className={glyphSlotClassName}>
-      <TicketStateGlyph state={entry.state} />
-    </div>
+const RowLeadingSlots: FC<RowLeadingSlotsProps> = ({ entry, hasVerdictSlot, stretchSlot }) => {
+  const { t } = useTranslation();
 
-    {hasVerdictSlot ? (
+  return (
+    <>
       <div role="cell" className={glyphSlotClassName}>
-        {entry.signals ? (
-          <TicketSignalVerdict
-            signals={entry.signals}
-            reportedAt={entry.createdAt}
-            hasTooltip={true}
-          />
-        ) : null}
+        <TicketStateGlyph state={entry.state} />
       </div>
-    ) : null}
-  </>
-);
+
+      {hasVerdictSlot ? (
+        <div role="cell" className={glyphSlotClassName}>
+          {entry.signals ? (
+            <TicketSignalVerdict
+              signals={entry.signals}
+              reportedAt={entry.createdAt}
+              hasTooltip={true}
+            />
+          ) : null}
+        </div>
+      ) : null}
+
+      {stretchSlot === 'empty' ? <span aria-hidden="true" className="flex-1" /> : null}
+
+      {stretchSlot === 'ticketLabel' ? (
+        <div role="cell" className={stretchSlotClassName}>
+          <InertiaLink
+            href={route('ticket.show', { ticket: entry.id })}
+            className="relative z-10 tabular-nums"
+          >
+            {t('Ticket #{{ticketId}}', { ticketId: entry.id })}
+          </InertiaLink>
+        </div>
+      ) : null}
+    </>
+  );
+};

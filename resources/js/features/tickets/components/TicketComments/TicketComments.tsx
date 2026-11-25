@@ -17,9 +17,10 @@ export const TicketComments: FC = () => {
   const { t } = useTranslation();
 
   // A reporter leaving a reply can mutate ticket state, so we'll invalidate the client-side cache altogether.
-  const reloadPage = () => {
-    router.reload();
-  };
+  const reloadPage = () =>
+    new Promise<void>((resolve) => {
+      router.reload({ onFinish: () => resolve() });
+    });
 
   const { footerEntries, rowEntries } = groupChangelogEntries(comments, changelog);
 

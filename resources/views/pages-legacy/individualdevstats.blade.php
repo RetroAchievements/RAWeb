@@ -1,8 +1,8 @@
 <?php
 
 use App\Community\Enums\TicketState;
-use App\Models\Ticket;
 use App\Models\User;
+use App\Platform\Services\UserTicketCountService;
 use Illuminate\Support\Facades\Gate;
 
 authenticateFromCookie($user, $permissions, $userDetails);
@@ -225,21 +225,19 @@ $codeNotes = collect(getCodeNoteCounts($devUser));
 $userCodeNoteCount = $codeNotes->sum('NoteCount');
 
 // Initialize ticket information variables
-$assignedTicketCounts = Ticket::forAssignee($devUser)
-    ->promoted()
-    ->whereIn('state', [TicketState::Open, TicketState::Request, TicketState::Closed, TicketState::Resolved])
-    ->selectRaw('state, COUNT(*) AS TicketCount')
+$ticketsForUser = collect(getTicketsForUser($devUser));
+$ticketCountsByState = $ticketsForUser
     ->groupBy('state')
-    ->pluck('TicketCount', 'state');
+    ->map(fn ($stateRows) => $stateRows->sum('TicketCount'));
 $userTickets = [
-    'open' => (int) ($assignedTicketCounts[TicketState::Open->value] ?? 0),
-    'request' => (int) ($assignedTicketCounts[TicketState::Request->value] ?? 0),
-    'closed' => (int) ($assignedTicketCounts[TicketState::Closed->value] ?? 0),
-    'resolved' => (int) ($assignedTicketCounts[TicketState::Resolved->value] ?? 0),
+    'open' => (int) ($ticketCountsByState[TicketState::Open->value] ?? 0),
+    'request' => (int) ($ticketCountsByState[TicketState::Request->value] ?? 0),
+    'closed' => (int) ($ticketCountsByState[TicketState::Closed->value] ?? 0),
+    'resolved' => (int) ($ticketCountsByState[TicketState::Resolved->value] ?? 0),
 ];
 $userTickets['total'] = array_sum($userTickets);
 
-$userTickets['uniqueValid'] = collect(getTicketsForUser($devUser))
+$userTickets['uniqueValid'] = $ticketsForUser
     ->whereIn('state', [TicketState::Open->value, TicketState::Resolved->value])
     ->pluck('ticketable_id')
     ->unique()
@@ -675,7 +673,7 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Total tickets created
         echo "<tr><td width='50%'>Total Tickets:</td><td>";
-        echo "<a href=\"" . route('developer.tickets', ['user' => $dev, 'filter[status]' => 'all', 'filter[publishedStatus]' => 'published']) . "\">" . $userTickets['total'] . "</a>";
+        echo $userTickets['total'];
 
         $parts = [];
         if ($userTickets['open'] > 0) {
@@ -694,6 +692,13 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
             echo ' (' . implode(' - ', $parts) . ')';
         }
         echo '</td>';
+
+        $assignedTicketCount = array_sum(app(UserTicketCountService::class)->countOpenForAssignee($devUser));
+        if ($assignedTicketCount > 0) {
+            echo "<tr><td width='50%'>Assigned Tickets:</td><td>";
+            echo "<a href=\"" . route('developer.tickets', ['user' => $dev]) . "\">" . localized_number($assignedTicketCount) . "</a>";
+            echo '</td></tr>';
+        }
 
         // Percent of unique achievements with tickets
         echo "<tr><td width='50%'>Unique Achievements with Open/Resolved Tickets:</td><td>" . $userTickets['uniqueValid'] . ' (';
@@ -747,14 +752,14 @@ $totalTicketPlusMinus = ($totalTicketPlusMinus > 0) ? '+' . $totalTicketPlusMinu
 
         // Tickets resolved
         echo "<tr><td>Tickets Resolved:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev]) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[status]' => 'resolved']) . "\">";
         echo $devUser->resolvedTickets()->where('state', '=', TicketState::Resolved)->count();
         echo "</a>";
         echo "</td></tr>";
 
         // Tickets resolved for other users
         echo "<tr><td>Tickets Resolved for Others:</td><td>";
-        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
+        echo "<a href=\"" . route('developer.tickets.resolved', ['user' => $dev, 'filter[status]' => 'resolved', 'filter[publishedStatus]' => 'published', 'filter[developer]' => 'others', 'filter[reporter]' => 'others']) . "\">";
         echo $closedResolvedTicketInfo['ResolvedCount'];
         echo "</a>";
         echo "</td></tr>";

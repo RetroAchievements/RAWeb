@@ -64,6 +64,22 @@ enum TicketListScope: string
     }
 
     /**
+     * The groupings this scope offers besides "None".
+     *
+     * @return TicketListGroupField[]
+     */
+    public function groupFields(): array
+    {
+        return match ($this) {
+            self::Game => [TicketListGroupField::Ticketable],
+            self::Achievement, self::AwaitingReporter => [],
+            self::All, self::AssignedTo, self::ReportedBy, self::SubscribedBy, self::ResolvedBy => [
+                TicketListGroupField::Game,
+            ],
+        };
+    }
+
+    /**
      * The filters usable by a given scope.
      *
      * @return TicketListFilterKind[]

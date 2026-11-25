@@ -205,7 +205,7 @@ describe('Component: LeaderboardCommentsMainRoot', () => {
     expect(visitSpy).toHaveBeenCalledOnce();
     expect(visitSpy).toHaveBeenCalledWith(
       ['leaderboard.comment.index', { leaderboard: 1, _query: { page: 3 } }],
-      { preserveScroll: true },
+      { preserveScroll: true, preserveState: true, onFinish: expect.any(Function) },
     );
   });
 

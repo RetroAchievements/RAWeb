@@ -22,9 +22,10 @@ export const AchievementCommentList: FC = () => {
   // For event achievements, comments come from the source achievement.
   const commentableId = eventAchievement?.sourceAchievement?.id ?? achievement.id;
 
-  const reloadComments = () => {
-    router.reload({ only: ['recentVisibleComments', 'numComments'] });
-  };
+  const reloadComments = () =>
+    new Promise<void>((resolve) => {
+      router.reload({ only: ['recentVisibleComments', 'numComments'], onFinish: () => resolve() });
+    });
 
   return (
     <div id="comments" className="flex flex-col gap-2">

@@ -4,6 +4,7 @@ import type { TicketListSortParam } from './ticket-list-sort-param.model';
 
 export interface TicketListQueryOptionsInput {
   columnFilters: ColumnFiltersState;
+  groupField: App.Platform.Enums.TicketListGroupField;
   pageNumber: number;
   scope: App.Platform.Enums.TicketListScope;
   sortParam: TicketListSortParam;

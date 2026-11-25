@@ -13,9 +13,10 @@ export const GameCommentList: FC = () => {
     usePageProps<App.Platform.Data.GameShowPageProps>();
   const { t } = useTranslation();
 
-  const reloadComments = () => {
-    router.reload({ only: ['recentVisibleComments'] });
-  };
+  const reloadComments = () =>
+    new Promise<void>((resolve) => {
+      router.reload({ only: ['recentVisibleComments'], onFinish: () => resolve() });
+    });
 
   return (
     <div id="comments" className="flex flex-col gap-2">
