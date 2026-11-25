@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Platform\Actions\SortGamesIntoHubsAction;
 use App\Models\GameBadge;
 use App\Models\User;
 
@@ -33,6 +34,22 @@ $badgeCounts = empty($gameAwardGameIds) ? [] : GameBadge::query()
     ->groupBy('game_id')
     ->pluck('aggregate', 'game_id')
     ->all();
+
+$sort = request()->query('sort');
+$hubs = request()->query('hubs');
+if (!empty($sort) || !empty($hubs)) {
+    $hubIds = array_map('intval', str_getcsv($hubs ?? ''));
+    $sorts = str_getcsv($sort ?? 'series,releasedAt,title');
+    $sortedGameAwardGameIds = (new SortGamesIntoHubsAction()->execute($gameAwardGameIds, $hubIds, $sorts));
+
+    usort($gameAwards, function ($a, $b) use ($sortedGameAwardGameIds) {
+        $indexA = array_search($a['AwardData'], $sortedGameAwardGameIds);
+        $indexB = array_search($b['AwardData'], $sortedGameAwardGameIds);
+
+        return $indexA <=> $indexB;
+    });
+}
+
 ?>
 <x-app-layout pageTitle="Reorder Site Awards">
 <script>
