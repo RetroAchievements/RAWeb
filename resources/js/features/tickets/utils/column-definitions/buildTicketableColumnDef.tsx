@@ -8,6 +8,7 @@ import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
+import { TicketableTitleLink } from '../../components/TicketableTitleLink';
 import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
@@ -77,33 +78,7 @@ const TicketableCell: FC<TicketableCellProps> = ({ entry, shouldShowGameTitle })
       ) : null}
 
       <div className="flex min-w-0 flex-col">
-        {isAchievement ? (
-          <InertiaLink
-            prefetch="desktop-hover-only"
-            href={route('achievement.show', { achievement: entry.ticketableId })}
-            className={cn(
-              ticketListCellClassNames.entityLinkWrapper,
-              ticketListCellClassNames.truncate,
-            )}
-            {...cardTooltipProps}
-          >
-            <span className={cn(ticketListCellClassNames.entityLinkLabel, 'text-neutral-300')}>
-              {entry.ticketableTitle}
-            </span>
-          </InertiaLink>
-        ) : (
-          <a
-            href={route('leaderboard.show', { leaderboard: entry.ticketableId })}
-            className={cn(
-              ticketListCellClassNames.entityLinkWrapper,
-              ticketListCellClassNames.truncate,
-            )}
-          >
-            <span className={cn(ticketListCellClassNames.entityLinkLabel, 'text-neutral-300')}>
-              {entry.ticketableTitle}
-            </span>
-          </a>
-        )}
+        <TicketableTitleLink entry={entry} labelClassName="text-neutral-300" />
 
         {shouldShowGameTitle ? (
           <InertiaLink

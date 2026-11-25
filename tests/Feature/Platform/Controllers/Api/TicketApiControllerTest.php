@@ -603,6 +603,20 @@ describe('index', function () {
         expect($ids)->toEqual($expectedIds);
     });
 
+    it('given grouping by game, the JSON has the grouping with correct group counts', function () {
+        // ARRANGE
+        $fixture = createTicketIndexFixture(3);
+        $this->actingAs(User::factory()->create());
+
+        // ACT
+        $response = $this->getJson(route('api.ticket.index', ['scope' => 'all', 'group' => 'game']));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertJsonPath('grouping.field', 'game');
+        $response->assertJsonPath('grouping.counts', [(string) $fixture['game']->id => 3]);
+    });
+
     it('given the scope is unset, the global list is returned', function () {
         // ARRANGE
         createTicketIndexFixture(2);

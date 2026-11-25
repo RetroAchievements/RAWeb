@@ -8,6 +8,7 @@ import { usePageProps } from '@/common/hooks/usePageProps';
 import { useTicketListColumnDefinitions } from '../../hooks/useTicketListColumnDefinitions';
 import { useTicketListFilterProperties } from '../../hooks/useTicketListFilterProperties';
 import { useTicketListTableRoot } from '../../hooks/useTicketListTableRoot';
+import { buildTicketListFilterLinkParams } from '../../utils/buildTicketListFilterLinkParams';
 import { buildTicketListTargetParams } from '../../utils/buildTicketListTargetParams';
 import { getActiveTicketListFilterProperties } from '../../utils/getActiveTicketListFilterProperties';
 import { getAreTicketListFiltersNonDefault } from '../../utils/getAreTicketListFiltersNonDefault';
@@ -32,6 +33,8 @@ export const TicketIndexRoot: FC = () => {
     defaultSortParam,
     defaultStatusFilter,
     facetCounts,
+    grouping,
+    groupFields,
     hasStatusFilter,
     game,
     paginatedTickets,
@@ -41,9 +44,6 @@ export const TicketIndexRoot: FC = () => {
   } = usePageProps<App.Platform.Data.TicketListPageProps>();
   const { t } = useTranslation();
 
-  const shouldShowGameTitle = scope !== 'game' && scope !== 'achievement';
-  const columnDefinitions = useTicketListColumnDefinitions(shouldShowGameTitle);
-
   const serverDefaultColumnFilters: ColumnFiltersState = [
     { id: 'status', value: [defaultStatusFilter] },
     ...availableFilters.map((filter) => ({ id: filter.kind, value: [filter.values[0]] })),
@@ -52,12 +52,24 @@ export const TicketIndexRoot: FC = () => {
   const { ticketListTableProps } = useTicketListTableRoot({
     serverDefaultColumnFilters,
     facetCounts,
+    grouping,
     paginatedTickets,
     scope,
     stateCounts,
     serverDefaultSortParam: defaultSortParam,
     targetParams: buildTicketListTargetParams({ achievement, game, user }),
   });
+
+  const shouldShowGameTitle =
+    scope !== 'game' && scope !== 'achievement' && ticketListTableProps.grouping?.field !== 'game';
+  const allColumnDefinitions = useTicketListColumnDefinitions(shouldShowGameTitle);
+
+  const shouldShowTicketable = ticketListTableProps.grouping?.field !== 'ticketable';
+  const columnDefinitions = shouldShowTicketable
+    ? allColumnDefinitions
+    : allColumnDefinitions.filter(
+        (columnDefinition) => columnDefinition.id !== 'id' && columnDefinition.id !== 'ticketable',
+      );
 
   const statusValue =
     getTicketListFilterValue<App.Platform.Enums.TicketListStatusFilter>(
@@ -159,9 +171,16 @@ export const TicketIndexRoot: FC = () => {
             <TicketListDisplayPanel
               columnDefinitions={columnDefinitions}
               columnVisibility={ticketListTableProps.columnVisibility}
+              groupField={ticketListTableProps.groupField}
+              groupFields={groupFields}
               hasColumnVisibilityOverrides={ticketListTableProps.hasColumnVisibilityOverrides}
-              onPrefetchSort={(sortParam) =>
+              onGroupChange={ticketListTableProps.setGroupField}
+              onPrefetchDisplay={({
+                groupField = ticketListTableProps.groupField,
+                sortParam = ticketListTableProps.sortParam,
+              }) =>
                 ticketListTableProps.prefetchList({
+                  groupField,
                   sortParam,
                   columnFilters: getTicketListColumnFiltersForSort(
                     ticketListTableProps.columnFilters,
@@ -181,11 +200,17 @@ export const TicketIndexRoot: FC = () => {
 
       <TicketListTable
         shouldShowGameTitle={shouldShowGameTitle}
+        shouldShowTicketable={shouldShowTicketable}
         hasVerdictSlot={!!can.viewTriageSignals}
         columnDefinitions={columnDefinitions}
         columnVisibility={ticketListTableProps.columnVisibility}
         isFetching={ticketListTableProps.isFetching}
         paginatedTickets={ticketListTableProps.paginatedTickets}
+        grouping={ticketListTableProps.grouping}
+        groupLinkFilterParams={buildTicketListFilterLinkParams(
+          appliedColumnFilters,
+          serverDefaultColumnFilters,
+        )}
         emptyStateNode={
           <TicketListEmptyState
             scope={scope}

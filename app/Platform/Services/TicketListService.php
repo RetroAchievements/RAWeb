@@ -26,6 +26,11 @@ class TicketListService
 {
     private const MAX_FACET_COUNT_ROWS = 10_000;
 
+    /**
+     * The game ID of each ticket's achievement or leaderboard, once joinTicketableGameIds() has run.
+     */
+    public const TICKETABLE_GAME_ID = 'coalesce(facet_achievement_game_id, facet_leaderboard_game_id)';
+
     /** @var array<int, string>|null */
     private ?array $emulatorNamesById = null;
 
@@ -349,12 +354,22 @@ class TicketListService
      */
     private function joinTicketableGame(Builder $query): Builder
     {
+        return $this->joinTicketableGameIds($query)
+            ->leftJoinSub(Game::select('id as facet_game_id', 'system_id as facet_system_id'), 'facet_game', fn ($join) => $join
+                ->on('facet_game_id', '=', DB::raw(self::TICKETABLE_GAME_ID)));
+    }
+
+    /**
+     * @param Builder<Ticket> $query
+     * @return Builder<Ticket>
+     */
+    public function joinTicketableGameIds(Builder $query): Builder
+    {
         return $this->joinTicketables(
             $query,
             ['game_id as facet_achievement_game_id'],
             ['game_id as facet_leaderboard_game_id'],
-        )->leftJoinSub(Game::select('id as facet_game_id', 'system_id as facet_system_id'), 'facet_game', fn ($join) => $join
-            ->on('facet_game_id', '=', DB::raw('coalesce(facet_achievement_game_id, facet_leaderboard_game_id)')));
+        );
     }
 
     /**
@@ -363,7 +378,7 @@ class TicketListService
      * @param list<string> $leaderboardColumns
      * @return Builder<Ticket>
      */
-    private function joinTicketables(Builder $query, array $achievementColumns, array $leaderboardColumns): Builder
+    public function joinTicketables(Builder $query, array $achievementColumns, array $leaderboardColumns): Builder
     {
         return $query
             ->leftJoinSub(Achievement::select(['id as facet_achievement_id', ...$achievementColumns]), 'facet_achievement', fn ($join) => $join
