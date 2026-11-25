@@ -11,6 +11,8 @@ import type { TranslatedString } from '@/types/i18next';
 
 import type { TicketCloseAnswer } from '../../../models';
 import { getAllowedTicketCloseAnswerGroups } from '../../../utils/getAllowedTicketCloseAnswerGroups';
+import type { TicketCloseAction } from '../../../utils/ticketCloseReasonLabels';
+import { TicketAlreadyFixedHint } from './TicketAlreadyFixedHint';
 import { TicketCloseNoteField } from './TicketCloseNoteField';
 import { TicketCloseQuestion } from './TicketCloseQuestion';
 import { TicketCloseReasonQuestion } from './TicketCloseReasonQuestion';
@@ -22,7 +24,7 @@ interface TicketCloseFormProps {
 }
 
 export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) => {
-  const { achievement, allowedTicketActions, can, leaderboard, ticket } =
+  const { achievement, allowedTicketActions, alreadyFixedEvidence, can, leaderboard, ticket } =
     usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
@@ -49,11 +51,31 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
   );
   const selectedAnswerGroup = closeAnswerGroups.find((group) => group.answer === answer);
 
+  const getSuggestedAction = (): TicketCloseAction | undefined => {
+    if (!alreadyFixedEvidence) {
+      return undefined;
+    }
+
+    const isCoveredAllowed = closeAnswerGroups.some((group) =>
+      group.actions.includes('covered-by-another-ticket'),
+    );
+    if (alreadyFixedEvidence.coveringTicketId && isCoveredAllowed) {
+      return 'covered-by-another-ticket';
+    }
+
+    return 'already-fixed';
+  };
+
+  const suggestedAction = getSuggestedAction();
+  const suggestedAnswer = closeAnswerGroups.find(
+    (group) => suggestedAction && group.actions.includes(suggestedAction),
+  )?.answer;
+
   const labelByAnswer: Record<TicketCloseAnswer, TranslatedString> = {
     yes: t('Yes'),
     no: t('No'),
     'cant-tell': t("Can't tell"),
-    covered: t('Already covered by another ticket'),
+    covered: t('Covered by another ticket'),
   };
 
   const handleAnswerSelect = (value: string) => {
@@ -113,8 +135,13 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
                 value: group.answer,
               }))}
               value={answer}
+              suggestedValue={suggestedAnswer}
               onValueChange={handleAnswerSelect}
-            />
+            >
+              <TicketAlreadyFixedHint
+                isCoveringTicketSuggested={suggestedAction === 'covered-by-another-ticket'}
+              />
+            </TicketCloseQuestion>
 
             <div className={cn('grid *:col-start-1 *:row-start-1', !answer && 'max-sm:hidden')}>
               <p
@@ -144,6 +171,7 @@ export const TicketCloseForm: FC<TicketCloseFormProps> = ({ onSubmitSuccess }) =
                         actions={group.actions}
                         isTicketablePromoted={isTicketablePromoted}
                         value={isGroupVisible ? action : null}
+                        suggestedValue={suggestedAction}
                         onValueChange={handleReasonSelect}
                       />
                     )}

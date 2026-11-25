@@ -624,7 +624,7 @@ describe('Component: TicketCloseDialog', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('given "Already covered by another ticket" is chosen, the developer selects a covering ticket from the related lists and it is correctly sent', async () => {
+  it('given "Covered by another ticket" is chosen, the developer selects a covering ticket from the related lists and it is correctly sent', async () => {
     // ARRANGE
     const patchSpy = vi
       .spyOn(axios, 'patch')
@@ -661,7 +661,7 @@ describe('Component: TicketCloseDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Covered by another ticket' }));
     const closeButton = screen.getByRole('button', { name: 'Close ticket' });
     const isDisabledBeforePick = closeButton.hasAttribute('disabled');
 
@@ -704,7 +704,7 @@ describe('Component: TicketCloseDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Covered by another ticket' }));
     await userEvent.click(screen.getByRole('button', { name: /which ticket\?/i }));
 
     // ASSERT
@@ -735,7 +735,7 @@ describe('Component: TicketCloseDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Covered by another ticket' }));
     await userEvent.click(screen.getByRole('button', { name: /which ticket\?/i }));
     act(() => {
       reloadOptions?.onStart?.({} as PendingVisit);
@@ -786,7 +786,7 @@ describe('Component: TicketCloseDialog', () => {
     );
 
     // ACT
-    await userEvent.click(screen.getByRole('radio', { name: 'Already covered by another ticket' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Covered by another ticket' }));
     await userEvent.click(screen.getByRole('button', { name: /which ticket\?/i }));
     await userEvent.type(
       screen.getByPlaceholderText('Search by title, number, or reporter'),
@@ -891,5 +891,147 @@ describe('Component: TicketCloseDialog', () => {
         "If the reporter still hasn't unlocked this achievement, they'll see a button to request a manual unlock.",
       ),
     ).not.toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('given the reporter probably had the old logic loaded, marks "It was already fixed" as the suggested choice', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['resolved', 'already-fixed', 'closed-mistaken'],
+          alreadyFixedEvidence: {
+            reporterSessionStartedAt: '2026-05-30T12:00:00Z',
+            logicChangedAt: '2026-05-30T14:00:00Z',
+            coveringTicketId: null,
+          },
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: /^Yes/ }));
+
+    // ASSERT
+    expect(
+      screen.getByText(
+        "The logic changed 2 hours after the reporter's session started. They may have had the old logic loaded.",
+      ),
+    ).toBeVisible();
+    expect(screen.getByRole('radio', { name: /^Yes/ })).toHaveAccessibleName(/Suggested/);
+    expect(screen.getByRole('radio', { name: /^It was already fixed/ })).toHaveAccessibleName(
+      /Suggested/,
+    );
+    expect(screen.getByRole('radio', { name: /^It was already fixed/ })).not.toBeChecked();
+  });
+
+  it('given the reporter probably had the old logic loaded, marks "Yes" as the suggested choice', () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['resolved', 'already-fixed', 'closed-mistaken'],
+          alreadyFixedEvidence: {
+            reporterSessionStartedAt: '2026-05-30T12:00:00Z',
+            logicChangedAt: '2026-05-30T14:00:00Z',
+            coveringTicketId: null,
+          },
+          can: { createTicketComments: true },
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ASSERT
+    expect(screen.getByRole('radio', { name: /^Yes/ })).toHaveAccessibleName(/Suggested/);
+    expect(screen.getByRole('radio', { name: /^Yes/ })).not.toBeChecked();
+  });
+
+  it('given the logic change probably fixed another ticket, sets "Covered by another ticket" as the suggested choice', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['resolved', 'already-fixed', 'covered-by-another-ticket'],
+          alreadyFixedEvidence: {
+            reporterSessionStartedAt: '2026-05-30T12:00:00Z',
+            logicChangedAt: '2026-05-30T14:00:00Z',
+            coveringTicketId: 5120,
+          },
+          can: { createTicketComments: true },
+          relatedTickets: [
+            {
+              id: 5120,
+              state: 'resolved',
+              resolution: 'fixed',
+              createdAt: '2026-05-28T12:00:00Z',
+              ticketableTitle: 'Hookshot',
+            },
+          ],
+          reporterGameTickets: [],
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: /^Yes/ }));
+
+    // ASSERT
+    expect(
+      screen.getByRole('radio', { name: /^Covered by another ticket/ }),
+    ).toHaveAccessibleName(/Suggested/);
+    expect(
+      screen.getByRole('radio', { name: /^Covered by another ticket/ }),
+    ).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Yes/ })).not.toHaveAccessibleName(/Suggested/);
+    expect(screen.getByRole('radio', { name: /^It was already fixed/ })).not.toHaveAccessibleName(
+      /Suggested/,
+    );
+    expect(screen.getByRole('link', { name: '#5120' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('ticket.show'),
+    );
+    expect(route).toHaveBeenCalledWith('ticket.show', { ticket: 5120 });
+  });
+
+  it('given the logic change probably fixed another ticket but the user cannot pick "Covered by another ticket" (very rare edge case), falls back to suggesting "It was already fixed"', async () => {
+    // ARRANGE
+    render<App.Platform.Data.TicketShowPageProps>(
+      <TicketCloseDialog isOpen={true} onOpenChange={vi.fn()} />,
+      {
+        pageProps: {
+          achievement: createAchievement(),
+          allowedTicketActions: ['resolved', 'already-fixed', 'covered-by-another-ticket'],
+          alreadyFixedEvidence: {
+            reporterSessionStartedAt: '2026-05-30T12:00:00Z',
+            logicChangedAt: '2026-05-30T14:00:00Z',
+            coveringTicketId: 5120,
+          },
+          can: { createTicketComments: false }, // !!
+          ticket: createTicketListEntry({ state: 'open', ticketableType: 'achievement' }),
+        },
+      },
+    );
+
+    // ACT
+    await userEvent.click(screen.getByRole('radio', { name: /^Yes/ }));
+
+    // ASSERT
+    expect(
+      screen.queryByRole('radio', { name: /^Covered by another ticket/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^Yes/ })).toHaveAccessibleName(/Suggested/);
+    expect(screen.getByRole('radio', { name: /^It was already fixed/ })).toHaveAccessibleName(
+      /Suggested/,
+    );
+    expect(screen.queryByRole('link', { name: '#5120' })).not.toBeInTheDocument();
   });
 });
