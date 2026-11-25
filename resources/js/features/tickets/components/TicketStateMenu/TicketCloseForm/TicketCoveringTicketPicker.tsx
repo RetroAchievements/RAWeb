@@ -104,7 +104,7 @@ export const TicketCoveringTicketPicker: FC = () => {
           >
             {chosenEntry ? (
               <span id={selectionElementId} className="flex min-w-0 items-center gap-2">
-                <span className="text-neutral-400 tabular-nums light:text-neutral-600">
+                <span className="shrink-0 text-neutral-400 tabular-nums light:text-neutral-600">
                   {'#'}
                   {chosenEntry.id}
                 </span>
