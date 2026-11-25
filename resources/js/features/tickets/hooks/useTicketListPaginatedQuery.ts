@@ -36,7 +36,7 @@ export function useTicketListPaginatedQuery({
 
   const prefetchList = (
     overrides: Partial<
-      Pick<TicketListQueryOptionsInput, 'columnFilters' | 'sortParam' | 'pageNumber'>
+      Pick<TicketListQueryOptionsInput, 'columnFilters' | 'groupField' | 'sortParam' | 'pageNumber'>
     >,
   ) => {
     const input = { ...queryOptionsInput, pageNumber: 1, ...overrides };

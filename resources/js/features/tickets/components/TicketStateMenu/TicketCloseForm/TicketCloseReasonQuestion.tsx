@@ -16,12 +16,15 @@ interface TicketCloseReasonQuestionProps {
   isTicketablePromoted: boolean;
   onValueChange: (value: string) => void;
   value: TicketCloseAction | null;
+
+  suggestedValue?: TicketCloseAction;
 }
 
 export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
   actions,
   isTicketablePromoted,
   onValueChange,
+  suggestedValue,
   value,
 }) => {
   const { reporterUnlock, ticket } = usePageProps<App.Platform.Data.TicketShowPageProps>();
@@ -71,6 +74,7 @@ export const TicketCloseReasonQuestion: FC<TicketCloseReasonQuestionProps> = ({
         value: closeAction,
       }))}
       value={value}
+      suggestedValue={suggestedValue}
       onValueChange={onValueChange}
     >
       {actions.includes('demoted') && isTicketablePromoted

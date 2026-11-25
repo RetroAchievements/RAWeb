@@ -1,23 +1,21 @@
 @props([
-    'trigger' => '',
     'count' => 0,
     'notifications' => null, // Collection
-    'link' => '', // FIXME unused?
     'class' => '',
-    'title' => '', // FIXME unused?
 ])
 
 <x-nav-dropdown
     :class="$class"
     dropdown-class="dropdown-menu-right dropdown-items-right"
-    :title="__res('notification')"
+    :title="__res('message')"
+    :desktopHref="route('message-thread.index')"
 >
     <x-slot name="trigger">
-        <x-fas-bell />
+        <x-fas-envelope />
         @if ($count)
             <div class="text-danger absolute translate-x-3 -translate-y-1 text-[8px]">
                 <x-fas-circle />
-            </div> 
+            </div>
         @endif
     </x-slot>
 
@@ -28,6 +26,6 @@
             </x-dropdown-item>
         @endforeach
     @else
-        <div class="flex whitespace-nowrap text-muted px-3 py-2">{{ __('No new notifications') }}</div>
+        <div class="flex whitespace-nowrap text-muted px-3 py-2">{{ __('No new messages') }}</div>
     @endif
 </x-nav-dropdown>

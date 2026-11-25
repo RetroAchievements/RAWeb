@@ -13,7 +13,7 @@
         role="button"
         aria-haspopup="true"
         aria-expanded="false"
-        title="{{ $title ?? '' }}"
+        @if ($title) aria-label="{{ $title }}" @endif
     >
         {{ $slot }}
 </a>
@@ -24,7 +24,7 @@
         role="button"
         aria-haspopup="true"
         aria-expanded="false"
-        title="{{ $title ?? '' }}"
+        @if ($title) aria-label="{{ $title }}" @endif
     >
         {{ $slot }}
     </button>

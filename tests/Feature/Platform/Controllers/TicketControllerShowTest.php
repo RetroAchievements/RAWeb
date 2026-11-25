@@ -192,6 +192,37 @@ describe('Achievement Ticket Props', function () {
         );
     });
 
+    it('counts the other unresolved and resolved tickets for the same game', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create();
+
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->request()->create();
+        Ticket::factory()->forLeaderboard($leaderboard)->open()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->resolved()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->closed()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->quarantined()->create();
+
+        $otherGameAchievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
+        Ticket::factory()->forAchievement($otherGameAchievement)->open()->create();
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('siblingUnresolvedTicketCount', 3)
+            ->where('siblingResolvedTicketCount', 1)
+        );
+    });
+
     it('given an active maintainer who is not the achievement developer, the maintainer is included', function () {
         // ARRANGE
         $developer = User::factory()->create();
@@ -340,6 +371,151 @@ describe('Achievement Ticket Props', function () {
         $response->assertInertia(fn (Assert $page) => $page
             ->where('ticket.state', 'quarantined')
             ->missing('unlocksSinceReported')
+        );
+    });
+
+    it('given the reporter probably had the old logic loaded, sets props correctly', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $firstTrigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'created_at' => Carbon::parse('2026-05-01 12:00:00'),
+        ]);
+        Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 2,
+            'parent_id' => $firstTrigger->id,
+            'created_at' => Carbon::parse('2026-05-30 14:00:00'),
+        ]);
+        $reporter = User::factory()->create();
+        PlayerSession::factory()->create([
+            'user_id' => $reporter->id,
+            'game_id' => $game->id,
+            'created_at' => Carbon::parse('2026-05-30 12:00:00'), // !! before the logic change
+        ]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('alreadyFixedEvidence.reporterSessionStartedAt', fn (string $startedAt) => Carbon::parse($startedAt)->equalTo('2026-05-30 12:00:00'))
+            ->where('alreadyFixedEvidence.logicChangedAt', fn (string $changedAt) => Carbon::parse($changedAt)->equalTo('2026-05-30 14:00:00'))
+            ->missing('alreadyFixedEvidence.coveringTicketId')
+        );
+    });
+
+    it('given the logic change probably fixed an earlier ticket, identifies that ticket as the covering ticket', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $firstTrigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'created_at' => Carbon::parse('2026-05-01 12:00:00'),
+        ]);
+        Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 2,
+            'parent_id' => $firstTrigger->id,
+            'created_at' => Carbon::parse('2026-05-30 14:00:00'),
+        ]);
+        $earlierTicket = Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'created_at' => Carbon::parse('2026-05-28 12:00:00'), // !! before the logic change
+            'resolution' => TicketResolution::Fixed,
+            'resolved_at' => Carbon::parse('2026-05-30 14:05:00'), // !! after the logic change
+        ]);
+        $reporter = User::factory()->create();
+        PlayerSession::factory()->create([
+            'user_id' => $reporter->id,
+            'game_id' => $game->id,
+            'created_at' => Carbon::parse('2026-05-30 12:00:00'),
+        ]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('alreadyFixedEvidence.coveringTicketId', $earlierTicket->id)
+        );
+    });
+
+    it('given the earlier tickets were not fixed by the logic change, does not identify either as the covering ticket', function () {
+        // ARRANGE
+        seed(RolesTableSeeder::class);
+
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $firstTrigger = Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'created_at' => Carbon::parse('2026-05-01 12:00:00'),
+        ]);
+        Trigger::factory()->create([
+            'triggerable_type' => TriggerableType::Achievement,
+            'triggerable_id' => $achievement->id,
+            'version' => 2,
+            'parent_id' => $firstTrigger->id,
+            'created_at' => Carbon::parse('2026-05-30 14:00:00'),
+        ]);
+        Ticket::factory()->forAchievement($achievement)->open()->create([
+            'created_at' => Carbon::parse('2026-05-28 12:00:00'), // !! before the logic change, but never resolved
+        ]);
+        Ticket::factory()->forAchievement($achievement)->resolved()->create([
+            'created_at' => Carbon::parse('2026-05-27 12:00:00'),
+            'resolution' => TicketResolution::Fixed,
+            'resolved_at' => Carbon::parse('2026-05-30 13:00:00'), // !! resolved before the logic change
+        ]);
+        $reporter = User::factory()->create();
+        PlayerSession::factory()->create([
+            'user_id' => $reporter->id,
+            'game_id' => $game->id,
+            'created_at' => Carbon::parse('2026-05-30 12:00:00'),
+        ]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create([
+            'reporter_id' => $reporter->id,
+            'created_at' => Carbon::parse('2026-06-01 12:00:00'),
+        ]);
+
+        $developer = User::factory()->create();
+        $developer->assignRole(Role::DEVELOPER);
+        actingAs($developer);
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->has('alreadyFixedEvidence')
+            ->missing('alreadyFixedEvidence.coveringTicketId')
         );
     });
 });

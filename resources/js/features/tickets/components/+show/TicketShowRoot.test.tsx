@@ -37,6 +37,8 @@ describe('Component: TicketShowRoot', () => {
         comments: [],
         changelog: [],
         relatedTickets: [],
+        siblingResolvedTicketCount: 0,
+        siblingUnresolvedTicketCount: 3,
         achievement: createAchievement({ title: 'Crate Crusher', points: 15 }),
         ticket: createTicketListEntry({
           id: 888,
@@ -52,7 +54,7 @@ describe('Component: TicketShowRoot', () => {
     // ASSERT
     expect(screen.getByText('Ticket #888')).toBeVisible();
     expect(screen.getByRole('heading', { level: 1, name: 'Crate Crusher (15)' })).toBeVisible();
-    expect(screen.getByText('This achievement has no other tickets.')).toBeVisible();
+    expect(screen.getByRole('link', { name: '3 other open tickets' })).toBeVisible();
     expect(screen.getByRole('heading', { level: 2, name: 'Comments' })).toBeVisible();
   });
 

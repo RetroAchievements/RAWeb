@@ -16,9 +16,10 @@ export function resolveInitialTicketListColumnFilters(
     return serverDefaultColumnFilters;
   }
 
-  const columnFilters: ColumnFiltersState = Object.entries(filterQuery).map(
-    ([filterKey, filterValue]) => ({ id: filterKey, value: [filterValue] }),
-  );
+  const offeredFilterIds = new Set(serverDefaultColumnFilters.map((filter) => filter.id));
+  const columnFilters: ColumnFiltersState = Object.entries(filterQuery)
+    .filter(([filterKey]) => offeredFilterIds.has(filterKey))
+    .map(([filterKey, filterValue]) => ({ id: filterKey, value: [filterValue] }));
 
   for (const defaultColumnFilter of serverDefaultColumnFilters) {
     const isAlreadySet = columnFilters.some((filter) => filter.id === defaultColumnFilter.id);

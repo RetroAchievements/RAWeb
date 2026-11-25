@@ -17,7 +17,6 @@ use App\Community\Commands\RefreshTicketSignalVerdicts;
 use App\Community\Commands\SendDailyDigest;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
-use App\Community\Components\MessageIcon;
 use App\Community\Components\UserCard;
 use App\Community\Components\UserProfileMeta;
 use App\Community\Components\UserProgressionStatus;
@@ -44,7 +43,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -107,8 +105,5 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('user-profile-meta', UserProfileMeta::class);
         Blade::component('user-progression-status', UserProgressionStatus::class);
         Blade::component('user-recently-played', UserRecentlyPlayed::class);
-
-        // TODO remove in favor of Inertia+React components
-        Livewire::component('message-icon', MessageIcon::class);
     }
 }

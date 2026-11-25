@@ -70,6 +70,8 @@ class BuildTicketShowPagePropsAction
         $canViewReporterHistory = $user->can('viewHistory', Ticket::class);
         $hasReporterHistoryAccess = $canViewReporterHistory && $ticket->reporter !== null;
 
+        $allowedTicketActions = $this->collectAllowedTicketActions($ticket, $user);
+
         $propsData = new TicketShowPagePropsData(
             ticket: $ticketEntry,
 
@@ -105,6 +107,9 @@ class BuildTicketShowPagePropsAction
                 $ticketViewService->relatedTickets,
             ),
 
+            siblingUnresolvedTicketCount: $ticketViewService->siblingUnresolvedTicketCount,
+            siblingResolvedTicketCount: $ticketViewService->siblingResolvedTicketCount,
+
             reporterGameTickets: $this->buildSameReporterTicketProps($ticketViewService, $ticket, $user),
 
             otherReporterGameTickets: Lazy::inertia(fn (): array => array_map(
@@ -122,6 +127,9 @@ class BuildTicketShowPagePropsAction
                 : null,
             logicChangedAfterReportAt: $ticketViewService->logicChangedAfterReportAt,
             recentOtherHashUnlockCount: $ticketViewService->recentOtherHashUnlockCount,
+            alreadyFixedEvidence: in_array(TicketAction::AlreadyFixed, $allowedTicketActions, true)
+                ? (new FindAlreadyFixedEvidenceAction())->execute($ticket)
+                : null,
 
             reportedTriggerVersion: $ticketViewService->reportedTriggerVersion,
             currentTriggerVersion: $ticketViewService->currentTriggerVersion,
@@ -136,7 +144,7 @@ class BuildTicketShowPagePropsAction
             ),
 
             changelog: (new BuildTicketChangelogAction())->execute($ticket),
-            allowedTicketActions: $this->collectAllowedTicketActions($ticket, $user),
+            allowedTicketActions: $allowedTicketActions,
 
             hasReporterHistoryAccess: $hasReporterHistoryAccess,
             reporterActivity: $hasReporterHistoryAccess ? $this->deferReporterActivity($ticket, $ticketable) : null,
