@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 
 <?php
 $me = Auth::user() ?? null;
+$user->loadMissing('roles');
 
 $hasVisibleRole = (
     $user->visible_role?->name
@@ -24,7 +25,7 @@ $hasVisibleRole = (
 
 $fullRolesLabel = null;
 if ($hasVisibleRole) {
-    $allDisplayableRoles = $user->displayableRoles->toArray();
+    $allDisplayableRoles = $user->roles->where('display', '>', 0)->toArray();
 
     if (count($allDisplayableRoles) >= 2) {
         $roleNames = array_map(fn ($role) => __('permission.role.' . $role['name']), $allDisplayableRoles);
