@@ -192,6 +192,37 @@ describe('Achievement Ticket Props', function () {
         );
     });
 
+    it('counts the other unresolved and resolved tickets for the same game', function () {
+        // ARRANGE
+        $game = createTicketShowPageGame();
+        $achievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $otherAchievement = Achievement::factory()->promoted()->create(['game_id' => $game->id]);
+        $leaderboard = Leaderboard::factory()->create(['game_id' => $game->id]);
+        $ticket = Ticket::factory()->forAchievement($achievement)->open()->create();
+
+        Ticket::factory()->forAchievement($otherAchievement)->open()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->request()->create();
+        Ticket::factory()->forLeaderboard($leaderboard)->open()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->resolved()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->closed()->create();
+        Ticket::factory()->forAchievement($otherAchievement)->quarantined()->create();
+
+        $otherGameAchievement = Achievement::factory()->promoted()->create(['game_id' => createTicketShowPageGame()->id]);
+        Ticket::factory()->forAchievement($otherGameAchievement)->open()->create();
+
+        actingAs(User::factory()->create());
+
+        // ACT
+        $response = get(route('ticket.show', ['ticket' => $ticket]));
+
+        // ASSERT
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->where('siblingUnresolvedTicketCount', 3)
+            ->where('siblingResolvedTicketCount', 1)
+        );
+    });
+
     it('given an active maintainer who is not the achievement developer, the maintainer is included', function () {
         // ARRANGE
         $developer = User::factory()->create();

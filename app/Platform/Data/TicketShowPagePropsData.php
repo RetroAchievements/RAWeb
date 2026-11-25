@@ -28,6 +28,8 @@ class TicketShowPagePropsData extends Data
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,
+        public int $siblingUnresolvedTicketCount,
+        public int $siblingResolvedTicketCount,
         /** @var TicketRelatedEntryData[] $reporterGameTickets */
         public array $reporterGameTickets,
         /** @var TicketRelatedEntryData[] $otherReporterGameTickets */

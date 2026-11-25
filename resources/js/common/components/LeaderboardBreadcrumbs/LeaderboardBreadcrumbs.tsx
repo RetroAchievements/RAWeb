@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { route } from 'ziggy-js';
 
 import type { TranslatedString } from '@/types/i18next';
@@ -14,12 +13,7 @@ import {
 } from '../+vendor/BaseBreadcrumb';
 import { GameTitle } from '../GameTitle';
 import { InertiaLink } from '../InertiaLink';
-
-/**
- * TODO this is intentionally quite duplicative with GameBreadcrumbs.
- * after the React code has matured a bit, settle on the correct
- * breadcrumbs abstraction to reduce this duplication.
- */
+import { RootBreadcrumbs } from '../RootBreadcrumbs';
 
 interface LeaderboardBreadcrumbsProps {
   t_currentPageLabel: TranslatedString;
@@ -27,6 +21,7 @@ interface LeaderboardBreadcrumbsProps {
   leaderboard?: App.Platform.Data.Leaderboard;
   game?: App.Platform.Data.Game;
   system?: App.Platform.Data.System;
+  shouldCollapseRootCrumbs?: boolean;
 }
 
 export const LeaderboardBreadcrumbs: FC<LeaderboardBreadcrumbsProps> = ({
@@ -34,37 +29,13 @@ export const LeaderboardBreadcrumbs: FC<LeaderboardBreadcrumbsProps> = ({
   game,
   system,
   t_currentPageLabel,
+  shouldCollapseRootCrumbs = false,
 }) => {
-  const { t } = useTranslation();
-
   return (
     <div className="navpath mb-3 hidden sm:block">
       <BaseBreadcrumb>
         <BaseBreadcrumbList>
-          <BaseBreadcrumbItem aria-label={t('All Games')}>
-            <BaseBreadcrumbLink asChild>
-              <InertiaLink href={route('game.index')} prefetch="desktop-hover-only">
-                {t('All Games')}
-              </InertiaLink>
-            </BaseBreadcrumbLink>
-          </BaseBreadcrumbItem>
-
-          {system ? (
-            <>
-              <BaseBreadcrumbSeparator />
-
-              <BaseBreadcrumbItem aria-label={system.name}>
-                <BaseBreadcrumbLink asChild>
-                  <InertiaLink
-                    href={route('system.game.index', system.id)}
-                    prefetch="desktop-hover-only"
-                  >
-                    {system.name}
-                  </InertiaLink>
-                </BaseBreadcrumbLink>
-              </BaseBreadcrumbItem>
-            </>
-          ) : null}
+          <RootBreadcrumbs system={system} isCollapsed={shouldCollapseRootCrumbs} />
 
           {game ? (
             <>

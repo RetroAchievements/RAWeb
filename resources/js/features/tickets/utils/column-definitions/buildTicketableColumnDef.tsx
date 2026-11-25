@@ -8,7 +8,6 @@ import { useCardTooltip } from '@/common/hooks/useCardTooltip';
 import { cn } from '@/common/utils/cn';
 import type { TranslatedString } from '@/types/i18next';
 
-import { TicketableTitleLink } from '../../components/TicketableTitleLink';
 import type { TicketListColumnDefinition } from '../../models';
 import { ticketListCellClassNames } from './ticketListCellClassNames';
 
@@ -45,11 +44,6 @@ const TicketableCell: FC<TicketableCellProps> = ({ entry, shouldShowGameTitle })
     dynamicId: entry.ticketableId,
   });
 
-  const { cardTooltipProps: gameCardTooltipProps } = useCardTooltip({
-    dynamicType: 'game',
-    dynamicId: entry.game.id,
-  });
-
   const isAchievement = entry.ticketableType === 'achievement';
 
   return (
@@ -58,6 +52,7 @@ const TicketableCell: FC<TicketableCellProps> = ({ entry, shouldShowGameTitle })
         <InertiaLink
           prefetch="desktop-hover-only"
           href={route('achievement.show', { achievement: entry.ticketableId })}
+          aria-label={entry.ticketableTitle}
           className={cn('flex-none', ticketListCellClassNames.entityLinkWrapper)}
           {...cardTooltipProps}
         >
@@ -74,24 +69,30 @@ const TicketableCell: FC<TicketableCellProps> = ({ entry, shouldShowGameTitle })
       ) : null}
 
       {!isAchievement ? (
-        <LuChartBar aria-hidden="true" className="size-6 flex-none text-link" />
+        <a
+          href={route('leaderboard.show', { leaderboard: entry.ticketableId })}
+          aria-label={entry.ticketableTitle}
+          className={cn('flex-none', ticketListCellClassNames.entityLinkWrapper)}
+        >
+          <LuChartBar aria-hidden="true" className="size-6 text-link" />
+        </a>
       ) : null}
 
       <div className="flex min-w-0 flex-col">
-        <TicketableTitleLink entry={entry} labelClassName="text-neutral-300" />
+        <span
+          className={cn(
+            'text-neutral-300 light:text-neutral-600',
+            ticketListCellClassNames.truncate,
+          )}
+        >
+          {entry.ticketableTitle}
+        </span>
 
         {shouldShowGameTitle ? (
-          <InertiaLink
-            prefetch="desktop-hover-only"
-            href={route('game.show', { game: entry.game.id })}
-            {...gameCardTooltipProps}
-            className={cn(
-              'truncate text-xs leading-tight text-neutral-400/90 hover:text-link light:text-neutral-600',
-              ticketListCellClassNames.entityLinkWrapper,
-            )}
-          >
-            <GameTitle title={entry.game.title} />
-          </InertiaLink>
+          <GameTitle
+            title={entry.game.title}
+            className="truncate text-xs leading-tight text-neutral-400/90 light:text-neutral-600"
+          />
         ) : null}
       </div>
     </div>

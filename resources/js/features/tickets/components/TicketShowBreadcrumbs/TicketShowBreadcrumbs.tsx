@@ -1,77 +1,44 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { route } from 'ziggy-js';
 
-import {
-  BaseBreadcrumb,
-  BaseBreadcrumbItem,
-  BaseBreadcrumbLink,
-  BaseBreadcrumbList,
-  BaseBreadcrumbPage,
-  BaseBreadcrumbSeparator,
-} from '@/common/components/+vendor/BaseBreadcrumb';
-import { GameTitle } from '@/common/components/GameTitle';
-import { InertiaLink } from '@/common/components/InertiaLink';
+import { AchievementBreadcrumbs } from '@/common/components/AchievementBreadcrumbs';
+import { LeaderboardBreadcrumbs } from '@/common/components/LeaderboardBreadcrumbs';
+import { usePageProps } from '@/common/hooks/usePageProps';
 
 import { buildAchievementTicketListHref } from '../../utils/buildAchievementTicketListHref';
 
-interface TicketShowBreadcrumbsProps {
-  ticket: App.Platform.Data.TicketListEntry;
-}
-
-export const TicketShowBreadcrumbs: FC<TicketShowBreadcrumbsProps> = ({ ticket }) => {
+export const TicketShowBreadcrumbs: FC = () => {
+  const { achievement, leaderboard, ticket } =
+    usePageProps<App.Platform.Data.TicketShowPageProps>();
   const { t } = useTranslation();
 
   const { game } = ticket;
-  const achievementTicketsHref = buildAchievementTicketListHref(ticket);
   const t_currentTicketCrumb = t('Ticket #{{ticketId}}', { ticketId: ticket.id });
 
+  if (leaderboard) {
+    return (
+      <LeaderboardBreadcrumbs
+        leaderboard={leaderboard}
+        game={game}
+        system={game.system}
+        shouldCollapseRootCrumbs={true}
+        t_currentPageLabel={t_currentTicketCrumb}
+      />
+    );
+  }
+
+  const achievementTicketsHref = buildAchievementTicketListHref(ticket);
+
   return (
-    <div className="navpath hidden sm:block">
-      <BaseBreadcrumb>
-        <BaseBreadcrumbList>
-          <BaseBreadcrumbItem>
-            <BaseBreadcrumbLink asChild>
-              <InertiaLink href={route('tickets.index')} prefetch="desktop-hover-only">
-                {t('Tickets')}
-              </InertiaLink>
-            </BaseBreadcrumbLink>
-          </BaseBreadcrumbItem>
-
-          <BaseBreadcrumbSeparator />
-
-          <BaseBreadcrumbItem aria-label={game.title}>
-            <BaseBreadcrumbLink asChild>
-              <InertiaLink
-                href={route('game.tickets', { game: game.id })}
-                prefetch="desktop-hover-only"
-              >
-                <GameTitle title={game.title} />
-              </InertiaLink>
-            </BaseBreadcrumbLink>
-          </BaseBreadcrumbItem>
-
-          <BaseBreadcrumbSeparator />
-
-          {achievementTicketsHref ? (
-            <>
-              <BaseBreadcrumbItem>
-                <BaseBreadcrumbLink asChild>
-                  <InertiaLink href={achievementTicketsHref} prefetch="desktop-hover-only">
-                    {ticket.ticketableTitle}
-                  </InertiaLink>
-                </BaseBreadcrumbLink>
-              </BaseBreadcrumbItem>
-
-              <BaseBreadcrumbSeparator />
-            </>
-          ) : null}
-
-          <BaseBreadcrumbItem aria-label={t_currentTicketCrumb}>
-            <BaseBreadcrumbPage>{t_currentTicketCrumb}</BaseBreadcrumbPage>
-          </BaseBreadcrumbItem>
-        </BaseBreadcrumbList>
-      </BaseBreadcrumb>
-    </div>
+    <AchievementBreadcrumbs
+      achievement={achievement ?? undefined}
+      game={game}
+      system={game.system}
+      parentPage={
+        achievementTicketsHref ? { href: achievementTicketsHref, t_label: t('Tickets') } : undefined
+      }
+      shouldCollapseRootCrumbs={true}
+      t_currentPageLabel={t_currentTicketCrumb}
+    />
   );
 };

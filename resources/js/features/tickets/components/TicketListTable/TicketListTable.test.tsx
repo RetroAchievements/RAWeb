@@ -409,7 +409,7 @@ describe('Component: TicketListTable', () => {
     expect(ticketLinks).toHaveLength(2);
   });
 
-  it('given an achievement ticket, links the badge and title to the achievement page', () => {
+  it('given an achievement ticket, links only the badge to the achievement page', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       ticketableType: 'achievement',
@@ -428,15 +428,22 @@ describe('Component: TicketListTable', () => {
     // ASSERT
     const linkEl = screen.getByRole('link', { name: 'Ring Collector' });
     expect(linkEl).toHaveAttribute('href', expect.stringContaining('achievement.show'));
+    expect(linkEl).toHaveAttribute(
+      'x-data',
+      expect.stringContaining("dynamicType: 'achievement', dynamicId: '777'"),
+    );
+    expect(within(linkEl).getByRole('presentation')).toHaveAttribute(
+      'src',
+      'https://example.com/badge.png',
+    );
     expect(route).toHaveBeenCalledWith('achievement.show', { achievement: 777 });
 
-    const badgeEls = screen
-      .getAllByRole('presentation')
-      .filter((el) => el.getAttribute('src') === 'https://example.com/badge.png');
-    expect(badgeEls).toHaveLength(2);
+    for (const titleEl of screen.getAllByText('Ring Collector')) {
+      expect(titleEl.closest('a')).toBeNull();
+    }
   });
 
-  it('given a leaderboard ticket, links its title', () => {
+  it('given a leaderboard ticket, links only its icon to the leaderboard page', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       ticketableType: 'leaderboard',
@@ -454,6 +461,9 @@ describe('Component: TicketListTable', () => {
     );
     expect(route).toHaveBeenCalledWith('leaderboard.show', { leaderboard: 88 });
     expect(screen.queryByRole('img', { name: 'Fastest lap' })).not.toBeInTheDocument();
+    for (const titleEl of screen.getAllByText('Fastest lap')) {
+      expect(titleEl.closest('a')).toBeNull();
+    }
   });
 
   it('given a reporter and a developer, both user cells link to the user page', () => {
@@ -511,10 +521,9 @@ describe('Component: TicketListTable', () => {
 
     // ASSERT
     expect(screen.getAllByText('Deleted user')).toHaveLength(2);
-    expect(screen.getAllByRole('link')).toHaveLength(5);
+    expect(screen.getAllByRole('link')).toHaveLength(3);
     expect(screen.getByRole('link', { name: 'Ticket #640' })).toBeVisible();
     expect(screen.getByRole('link', { name: '640' })).toBeVisible();
-    expect(screen.getByRole('link', { name: 'Some achievement' })).toBeVisible();
     expect(route).not.toHaveBeenCalledWith('user.show', expect.anything());
   });
 
@@ -591,7 +600,7 @@ describe('Component: TicketListTable', () => {
     expect(within(closedRow).getByText('Unable to reproduce')).toBeVisible();
   });
 
-  it('given a game, links its title beneath the issue title', () => {
+  it('given a game, shows its title beneath the issue title as plain text', () => {
     // ARRANGE
     const ticket = createTicketListEntry({
       game: createGame({
@@ -611,13 +620,9 @@ describe('Component: TicketListTable', () => {
     );
 
     // ASSERT
-    const linkEl = screen.getByRole('link', { name: /sonic the hedgehog/i });
-    expect(linkEl).toHaveAttribute('href', expect.stringContaining('game.show'));
-    expect(route).toHaveBeenCalledWith('game.show', { game: 1234 });
-    expect(linkEl).toHaveAttribute(
-      'x-data',
-      expect.stringContaining("dynamicType: 'game', dynamicId: '1234'"),
-    );
+    expect(screen.getAllByText('Sonic the Hedgehog')[0]).toBeVisible();
+    expect(screen.queryByRole('link', { name: /sonic the hedgehog/i })).not.toBeInTheDocument();
+    expect(route).not.toHaveBeenCalledWith('game.show', expect.anything());
   });
 
   it('given the id column is hidden, the state glyph leads the row and a ticket label stands in for the ID', () => {
