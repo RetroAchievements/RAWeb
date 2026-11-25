@@ -40,7 +40,7 @@ $hubs = request()->query('hubs');
 if (!empty($sort) || !empty($hubs)) {
     $hubIds = array_map('intval', str_getcsv($hubs ?? ''));
     $sorts = str_getcsv($sort ?? 'series,releasedAt,title');
-    $sortedGameAwardGameIds = (new SortGamesIntoHubsAction()->execute($gameAwardGameIds, $hubIds, $sorts));
+    $sortedGameAwardGameIds = (new SortGamesIntoHubsAction()->execute($gameAwardGameIds, $hubIds, $sorts, $targetUser));
 
     usort($gameAwards, function ($a, $b) use ($sortedGameAwardGameIds) {
         $indexA = array_search($a['AwardData'], $sortedGameAwardGameIds);
@@ -134,10 +134,12 @@ function postAllAwardsDisplayOrder(awards) {
             $sorts = [
                 'title' => 'Alphabetically',
                 'series,title,releasedAt' => 'Alphabetically, group series first',
-                'releasedAt' => 'Oldest first',
-                'series,releasedAt' => 'Oldest first, group series first',
-                '-releasedAt' => 'Newest first',
-                'series,-releasedAt' => 'Newest first, group series first',
+                'releasedAt' => 'Oldest release first',
+                'series,releasedAt' => 'Oldest release first, group series first',
+                '-releasedAt' => 'Newest release first',
+                'series,-releasedAt' => 'Newest release first, group series first',
+                'earnedAt' => 'Oldest earned first',
+                '-earnedAt' => 'Newest earned first',
             ];
 
             $sortOptions = '';

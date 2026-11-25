@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Platform\Actions;
 
+use App\Community\Enums\AwardType;
 use App\Models\Game;
 use App\Models\GameRelease;
 use App\Models\GameSet;
 use App\Models\GameSetGame;
+use App\Models\PlayerBadge;
+use App\Models\User;
 use App\Platform\Enums\GameSetType;
 use App\Platform\Enums\ReleasedAtGranularity;
 
 class SortGamesIntoHubsAction
 {
-    public function execute(array $gameIds, array $hubIds, array $sorts): array
+    public function execute(array $gameIds, array $hubIds, array $sorts, ?User $user = null): array
     {
         $remainingGameIds = $gameIds;
         $sortedGameIds = [];
@@ -81,8 +84,23 @@ class SortGamesIntoHubsAction
             }
         }
 
+        // If sorting by earn date, fetch the earn dates for each game.
+        $this->badgeDates = [];
+        if ($user && (in_array('earnedAt', $sorts) || in_array('-earnedAt', $sorts))) {
+            $awards = PlayerBadge::select('award_key', 'awarded_at')
+                ->where('user_id', $user->id)
+                ->whereIn('award_key', $gameIds)
+                ->where('award_type', AwardType::Mastery)
+                ->orderByDesc('awarded_at')
+                ->toBase()
+                ->get();
+            foreach ($awards as $award) {
+                $this->badgeDates[$award->award_key] = $award->awarded_at;
+            }
+        }
+
         // If a series hub is explicitly in the hubs list, extract the games from that hub
-        // so they don't get greedily grabed by a genre hub first.
+        // so they don't get greedily grabbed by a genre hub first.
         $seriesGameIds = [];
         foreach ($hubIds as $hubId) {
             if (in_array($hubId, $this->seriesHubIds)) {
@@ -180,6 +198,24 @@ class SortGamesIntoHubsAction
 
                         if ($releasedAtA !== $releasedAtB) {
                             return $releasedAtB <=> $releasedAtA;
+                        }
+                        break;
+
+                    case 'earnedAt':
+                        $earnedAtA = $this->badgeDates[$a] ?? '9999-99-99';
+                        $earnedAtB = $this->badgeDates[$b] ?? '9999-99-99';
+
+                        if ($earnedAtA !== $earnedAtB) {
+                            return $earnedAtA <=> $earnedAtB;
+                        }
+                        break;
+
+                    case '-earnedAt':
+                        $earnedAtA = $this->badgeDates[$a] ?? '9999-99-99';
+                        $earnedAtB = $this->badgeDates[$b] ?? '9999-99-99';
+
+                        if ($earnedAtA !== $earnedAtB) {
+                            return $earnedAtB <=> $earnedAtA;
                         }
                         break;
                 }
