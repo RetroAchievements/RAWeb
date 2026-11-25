@@ -368,16 +368,23 @@ class Ticket extends BaseModel
      * @param Builder<Ticket> $query
      * @return Builder<Ticket>
      */
-    public function scopeForMaintainer(Builder $query, User $user): Builder
+    public function scopeForDeveloperAtTicketCreation(Builder $query, User $user): Builder
     {
+        $coversTicketCreation = fn (Builder $maintainerQuery) => $maintainerQuery
+            ->whereColumn('achievement_maintainers.effective_from', '<=', 'tickets.created_at')
+            ->where(fn (Builder $untilQuery) => $untilQuery
+                ->whereNull('achievement_maintainers.effective_until')
+                ->orWhereColumn('achievement_maintainers.effective_until', '>', 'tickets.created_at')
+            );
+
         return $query->whereHasMorph(
             'ticketable',
             [Achievement::class, Leaderboard::class],
             fn (Builder $morphQuery, string $ticketableType) => match ($ticketableType) {
                 Achievement::class => $morphQuery->where(fn (Builder $achievementQuery) => $achievementQuery
-                    ->whereHas('activeMaintainer', fn (Builder $maintainerQuery) => $maintainerQuery->where('user_id', $user->id))
+                    ->whereHas('maintainers', fn (Builder $maintainerQuery) => $coversTicketCreation($maintainerQuery)->where('user_id', $user->id))
                     ->orWhere(fn (Builder $unmaintainedQuery) => $unmaintainedQuery
-                        ->whereDoesntHave('activeMaintainer')
+                        ->whereDoesntHave('maintainers', $coversTicketCreation)
                         ->where('user_id', $user->id)
                     )
                 ),

@@ -46,6 +46,7 @@ export const DescriptionField: FC = () => {
                   'Be as descriptive as possible. Give exact steps to reproduce the issue. Consider linking to a save state.',
                 )}
                 minRows={10}
+                rows={10}
                 maxLength={2000}
                 className={cn(baseTextareaClassNames, 'w-full')}
                 {...field}

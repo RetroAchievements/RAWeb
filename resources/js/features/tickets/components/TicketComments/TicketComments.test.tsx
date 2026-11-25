@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
 import { createAuthenticatedUser } from '@/common/models';
-import { render, screen, within } from '@/test';
+import { act, render, screen, waitFor, within } from '@/test';
 import { createComment, createTicketListEntry, createUser } from '@/test/factories';
 
 import { TicketComments } from './TicketComments';
@@ -345,7 +345,72 @@ describe('Component: TicketComments', () => {
       commentableId: 777,
       commentableType: 'trigger.ticket.comment',
     });
-    expect(reloadSpy).toHaveBeenCalledWith();
+    expect(reloadSpy).toHaveBeenCalledWith({ onFinish: expect.any(Function) });
+  });
+
+  it('given the user submits a comment, does not race on the reloaded comments', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockResolvedValueOnce({ success: true });
+    const reloadSpy = vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: [],
+        can: { createTicketComments: true },
+        comments: [],
+        changelog: [],
+        ticket: createTicketListEntry({ id: 777 }),
+      },
+    });
+
+    await userEvent.type(screen.getByRole('textbox'), 'I was using the US version.');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(reloadSpy).toHaveBeenCalled();
+    });
+    expect(screen.getByRole('textbox')).toHaveValue('I was using the US version.');
+    expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
+
+    // ACT
+    const { onFinish } = reloadSpy.mock.calls[0][0]!;
+    act(() => {
+      onFinish!({} as never);
+    });
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('textbox')).toHaveValue('');
+    });
+  });
+
+  it('given the comment submit fails, lets the user submit again', async () => {
+    // ARRANGE
+    vi.spyOn(axios, 'post').mockRejectedValueOnce(new Error('Network Error'));
+    const reloadSpy = vi.spyOn(router, 'reload').mockImplementation(vi.fn());
+
+    render<App.Platform.Data.TicketShowPageProps>(<TicketComments />, {
+      pageProps: {
+        auth: { user: createAuthenticatedUser() },
+        allowedTicketActions: [],
+        can: { createTicketComments: true },
+        comments: [],
+        changelog: [],
+        ticket: createTicketListEntry({ id: 777 }),
+      },
+    });
+
+    // ACT
+    await userEvent.type(screen.getByRole('textbox'), 'I was using the US version.');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+
+    // ASSERT
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /submit/i })).toBeEnabled();
+    });
+    expect(screen.getByRole('textbox')).toHaveValue('I was using the US version.');
+    expect(reloadSpy).not.toHaveBeenCalled();
   });
 
   it('given the user deletes a comment, makes the API call and reloads the page client-side', async () => {
@@ -380,6 +445,6 @@ describe('Component: TicketComments', () => {
       'api.ticket.comment.destroy',
       { ticket: 777, comment: 31 },
     ]);
-    expect(reloadSpy).toHaveBeenCalledWith();
+    expect(reloadSpy).toHaveBeenCalledWith({ onFinish: expect.any(Function) });
   });
 });
