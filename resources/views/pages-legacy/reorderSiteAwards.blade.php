@@ -129,6 +129,37 @@ function postAllAwardsDisplayOrder(awards) {
     }
 
     if (!empty($gameAwards)) {
+        $headerContent = '';
+        if (count($gameAwards) >= 20) {
+            $sorts = [
+                'title' => 'Alphabetically',
+                'series,title,releasedAt' => 'Alphabetically, group series first',
+                'releasedAt' => 'Oldest first',
+                'series,releasedAt' => 'Oldest first, group series first',
+                '-releasedAt' => 'Newest first',
+                'series,-releasedAt' => 'Newest first, group series first',
+            ];
+
+            $sortOptions = '';
+            foreach ($sorts as $sortKey => $label) {
+                $sortOptions .= '<option value="' . $sortKey . '"';
+                if ($sort === $sortKey) {
+                    $sortOptions .= ' selected';
+                }
+                $sortOptions .= '>' . $label . '</option>';
+            }
+
+            $headerContent = <<<EOS
+                <form>
+                    <label for="sort" class="ml-2">Sort:</label>
+                    <select name="sort">{$sortOptions}</select>
+                    <label for="hubs" class="ml-2">Prioritize hubs:</label>
+                    <input name="hubs" type="text" placeholder="CSV of hub IDs" class="input" value="{$hubs}" />
+                    <button class="btn ml-2" type="submit">Apply</button>
+                </form>
+            EOS;
+        }
+
         RenderAwardOrderTable(
             "Game Awards",
             $gameAwards,
@@ -140,6 +171,7 @@ function postAllAwardsDisplayOrder(awards) {
             $eventData,
             $eventAwardData,
             $badgeCounts,
+            $headerContent,
         );
     }
 

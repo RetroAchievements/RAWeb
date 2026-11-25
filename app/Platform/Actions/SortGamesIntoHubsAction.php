@@ -18,6 +18,8 @@ class SortGamesIntoHubsAction
         $remainingGameIds = $gameIds;
         $sortedGameIds = [];
 
+        // Identify all of the hubs associated to the game list. Create a mapping
+        // of hub IDs -> list of games in hub.
         $this->hubGameIds = GameSetGame::select('game_set_id', 'game_id')
             ->whereIn('game_id', $gameIds)
             ->whereHas('gameSet', function ($query) {
@@ -28,17 +30,29 @@ class SortGamesIntoHubsAction
             ->mapToGroups(fn ($item) => [$item->game_set_id => $item->game_id])
             ->toArray();
 
+        // Determine which of the above hubs are series/subseries hubs.
+        // Store the values in order by sort_title so we can sort by series.
         $this->seriesHubIds = GameSet::select('id')
             ->whereIn('id', array_keys($this->hubGameIds))
             ->where(function ($query) {
                 $query->where('title', 'LIKE', '[Series - %')
                       ->orWhere('title', 'LIKE', '[Subseries - %');
             })
-            ->orderBy('sort_title')
+            ->orderByRaw('SUBSTRING(sort_title, LOCATE("-", sort_title) + 2)')
             ->toBase()
             ->pluck('id')
             ->toArray();
 
+        // For any games in a series/subseries hub, create an inverse map from the game ID to the hub.
+        $this->gameSeries = [];
+        foreach ($this->seriesHubIds as $seriesHubId) {
+            foreach ($this->hubGameIds[$seriesHubId] as $gameId) {
+                $this->gameSeries[$gameId] ??= $seriesHubId;
+            }
+        }
+        $this->seriesHubIds[] = 0; // games without a series always sort last
+
+        // Get the alphabetical order of the requested games so we can do alphabetical sorting.
         $this->gameTitleOrder = Game::select('id')
             ->whereIn('id', $gameIds)
             ->orderBy('sort_title')
@@ -46,14 +60,8 @@ class SortGamesIntoHubsAction
             ->pluck('id')
             ->toArray();
 
-        $this->gameSeries = [];
-        foreach ($this->seriesHubIds as $seriesHubId) {
-            foreach ($this->hubGameIds[$seriesHubId] as $gameId) {
-                $this->gameSeries[$gameId] = $seriesHubId;
-            }
-        }
-        $this->seriesHubIds[] = 0; // games without a series always sort last
-
+        // If sorting by release date, fetch the oldest release date for each game.
+        // Items without a release date will default to '9999-99-99' when sorting.
         $this->releaseDates = [];
         if (in_array('releasedAt', $sorts) || in_array('-releasedAt', $sorts)) {
             $releases = GameRelease::select('game_id', 'released_at', 'released_at_granularity')
@@ -73,7 +81,8 @@ class SortGamesIntoHubsAction
             }
         }
 
-        // if a series hub is explicitly in the list, keep those items grouped together
+        // If a series hub is explicitly in the hubs list, extract the games from that hub
+        // so they don't get greedily grabed by a genre hub first.
         $seriesGameIds = [];
         foreach ($hubIds as $hubId) {
             if (in_array($hubId, $this->seriesHubIds)) {
@@ -85,22 +94,28 @@ class SortGamesIntoHubsAction
             }
         }
 
+        // Process the hubs list. If the hub is a series, just use the games in the hub.
+        // Otherwise, if any games in the hub belong to a series and series is a subsort,
+        // pull the rest of the series in so they all get grouped together.
+        $hasSeriesSort = in_array('series', $sorts);
         foreach ($hubIds as $hubId) {
             $hubGames = $seriesGameIds[$hubId] ?? [];
             if (empty($hubGames)) {
                 $hubGames = array_intersect($remainingGameIds, $this->hubGameIds[$hubId] ?? []);
-                $additionalHubGames = [];
-                foreach ($hubGames as $hubGame) {
-                    // if the game is in a series, pull in the rest of the series
-                    $seriesId = $this->gameSeries[$hubGame] ?? 0;
-                    if ($seriesId > 0 && !in_array($seriesId, $seriesGameIds)) {
-                        $additionalGames = array_intersect($remainingGameIds, $this->hubGameIds[$seriesId] ?? []);
-                        $additionalHubGames = array_merge($additionalHubGames, $additionalGames);
-                        $remainingGameIds = array_diff($remainingGameIds, $additionalGames);
+                if ($hasSeriesSort) {
+                    $additionalHubGames = [];
+                    foreach ($hubGames as $hubGame) {
+                        // If the game is in a series, pull in the rest of the series.
+                        $seriesId = $this->gameSeries[$hubGame] ?? 0;
+                        if ($seriesId > 0 && !in_array($seriesId, $seriesGameIds)) {
+                            $additionalGames = array_intersect($remainingGameIds, $this->hubGameIds[$seriesId] ?? []);
+                            $additionalHubGames = array_merge($additionalHubGames, $additionalGames);
+                            $remainingGameIds = array_diff($remainingGameIds, $additionalGames);
+                        }
                     }
-                }
-                if (!empty($additionalHubGames)) {
-                    $hubGames = array_merge($hubGames, $additionalHubGames);
+                    if (!empty($additionalHubGames)) {
+                        $hubGames = array_merge($hubGames, $additionalHubGames);
+                    }
                 }
             }
 
@@ -110,6 +125,7 @@ class SortGamesIntoHubsAction
             }
         }
 
+        // Process anything that wasn't handled by the hubs list.
         if (!empty($remainingGameIds)) {
             $sortedGameIds = array_merge($sortedGameIds, $this->sortGames($remainingGameIds, $sorts));
         }
