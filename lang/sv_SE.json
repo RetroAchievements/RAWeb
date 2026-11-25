@@ -1424,7 +1424,7 @@
     "Regenerating secret...": "Genererar om hemlighet …",
     "The old secret will stop working immediately. This cannot be undone.": "Den gamla hemligheten blir omedelbart obrukbar. Detta kan inte ångras.",
     "Update the application name and redirect URI.": "Uppdatera programnamnet och omdirigerings-URI:n.",
-    "https://example.com/oauth/callback": "https://exempel.se/oauth/callback",
+    "https://example.com/oauth/callback": "https://example.com/oauth/callback",
     "View the people you follow and the people who follow you": "Visa personerna du följer och dem som följer dig",
     "View your personal game lists, such as Want to Play and Want to Develop": "Visa dina personliga spellistor, till exempel Vill spela och Vill utveckla",
     "Ticket Manager": "Biljetthanterare",
