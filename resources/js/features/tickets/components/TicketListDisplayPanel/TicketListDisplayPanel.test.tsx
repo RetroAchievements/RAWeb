@@ -24,7 +24,10 @@ function renderTicketListDisplayPanel(overrides: Partial<TicketListDisplayPanelP
   const props: TicketListDisplayPanelProps = {
     columnDefinitions,
     columnVisibility: defaultColumnVisibility,
+    groupField: 'none',
+    groupFields: ['game'],
     hasColumnVisibilityOverrides: false,
+    onGroupChange: vi.fn(),
     onResetDisplay: vi.fn(),
     onSortChange: vi.fn(),
     onToggleColumn: vi.fn(),
@@ -106,6 +109,47 @@ describe('Component: TicketListDisplayPanel', () => {
     expect(screen.getByRole('button', { name: 'Open first' })).toBeVisible();
     rerender(<TicketListDisplayPanel {...props} sortParam="-state" />);
     expect(screen.getByRole('button', { name: 'Closed first' })).toBeVisible();
+  });
+
+  it('given the user picks a grouping, passes it on without changing the sort', async () => {
+    // ARRANGE
+    const onGroupChange = vi.fn();
+    const onSortChange = vi.fn();
+    renderTicketListDisplayPanel({ onGroupChange, onSortChange });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Group by' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Game' }));
+
+    // ASSERT
+    expect(onGroupChange).toHaveBeenCalledWith('game');
+    expect(onSortChange).not.toHaveBeenCalled();
+  });
+
+  it('given the scope offers no grouping, does not show the group control', async () => {
+    // ARRANGE
+    renderTicketListDisplayPanel({ groupFields: [] });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+
+    // ASSERT
+    expect(screen.queryByRole('combobox', { name: 'Group by' })).not.toBeInTheDocument();
+  });
+
+  it('given grouping is enabled, marks the display as changed', async () => {
+    // ARRANGE
+    const onResetDisplay = vi.fn();
+    renderTicketListDisplayPanel({ groupField: 'game', onResetDisplay });
+
+    // ACT
+    await userEvent.click(screen.getByRole('button', { name: 'Display' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Reset to defaults' }));
+
+    // ASSERT
+    expect(screen.getByTestId('display-changed-dot')).toBeInTheDocument();
+    expect(onResetDisplay).toHaveBeenCalledOnce();
   });
 
   it('given a column is hidden, marks its control as unpressed', async () => {

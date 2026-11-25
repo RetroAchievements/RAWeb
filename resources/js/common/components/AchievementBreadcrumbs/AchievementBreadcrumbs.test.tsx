@@ -161,4 +161,25 @@ describe('Component: AchievementBreadcrumbs', () => {
     expect(hackEl).toBeVisible();
     expect(hackEl.nodeName).toEqual('SPAN');
   });
+
+  it('given a parent page, links it between the achievement and the current page', () => {
+    // ARRANGE
+    const achievement = createAchievement({ title: 'Some Achievement' });
+
+    render(
+      <AchievementBreadcrumbs
+        t_currentPageLabel={'Ticket #57' as TranslatedString}
+        achievement={achievement}
+        parentPage={{ href: '/achievement/1/tickets', t_label: i18n.t('Tickets') }}
+      />,
+    );
+
+    // ASSERT
+    const linkTexts = screen.getAllByRole('link').map((linkEl) => linkEl.textContent);
+    expect(linkTexts).toEqual(['All Games', 'Some Achievement', 'Tickets']);
+    expect(screen.getByRole('link', { name: 'Tickets' })).toHaveAttribute(
+      'href',
+      '/achievement/1/tickets',
+    );
+  });
 });

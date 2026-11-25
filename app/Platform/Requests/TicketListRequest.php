@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Platform\Requests;
 
+use App\Platform\Enums\TicketListGroupField;
 use App\Platform\Enums\TicketListScope;
 use App\Platform\Enums\TicketListSortField;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TicketListRequest extends FormRequest
 {
@@ -27,6 +29,7 @@ class TicketListRequest extends FormRequest
         return [
             'page.number' => 'sometimes|integer|min:1',
             'sort' => 'sometimes|string|in:' . implode(',', $sortValues),
+            'group' => ['sometimes', 'string', Rule::enum(TicketListGroupField::class)],
         ];
     }
 
@@ -69,6 +72,14 @@ class TicketListRequest extends FormRequest
         ];
     }
 
+    public function getGroupField(): TicketListGroupField
+    {
+        return
+            $this->normalizeGroupField($this->input('group'))
+            ?? $this->normalizeGroupField($this->getCookiePreferences()['groupField'] ?? null)
+            ?? TicketListGroupField::None;
+    }
+
     private function normalizeSortParam(mixed $sortParam): ?string
     {
         if (!is_string($sortParam) || $sortParam === '') {
@@ -83,5 +94,13 @@ class TicketListRequest extends FormRequest
         }
 
         return $isDescending ? "-{$fieldValue}" : $fieldValue;
+    }
+
+    private function normalizeGroupField(mixed $groupValue): ?TicketListGroupField
+    {
+        $groupField = is_string($groupValue) ? TicketListGroupField::tryFrom($groupValue) : null;
+        $allowedGroupFields = [TicketListGroupField::None, ...$this->getScope()->groupFields()];
+
+        return in_array($groupField, $allowedGroupFields, true) ? $groupField : null;
     }
 }

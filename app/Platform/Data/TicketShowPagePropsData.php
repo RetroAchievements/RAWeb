@@ -28,6 +28,8 @@ class TicketShowPagePropsData extends Data
         public UserPermissionsData $can,
         /** @var TicketRelatedEntryData[] $relatedTickets */
         public array $relatedTickets,
+        public int $siblingUnresolvedTicketCount,
+        public int $siblingResolvedTicketCount,
         /** @var TicketRelatedEntryData[] $reporterGameTickets */
         public array $reporterGameTickets,
         /** @var TicketRelatedEntryData[] $otherReporterGameTickets */
@@ -36,6 +38,7 @@ class TicketShowPagePropsData extends Data
         public ?int $unlocksSinceReported,
         public ?int $recentOtherHashUnlockCount,
         public ?Carbon $logicChangedAfterReportAt,
+        public ?TicketAlreadyFixedEvidenceData $alreadyFixedEvidence,
         public ?int $reportedTriggerVersion,
         public ?int $currentTriggerVersion,
         public ?LeaderboardEntryData $reporterLeaderboardEntry,

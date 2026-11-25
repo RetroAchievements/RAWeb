@@ -16,12 +16,15 @@ interface UseTicketListTableRootOptions {
   scope: App.Platform.Enums.TicketListScope;
   stateCounts: App.Platform.Data.TicketListStateCounts;
   targetParams: Record<string, number>;
+
+  grouping?: App.Platform.Data.TicketListGrouping | null;
 }
 
 export function useTicketListTableRoot({
   serverDefaultColumnFilters,
   serverDefaultSortParam,
   facetCounts,
+  grouping,
   paginatedTickets,
   scope,
   stateCounts,
@@ -30,10 +33,12 @@ export function useTicketListTableRoot({
   const {
     columnFilters,
     columnVisibilityOverrides,
+    groupField,
     pageNumber,
     restoreState,
     setColumnFilters,
     setColumnVisibilityOverrides,
+    setGroupField,
     setPageNumber,
     setSortParam,
     sortParam,
@@ -59,11 +64,13 @@ export function useTicketListTableRoot({
   const resetDisplay = () => {
     setColumnVisibilityOverrides({});
     setSortParam(serverDefaultSortParam);
+    setGroupField('none');
   };
 
   useTicketListTableSync({
     columnFilters,
     columnVisibilityOverrides,
+    groupField,
     serverDefaultColumnFilters,
     serverDefaultSortParam,
     pageNumber,
@@ -73,7 +80,8 @@ export function useTicketListTableRoot({
 
   const ticketListQuery = useTicketListPaginatedQuery({
     columnFilters,
-    initialData: { facetCounts, paginatedTickets, stateCounts },
+    groupField,
+    initialData: { facetCounts, grouping, paginatedTickets, stateCounts },
     pageNumber,
     scope,
     sortParam,
@@ -83,9 +91,11 @@ export function useTicketListTableRoot({
   return {
     ticketListTableProps: {
       columnFilters,
+      groupField,
       resetDisplay,
       serverDefaultSortParam,
       setColumnFilters,
+      setGroupField,
       setPageNumber,
       setSortParam,
       sortParam,

@@ -3,13 +3,13 @@ import { Trans, useTranslation } from 'react-i18next';
 import {
   LuArrowUpRight,
   LuCode,
+  LuGamepad2,
   LuHash,
   LuInfo,
   LuLock,
   LuLockOpen,
   LuMessageCircleQuestion,
   LuShieldAlert,
-  LuTickets,
   LuTrophy,
 } from 'react-icons/lu';
 
@@ -20,10 +20,10 @@ import { getIsTicketStateFinished } from '@/common/utils/getIsTicketStateFinishe
 
 import { TICKET_STATE_GLYPHS } from '../../utils/ticketStateGlyphs';
 import { TicketFactRow } from '../TicketFactRow';
+import { TicketGameTicketsFact } from '../TicketGameTicketsFact';
 import { TicketLeaderboardEntryFact } from '../TicketLeaderboardEntryFact';
 import { TicketLogicChangedFact } from '../TicketLogicChangedFact';
 import { TicketOutcomeFact } from '../TicketOutcomeFact';
-import { TicketRelatedFact } from '../TicketRelatedFact';
 import { TicketReporterNoUnlockFact } from '../TicketReporterNoUnlockFact';
 import { TicketReporterUnlockFact } from '../TicketReporterUnlockFact';
 import { TicketSignalVerdictFact } from '../TicketSignalVerdictFact';
@@ -39,10 +39,11 @@ export const TicketFactsList: FC = () => {
     leaderboardEntryCount,
     logicChangedAfterReportAt,
     recentOtherHashUnlockCount,
-    relatedTickets,
     reportedTriggerVersion,
     reporterLeaderboardEntry,
     reporterUnlock,
+    siblingResolvedTicketCount,
+    siblingUnresolvedTicketCount,
     ticket,
     unlocksSinceReported,
   } = usePageProps<App.Platform.Data.TicketShowPageProps>();
@@ -66,7 +67,7 @@ export const TicketFactsList: FC = () => {
   return (
     <ul
       className={cn(
-        'flex flex-col divide-y divide-neutral-700 rounded-lg border border-neutral-700',
+        'flex flex-col divide-y divide-neutral-700 rounded-lg border border-neutral-700 empty:hidden',
         'bg-embed light:divide-neutral-200 light:border-neutral-200 light:bg-white',
       )}
     >
@@ -149,9 +150,15 @@ export const TicketFactsList: FC = () => {
         </TicketFactRow>
       ) : null}
 
-      <TicketFactRow Icon={LuTickets}>
-        <TicketRelatedFact relatedTickets={relatedTickets} ticket={ticket} />
-      </TicketFactRow>
+      {siblingUnresolvedTicketCount ? (
+        <TicketFactRow Icon={LuGamepad2}>
+          <TicketGameTicketsFact
+            gameId={ticket.game.id}
+            resolvedCount={siblingResolvedTicketCount}
+            unresolvedCount={siblingUnresolvedTicketCount}
+          />
+        </TicketFactRow>
+      ) : null}
 
       {hasLogicChangedSinceReport ? (
         <TicketFactRow Icon={LuCode}>

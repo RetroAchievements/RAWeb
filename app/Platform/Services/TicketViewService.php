@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Platform\Services;
 
+use App\Community\Enums\TicketState;
 use App\Models\Achievement;
 use App\Models\Game;
 use App\Models\Leaderboard;
@@ -14,6 +15,7 @@ use App\Models\Trigger;
 use App\Platform\Actions\FindUnlocksOnlyOnOtherHashesAction;
 use App\Platform\Actions\ResolveTicketUnlockWindowsAction;
 use App\Platform\Enums\TicketableType;
+use App\Platform\Enums\TicketListStatusFilter;
 use App\Platform\Enums\TriggerableType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -29,6 +31,8 @@ class TicketViewService
     public array $relatedTickets = [];
     /** @var Ticket[] */
     public array $reporterGameTickets = [];
+    public int $siblingUnresolvedTicketCount = 0;
+    public int $siblingResolvedTicketCount = 0;
     public ?PlayerAchievement $existingUnlock = null;
     public ?LeaderboardEntry $reporterLeaderboardEntry = null;
     public ?int $reportedTriggerVersion = null;
@@ -62,7 +66,21 @@ class TicketViewService
             ->get()
             ->all();
 
-        $this->reporterGameTickets = $this->collectSameReporterTickets($ticket, $ticketable->getTicketableGame());
+        $ticketableGame = $ticketable->getTicketableGame();
+
+        $this->reporterGameTickets = $this->collectSameReporterTickets($ticket, $ticketableGame);
+
+        $siblingTicketCountsByState = Ticket::forGame($ticketableGame)
+            ->where('id', '!=', $ticket->id)
+            ->toBase()
+            ->selectRaw('state, count(*) as aggregate')
+            ->groupBy('state')
+            ->pluck('aggregate', 'state');
+
+        $countForFilter = fn (TicketListStatusFilter $filter): int => (int) collect($filter->states())
+            ->sum(fn (TicketState $state): int => (int) $siblingTicketCountsByState->get($state->value, 0));
+        $this->siblingUnresolvedTicketCount = $countForFilter(TicketListStatusFilter::Unresolved);
+        $this->siblingResolvedTicketCount = $countForFilter(TicketListStatusFilter::Resolved);
 
         $this->unlocksSinceReported = 0;
         $this->logicChangedAfterReportAt = null;
