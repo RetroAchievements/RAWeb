@@ -34,7 +34,8 @@ class DisallowAnimatedImageRule implements ValidationRule
 
         $mimeType = $value->getMimeType();
         if (
-            ($mimeType === 'image/png' && $this->isAnimatedPng($content))
+            $mimeType === 'image/apng'
+            || ($mimeType === 'image/png' && $this->isAnimatedPng($content))
             || ($mimeType === 'image/webp' && $this->isAnimatedWebp($content))
         ) {
             $fail('Animated images are not allowed. Please upload a static image.');

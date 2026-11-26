@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permissions;
+use App\Platform\Actions\SortGamesIntoHubsAction;
 use App\Models\GameBadge;
 use App\Models\User;
 
@@ -33,6 +34,24 @@ $badgeCounts = empty($gameAwardGameIds) ? [] : GameBadge::query()
     ->groupBy('game_id')
     ->pluck('aggregate', 'game_id')
     ->all();
+
+$sort = request()->query('sort');
+$hubs = request()->query('hubs');
+if (!empty($sort) || !empty($hubs)) {
+    $hubs = preg_replace('/[^0-9,]/', '', $hubs ?? ''); // strip anything that's not a number or comma
+
+    $hubIds = array_map('intval', str_getcsv($hubs ?? ''));
+    $sorts = str_getcsv($sort ?? 'series,releasedAt,title');
+    $sortedGameAwardGameIds = (new SortGamesIntoHubsAction()->execute($gameAwardGameIds, $hubIds, $sorts, $targetUser));
+
+    usort($gameAwards, function ($a, $b) use ($sortedGameAwardGameIds) {
+        $indexA = array_search($a['AwardData'], $sortedGameAwardGameIds);
+        $indexB = array_search($b['AwardData'], $sortedGameAwardGameIds);
+
+        return $indexA <=> $indexB;
+    });
+}
+
 ?>
 <x-app-layout pageTitle="Reorder Site Awards">
 <script>
@@ -112,6 +131,40 @@ function postAllAwardsDisplayOrder(awards) {
     }
 
     if (!empty($gameAwards)) {
+        $headerContent = '';
+        if (count($gameAwards) >= 20) {
+            $sorts = [
+                'title' => 'Alphabetically',
+                'series,title,releasedAt' => 'Alphabetically, group series first',
+                'releasedAt' => 'Oldest release first',
+                'series,releasedAt' => 'Oldest release first, group series first',
+                '-releasedAt' => 'Newest release first',
+                'series,-releasedAt' => 'Newest release first, group series first',
+                'earnedAt' => 'Oldest earned first',
+                '-earnedAt' => 'Newest earned first',
+            ];
+
+            $sortOptions = '';
+            foreach ($sorts as $sortKey => $label) {
+                $sortOptions .= '<option value="' . $sortKey . '"';
+                if ($sort === $sortKey) {
+                    $sortOptions .= ' selected';
+                }
+                $sortOptions .= '>' . $label . '</option>';
+            }
+
+            $escapedHubs = e($hubs);
+            $headerContent = <<<EOS
+                <form>
+                    <label for="sort" class="ml-2">Sort:</label>
+                    <select name="sort">{$sortOptions}</select>
+                    <label for="hubs" class="ml-2">Prioritize hubs:</label>
+                    <input name="hubs" type="text" placeholder="CSV of hub IDs" class="input" value="{$escapedHubs}" />
+                    <button class="btn ml-2" type="submit">Apply</button>
+                </form>
+            EOS;
+        }
+
         RenderAwardOrderTable(
             "Game Awards",
             $gameAwards,
@@ -123,6 +176,7 @@ function postAllAwardsDisplayOrder(awards) {
             $eventData,
             $eventAwardData,
             $badgeCounts,
+            $headerContent,
         );
     }
 

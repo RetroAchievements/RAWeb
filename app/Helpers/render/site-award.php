@@ -448,6 +448,7 @@ function RenderAwardOrderTable(
     Collection $eventData,
     SupportCollection $eventAwardData,
     array $badgeCounts = [],
+    string $headerContent = '',
 ): void {
     // "Game Awards" -> "game"
     $humanReadableAwardKind = strtolower(strtok($title, " "));
@@ -464,6 +465,12 @@ function RenderAwardOrderTable(
     }
     echo "</select>";
     echo "</div>";
+
+    if (!empty($headerContent)) {
+        echo "<div class='flex w-full items-center justify-between'>";
+        echo $headerContent;
+        echo "</div>";
+    }
 
     echo "<table id='$humanReadableAwardKind-reorder-table' class='mb-8'>";
 
