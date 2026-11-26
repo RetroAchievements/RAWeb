@@ -38,6 +38,8 @@ $badgeCounts = empty($gameAwardGameIds) ? [] : GameBadge::query()
 $sort = request()->query('sort');
 $hubs = request()->query('hubs');
 if (!empty($sort) || !empty($hubs)) {
+    $hubs = preg_replace('/[^0-9,]/', '', $hubs); // strip anything that's not a number or comma
+
     $hubIds = array_map('intval', str_getcsv($hubs ?? ''));
     $sorts = str_getcsv($sort ?? 'series,releasedAt,title');
     $sortedGameAwardGameIds = (new SortGamesIntoHubsAction()->execute($gameAwardGameIds, $hubIds, $sorts, $targetUser));
@@ -151,12 +153,13 @@ function postAllAwardsDisplayOrder(awards) {
                 $sortOptions .= '>' . $label . '</option>';
             }
 
+            $escapedHubs = e($hubs);
             $headerContent = <<<EOS
                 <form>
                     <label for="sort" class="ml-2">Sort:</label>
                     <select name="sort">{$sortOptions}</select>
                     <label for="hubs" class="ml-2">Prioritize hubs:</label>
-                    <input name="hubs" type="text" placeholder="CSV of hub IDs" class="input" value="{$hubs}" />
+                    <input name="hubs" type="text" placeholder="CSV of hub IDs" class="input" value="{$escapedHubs}" />
                     <button class="btn ml-2" type="submit">Apply</button>
                 </form>
             EOS;

@@ -16,6 +16,13 @@ use App\Platform\Enums\ReleasedAtGranularity;
 
 class SortGamesIntoHubsAction
 {
+    protected array $hubGameIds;
+    protected array $seriesHubIds;
+    protected array $gameSeries;
+    protected array $gameTitleOrder;
+    protected array $releaseDates;
+    protected array $badgeDates;
+
     public function execute(array $gameIds, array $hubIds, array $sorts, ?User $user = null): array
     {
         $remainingGameIds = $gameIds;
@@ -193,8 +200,8 @@ class SortGamesIntoHubsAction
                         break;
 
                     case '-releasedAt':
-                        $releasedAtA = $this->releaseDates[$a] ?? '9999-99-99';
-                        $releasedAtB = $this->releaseDates[$b] ?? '9999-99-99';
+                        $releasedAtA = $this->releaseDates[$a] ?? '0000-00-00';
+                        $releasedAtB = $this->releaseDates[$b] ?? '0000-00-00';
 
                         if ($releasedAtA !== $releasedAtB) {
                             return $releasedAtB <=> $releasedAtA;
@@ -211,8 +218,8 @@ class SortGamesIntoHubsAction
                         break;
 
                     case '-earnedAt':
-                        $earnedAtA = $this->badgeDates[$a] ?? '9999-99-99';
-                        $earnedAtB = $this->badgeDates[$b] ?? '9999-99-99';
+                        $earnedAtA = $this->badgeDates[$a] ?? '0000-00-00';
+                        $earnedAtB = $this->badgeDates[$b] ?? '0000-00-00';
 
                         if ($earnedAtA !== $earnedAtB) {
                             return $earnedAtB <=> $earnedAtA;
