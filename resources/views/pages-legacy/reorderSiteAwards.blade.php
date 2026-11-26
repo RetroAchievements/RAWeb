@@ -38,7 +38,7 @@ $badgeCounts = empty($gameAwardGameIds) ? [] : GameBadge::query()
 $sort = request()->query('sort');
 $hubs = request()->query('hubs');
 if (!empty($sort) || !empty($hubs)) {
-    $hubs = preg_replace('/[^0-9,]/', '', $hubs); // strip anything that's not a number or comma
+    $hubs = preg_replace('/[^0-9,]/', '', $hubs ?? ''); // strip anything that's not a number or comma
 
     $hubIds = array_map('intval', str_getcsv($hubs ?? ''));
     $sorts = str_getcsv($sort ?? 'series,releasedAt,title');
