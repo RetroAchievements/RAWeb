@@ -102,7 +102,7 @@ it('queues the first inactivity finding for full developers', function (): void 
     });
 });
 
-it('ignores root and banned users who have a developer role', function (): void {
+it('ignores root, team, and banned accounts that have a developer role', function (): void {
     // Arrange
     Carbon::setTestNow(Carbon::parse('2026-05-08 12:00:00'));
 
@@ -110,6 +110,9 @@ it('ignores root and banned users who have a developer role', function (): void 
 
     $root = createDeveloperForInactivityTest($inactiveAttributes);
     $root->assignRole(Role::ROOT);
+
+    $teamAccount = createDeveloperForInactivityTest($inactiveAttributes);
+    $teamAccount->assignRole(Role::TEAM_ACCOUNT);
 
     createDeveloperForInactivityTest(array_merge($inactiveAttributes, [
         'banned_at' => Carbon::now()->subDay(),
