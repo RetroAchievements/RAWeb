@@ -72,7 +72,7 @@ class TicketSchema extends Schema
 
     public function id(): ID
     {
-        return ID::make()->matchAs('[^/]+')->sortable();
+        return ID::make()->sortable();
     }
 
     public function fields(): array

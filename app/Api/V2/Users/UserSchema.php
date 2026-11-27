@@ -77,7 +77,7 @@ class UserSchema extends Schema
         return [
             // Use a permissive pattern to accept ULID, display_name, or username.
             // The actual lookup is handled by UserRepository using FindUserByIdentifierAction.
-            ID::make('ulid')->matchAs('[^/]+'),
+            ID::make('ulid')->matchAs('[^\/]+'),
 
             Str::make('displayName', 'display_name')->readOnly(),
 

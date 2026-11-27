@@ -133,6 +133,39 @@ class TicketsTest extends TestCase
         $this->assertEquals($expected, $ids);
     }
 
+    public function testItFiltersByCommaSeparatedIds(): void
+    {
+        // Arrange
+        User::factory()->create(['web_api_key' => 'test-key']);
+        ['achievement' => $achievement, 'ticketAuthor' => $author] = $this->makeGameContext();
+
+        $firstTicket = Ticket::factory()->forAchievement($achievement)->open()->create(['assignee_id' => $author->id]);
+        $secondTicket = Ticket::factory()->forAchievement($achievement)->open()->create(['assignee_id' => $author->id]);
+        Ticket::factory()->forAchievement($achievement)->open()->create(['assignee_id' => $author->id]);
+
+        // Act
+        $singleIdResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets?filter[id]={$firstTicket->id}");
+
+        $multipleIdsResponse = $this->jsonApi('v2')
+            ->expects('tickets')
+            ->withHeader('X-API-Key', 'test-key')
+            ->get("/api/v2/tickets?filter[id]={$firstTicket->id},{$secondTicket->id}");
+
+        // Assert
+        $singleIdResponse->assertSuccessful();
+        $singleIdResponse->assertFetchedMany([
+            ['type' => 'tickets', 'id' => (string) $firstTicket->id],
+        ]);
+
+        $multipleIdsResponse->assertSuccessful();
+        $ids = collect($multipleIdsResponse->json('data'))->pluck('id')->sort()->values()->all();
+        $expected = collect([$firstTicket->id, $secondTicket->id])->map(fn ($id) => (string) $id)->sort()->values()->all();
+        $this->assertEquals($expected, $ids);
+    }
+
     public function testItRejectsMalformedGameIdFilter(): void
     {
         // Arrange
