@@ -62,7 +62,7 @@ class UserFollowSchema extends Schema
     public function fields(): array
     {
         return [
-            ID::make()->matchAs('[^/]+'),
+            ID::make(),
 
             DateTime::make('followedAt', 'created_at')->sortable()->readOnly(),
 
