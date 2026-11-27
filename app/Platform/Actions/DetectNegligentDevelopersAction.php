@@ -82,6 +82,11 @@ class DetectNegligentDevelopersAction
                 ->whereColumn('comments.user_id', 'tickets.assignee_id')
                 ->where('created_at', '>=', Carbon::now()->subDays(self::UNADDRESSED_AFTER_DAYS))
             )
+            ->whereDoesntHave('auditLog', fn (Builder $query) => $query
+                ->where('event', 'updated')
+                ->where('properties->attributes->state', TicketState::Open->value)
+                ->where('created_at', '>=', Carbon::now()->subDays(self::UNADDRESSED_AFTER_DAYS))
+            )
             ->with([
                 'assignee',
                 'ticketable' => fn (MorphTo $morphTo) => $morphTo->morphWith([Achievement::class => ['activeMaintainer']]),

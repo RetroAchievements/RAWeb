@@ -12,7 +12,6 @@ use App\Models\System;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Platform\Actions\DetectNegligentDevelopersAction;
-use App\Platform\Enums\TicketableType;
 use App\Support\Alerts\Jobs\SendAlertWebhookJob;
 use App\Support\Alerts\TicketNegligenceAlert;
 use Database\Seeders\RolesTableSeeder;
@@ -20,6 +19,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
+use Spatie\Activitylog\Models\Activity;
 
 uses(RefreshDatabase::class);
 
@@ -179,4 +179,29 @@ it('given a recent comment from someone other than the assignee, still considers
     // Assert
     expect($findingsCount)->toBe(1);
     expect(getPostedNegligenceEntries()[0]['displayName'])->toBe('QuietDev');
+});
+
+it('given a ticket that returned to open recently, does not post', function (): void {
+    // Arrange
+    $developer = createDeveloperForNegligenceTest();
+    $achievement = createAchievementForNegligenceTest($developer);
+    $ticket = createTicketForNegligenceTest($achievement, $developer, ageInDays: 95);
+    createTicketCommentForNegligenceTest($ticket, $developer, ageInDays: 30);
+
+    Activity::create([
+        'log_name' => 'default',
+        'description' => 'updated',
+        'event' => 'updated',
+        'subject_type' => $ticket->getMorphClass(),
+        'subject_id' => $ticket->id,
+        'properties' => ['old' => ['state' => TicketState::Request->value], 'attributes' => ['state' => TicketState::Open->value]],
+        'created_at' => Carbon::now()->subDays(2),
+    ]);
+
+    // Act
+    $findingsCount = (new DetectNegligentDevelopersAction())->execute();
+
+    // Assert
+    expect($findingsCount)->toBe(0);
+    Queue::assertNotPushed(SendAlertWebhookJob::class);
 });
