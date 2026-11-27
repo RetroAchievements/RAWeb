@@ -15,6 +15,7 @@ use App\Community\Commands\MigrateTicketCommentMetadata;
 use App\Community\Commands\ProcessExpiredMutes;
 use App\Community\Commands\RefreshTicketSignalVerdicts;
 use App\Community\Commands\SendDailyDigest;
+use App\Community\Commands\SyncAotwWinnerDiscordRoles;
 use App\Community\Components\DeveloperGameStatsTable;
 use App\Community\Components\ForumRecentActivity;
 use App\Community\Components\UserCard;
@@ -61,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
                 ProcessExpiredMutes::class,
                 RefreshTicketSignalVerdicts::class,
                 SendDailyDigest::class,
+                SyncAotwWinnerDiscordRoles::class,
                 UpdateGameActivitySnapshots::class,
             ]);
         }
@@ -69,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
 
+            $schedule->command(SyncAotwWinnerDiscordRoles::class)->everyFifteenMinutes()->withoutOverlapping();
             $schedule->command(UpdateGameActivitySnapshots::class)->everyFifteenMinutes()->withoutOverlapping();
             $schedule->command(CloseUnansweredTickets::class)->daily();
             $schedule->command(ExpireTicketClaims::class)->daily();
