@@ -37,6 +37,7 @@ use App\Platform\Commands\BackfillReplacedGameScreenshotAttributionCommand;
 use App\Platform\Commands\BuildAchievementAnnualRarity;
 use App\Platform\Commands\CheckDeveloperInactivity;
 use App\Platform\Commands\CheckForAchievementSetChanges;
+use App\Platform\Commands\CheckTicketNegligence;
 use App\Platform\Commands\ConvertGameToEvent;
 use App\Platform\Commands\CrawlPlayerWeightedPoints;
 use App\Platform\Commands\CreateAchievementOfTheWeek;
@@ -167,6 +168,7 @@ class AppServiceProvider extends ServiceProvider
                 // Developer
                 BackfillAuthorYieldUnlocks::class,
                 CheckDeveloperInactivity::class,
+                CheckTicketNegligence::class,
                 ProcessExpiringClaims::class,
                 UpdateDeveloperContributionYield::class,
 
@@ -197,6 +199,7 @@ class AppServiceProvider extends ServiceProvider
             $schedule->command(PruneGameRecentPlayers::class)->daily();
             $schedule->command(CheckDeveloperInactivity::class)->daily();
             $schedule->command(CheckForAchievementSetChanges::class)->daily();
+            $schedule->command(CheckTicketNegligence::class)->daily();
             $schedule->command(UpdateMinimumEmulatorVersions::class)->daily();
 
             $schedule->command(DeleteStalePlayerPointsStatsEntries::class)->weekly();

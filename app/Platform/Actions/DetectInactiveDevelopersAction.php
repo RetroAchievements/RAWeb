@@ -39,7 +39,7 @@ class DetectInactiveDevelopersAction
         $developers = User::query()
             ->whereNull('banned_at')
             ->whereHas('roles', fn (Builder $query) => $query->where('name', Role::DEVELOPER))
-            ->whereDoesntHave('roles', fn (Builder $query) => $query->where('name', Role::ROOT))
+            ->whereDoesntHave('roles', fn (Builder $query) => $query->whereIn('name', [Role::ROOT, Role::TEAM_ACCOUNT]))
             ->orderBy('display_name')
             ->get();
 

@@ -114,6 +114,7 @@ return [
             'set_claim_change' => env('DISCORD_WEBHOOK_ALERT_SET_CLAIM_CHANGE'),
             'suspicious_beat_time' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_BEAT_TIME'),
             'suspicious_connect_warning' => env('DISCORD_WEBHOOK_ALERT_SUSPICIOUS_CONNECT_WARNING'),
+            'ticket_negligence' => env('DISCORD_WEBHOOK_ALERT_TICKET_NEGLIGENCE'),
             'watched_term' => env('DISCORD_WEBHOOK_ALERT_WATCHED_TERM'),
         ],
     ],
